@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الحساب قيد الانتظار</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; }
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; width: 100%; }
+        h2 { color: #dc2626; margin-bottom: 15px; }
+        p { color: #4b5563; font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+        .btn-container { display: flex; gap: 10px; justify-content: center; flex-direction: column; }
+        .btn { display: inline-block; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .btn-whatsapp { background-color: #25d366; color: white; }
+        .btn-whatsapp:hover { background-color: #20ba5a; }
+        .btn-logout { background-color: #4f46e5; color: white; }
+        .btn-logout:hover { background-color: #4338ca; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>الحساب غير مفعل</h2>
+        <p>عفواً، حسابك قيد الانتظار ولم يتم تفعيله بعد. يرجى التواصل مع الإدارة عبر الواتساب وسداد الاشتراك ليتم تفعيل حسابك فوراً.</p>
+        
+        <div class="btn-container">
+            <!-- ضع رقم الواتساب الخاص بك هنا بصيغة دولية بدون علامة + (مثال: 201234567890) -->
+            <a href="https://wa.me/201004585453?text=مرحباً، أرغب في تفعيل حسابي في نظام إدارة المحلات" target="_blank" class="btn btn-whatsapp">تواصل عبر الواتساب للتفعيل</a>
+            <a href="login.html" class="btn btn-logout" onclick="localStorage.removeItem('user');">تسجيل الخروج</a>
+        </div>
+    </div>
+
+</body>
+</html>

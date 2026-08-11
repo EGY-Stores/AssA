@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - نظام إدارة المحلات</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #1f2937; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #4b5563; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+        input:focus { outline: none; border-color: #4f46e5; }
+        .btn { width: 100%; background-color: #4f46e5; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; }
+        .btn:hover { background-color: #4338ca; }
+        .error-msg { background-color: #fee2e2; color: #dc2626; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; display: none; text-align: center; }
+        .signup-link { text-align: center; margin-top: 15px; font-size: 13px; color: #6b7280; }
+        .signup-link a { color: #4f46e5; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>تسجيل دخول المحل</h2>
+        <div id="loginError" class="error-msg"></div>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="loginEmail" required placeholder="admin@store.com">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="loginPassword" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn">دخول</button>
+        </form>
+
+        <div class="signup-link">
+            ليس لديك حساب؟ <a href="signup.html">إنشاء حساب جديد</a>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.style.display = 'none';
+
+            // 1. محاولة تسجيل الدخول عبر Supabase Auth
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                errorDiv.style.display = 'block';
+                errorDiv.innerText = 'خطأ في البريد أو كلمة المرور: ' + error.message;
+                return;
+            }
+
+            const userId = data.user.id;
+
+            // 2. التحقق من حالة الاشتراك الخاصة بالمحل من جدول subscriptions
+            const { data: subData, error: subError } = await supabaseClient
+                .from('subscriptions')
+                .select('status')
+                .eq('user_id', userId)
+                .single();
+
+            if (subError || !subData) {
+                errorDiv.style.display = 'block';
+                errorDiv.innerText = 'لم يتم العثور على بيانات الاشتراك لهذا الحساب.';
+                await supabaseClient.auth.signOut(); // تسجيل الخروج لو ملوش سجل
+                return;
+            }
+
+            // 3. التحقق هل الحساب مفعل (active) أم لا (inactive)
+            if (subData.status === 'active') {
+                alert('مرحباً بك! تم تسجيل الدخول بنجاح.');
+                window.location.href = 'store-dashboard.html'; // صفحة لوحة تحكم التاجر الخاصة بمحله
+            } else {
+                errorDiv.style.display = 'block';
+                errorDiv.innerText = 'حسابك في انتظار تفعيل الإدارة. برجاء الانتظار.';
+                await supabaseClient.auth.signOut(); // منع الدخول لو غير مفعل
+            }
+        }
+    </script>
+</body>
+</html>

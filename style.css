@@ -1,0 +1,17 @@
+:root { --primary: #4f46e5; --secondary: #10b981; --bg: #f3f4f6; --text: #1f2937; }
+body { font-family: 'Cairo', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+.container { max-width: 1200px; margin: auto; }
+header { text-align: center; margin-bottom: 40px; }
+.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+.card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 30px; }
+h2 { margin-top: 0; font-size: 1.5rem; color: var(--primary); }
+input, select { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
+.row-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; color: white; transition: 0.3s; }
+.btn-main { background: var(--secondary); }
+.btn-save { background: var(--primary); }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th { background: #f9fafb; padding: 20px; text-align: right; border-bottom: 2px solid #e5e7eb; }
+td { padding: 20px; border-bottom: 1px solid #e5e7eb; }
+.btn-edit { background: #f59e0b; padding: 8px 16px; border-radius: 6px; color: white; border: none; cursor: pointer; margin-left: 5px; }
+.btn-delete { background: #ef4444; padding: 8px 16px; border-radius: 6px; color: white; border: none; cursor: pointer; }

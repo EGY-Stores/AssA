@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>نظام إدارة المحلات - SaaS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // التحقق من الجلسة وحماية الصفحة
+        const user = localStorage.getItem('user');
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>نظام إدارة المبيعات والمخزن</h1>
+                <p>لوحة التحكم الاحترافية للمحلات</p>
+            </div>
+            <button onclick="logout()" style="width: auto; padding: 10px 20px; background: #ef4444;">تسجيل الخروج</button>
+        </header>
+
+        <div class="main-grid">
+            <!-- شاشة الكاشير -->
+            <section class="card pos-section">
+                <h2>🛒 نقطة البيع</h2>
+                <div class="form-group">
+                    <label>اختر المنتج</label>
+                    <select id="selectProduct"><option value="">-- اختر منتج --</option></select>
+                </div>
+                <div class="form-group">
+                    <label>الكمية</label>
+                    <input type="number" id="saleQty" value="1" min="1">
+                </div>
+                <button class="btn-main" onclick="checkout()">إتمام عملية البيع</button>
+            </section>
+
+            <!-- إضافة أو تعديل منتج -->
+            <section class="card">
+                <h2 id="formTitle">📦 إضافة منتج جديد</h2>
+                <input type="hidden" id="editProductId">
+                <input type="text" id="pName" placeholder="اسم المنتج">
+                <input type="text" id="pBarcode" placeholder="الباركود">
+                <div class="row-inputs">
+                    <input type="number" id="pBuy" placeholder="سعر الشراء">
+                    <input type="number" id="pSell" placeholder="سعر البيع">
+                </div>
+                <input type="number" id="pQty" placeholder="الكمية المتاحة">
+                <button class="btn-save" id="saveBtn" onclick="saveProduct()">حفظ المنتج في المخزن</button>
+            </section>
+        </div>
+
+        <!-- جدول المخزن مع البحث -->
+        <section class="card table-section">
+            <h2>📊 المخزون الحالي</h2>
+            <input type="text" id="searchBox" placeholder="🔍 بحث عن منتج بالاسم أو الباركود..." onkeyup="filterProducts()">
+            <table>
+                <thead>
+                    <tr><th>اسم المنتج</th><th>الباركود</th><th>سعر البيع</th><th>الكمية</th><th>الإجراءات</th></tr>
+                </thead>
+                <tbody id="productsTableBody"></tbody>
+            </table>
+        </section>
+
+        <!-- سجل الفواتير -->
+        <section class="card table-section">
+            <h2>🧾 سجل الفواتير ومبيعات اليوم</h2>
+            <table>
+                <thead>
+                    <tr><th>رقم الفاتورة</th><th>إجمالي المبلغ</th><th>الربح المحقق</th><th>الوقت والتاريخ</th></tr>
+                </thead>
+                <tbody id="invoicesTableBody"></tbody>
+            </table>
+        </section>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

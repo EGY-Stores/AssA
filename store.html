@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر التاجر</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --success: #25d366; /* لون الواتساب الجذاب */
+            --success-dark: #128c7e;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 40px 20px; display: flex; justify-content: center; }
+        
+        .container { max-width: 1100px; width: 100%; }
+        
+        /* هيدر المتجر */
+        .store-header { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; padding: 40px 30px; border-radius: 20px; text-align: center; margin-bottom: 40px; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2); }
+        .store-header h1 { font-size: 32px; margin-bottom: 10px; font-weight: 700; }
+        .store-header p { font-size: 16px; opacity: 0.9; }
+
+        /* شبكة المنتجات */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+        
+        /* كارت المنتج الخيالي */
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08); }
+        
+        .card-img-container { width: 100%; height: 200px; background: #f1f5f9; overflow: hidden; position: relative; }
+        .card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .card:hover img { transform: scale(1.05); }
+        
+        .card-body { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; text-align: right; }
+        .card h3 { color: var(--text-main); margin-bottom: 8px; font-size: 18px; font-weight: 600; }
+        
+        .price-qty { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: auto; }
+        .price { color: #059669; font-weight: 700; font-size: 18px; }
+        .qty { font-size: 13px; color: var(--text-muted); background: #f1f5f9; padding: 4px 10px; border-radius: 20px; }
+
+        /* زرار الواتساب الخرافي */
+        .btn-whatsapp { background-color: var(--success); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25); }
+        .btn-whatsapp:hover { background-color: var(--success-dark); }
+        .btn-whatsapp:active { transform: scale(0.98); }
+        .btn-whatsapp i { font-size: 18px; }
+
+        .message-box { text-align: center; grid-column: 1 / -1; padding: 50px; color: var(--text-muted); font-size: 16px; background: white; border-radius: 16px; border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- رأس المتجر -->
+        <div class="store-header">
+            <h1 id="storeTitle">متجر التاجر</h1>
+            <p>تصفح أحدث المنتجات المتاحة واطلبها مباشرة عبر الواتساب</p>
+        </div>
+        
+        <!-- المنتجات -->
+        <div class="grid" id="productsGrid">
+            <div class="message-box">جاري تحميل المنتجات...</div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const ownerId = urlParams.get('uid');
+
+        async function loadStoreFront() {
+            const grid = document.getElementById('productsGrid');
+
+            if (!ownerId) {
+                grid.innerHTML = '<div class="message-box" style="color: #dc2626;">عذراً، رابط المتجر غير صحيح أو غير موجود.</div>';
+                return;
+            }
+
+            // 1. جلب بيانات التاجر (عشان نجيب رقم الواتساب واسم المتجر)
+            const { data: subData } = await supabaseClient
+                .from('subscriptions')
+                .select('*')
+                .eq('user_id', ownerId)
+                .single();
+
+            let storeOwnerPhone = '';
+            if (subData) {
+                if (subData.email) {
+                    const storeName = subData.email.split('@')[0];
+                    document.getElementById('storeTitle').innerText = `متجر: ${storeName}`;
+                }
+                storeOwnerPhone = subData.phone || '';
+            }
+
+            // تنظيف رقم الهاتف لأجل رابط الواتساب (إزالة أي رموز غير أرقام مثل المسافات أو علامة + إن وجدت بشكل خاطئ)
+            storeOwnerPhone = storeOwnerPhone.replace(/\D/g, '');
+
+            // 2. جلب المنتجات الخاصة بمخزن هذا التاجر
+            const { data: products, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .eq('user_id', ownerId);
+
+            grid.innerHTML = '';
+
+            if (error || !products || products.length === 0) {
+                grid.innerHTML = '<div class="message-box">لا توجد منتجات مضافة في هذا المخزن حالياً.</div>';
+                return;
+            }
+
+            // 3. عرض المنتجات بشكل كروت خيالية مع زرار الواتساب
+            products.forEach(prod => {
+                // تجهيز رسالة الواتساب الجاهزة
+                const whatsappMessage = encodeURIComponent(`مرحباً، أريد طلب هذا المنتج:\n📦 *${prod.product_name}*\n💰 السعر: ${prod.price} جنيه\n\nهل هو متوفر؟`);
+                
+                // رابط الواتساب الموجه لرقم التاجر
+                const whatsappUrl = storeOwnerPhone 
+                    ? `https://wa.me/${storeOwnerPhone}?text=${whatsappMessage}` 
+                    : `#`;
+
+                const clickAction = storeOwnerPhone 
+                    ? `href="${whatsappUrl}" target="_blank"` 
+                    : `onclick="alert('عذراً، رقم هاتف التاجر غير متوفر حالياً.'); return false;"`;
+
+                grid.innerHTML += `
+                    <div class="card">
+                        <div class="card-img-container">
+                            <img src="${prod.image_url || 'https://via.placeholder.com/300?text=No+Image'}" alt="${prod.product_name}">
+                        </div>
+                        <div class="card-body">
+                            <h3>${prod.product_name}</h3>
+                            <div class="price-qty">
+                                <span class="price">${prod.price} جنيه</span>
+                                <span class="qty">متبقي: ${prod.quantity}</span>
+                            </div>
+                            <a ${clickAction} class="btn-whatsapp">
+                                <i class="fa-brands fa-whatsapp"></i> اطلب الآن عبر واتساب
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        loadStoreFront();
+    </script>
+</body>
+</html>

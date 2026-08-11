@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الأدمن - إدارة الاشتراكات</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+        body { background-color: #f3f4f6; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h2 { color: #1f2937; margin-bottom: 20px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border: 1px solid #e5e7eb; text-align: center; font-size: 14px; }
+        th { background-color: #f9fafb; color: #374151; }
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin: 2px; }
+        .btn-activate { background-color: #10b981; color: white; }
+        .btn-deactivate { background-color: #dc2626; color: white; }
+        .btn-delete { background-color: #6b7280; color: white; }
+        .badge-active { color: #059669; font-weight: bold; }
+        .badge-inactive { color: #dc2626; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>لوحة تحكم المشتركين (Admin Panel)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>البريد الإلكتروني</th>
+                    <th>رقم الهاتف</th>
+                    <th>حالة الاشتراك</th>
+                    <th>الإجراء</th>
+                    <th>حذف</th>
+                </tr>
+            </thead>
+            <tbody id="subscriptionsTableBody">
+                <!-- سيتم تعبئة البيانات هنا -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function loadSubscriptions() {
+            const { data, error } = await supabaseClient
+                .from('subscriptions')
+                .select('*');
+
+            if (error) {
+                console.error('خطأ Supabase:', error);
+                return;
+            }
+
+            const tbody = document.getElementById('subscriptionsTableBody');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">لا توجد حسابات مسجلة حالياً</td></tr>';
+                return;
+            }
+
+            data.forEach(sub => {
+                const tr = document.createElement('tr');
+                const isActive = sub.status === 'active';
+                
+                tr.innerHTML = `
+                    <td style="font-weight: bold; color: #374151;">${sub.email || '---'}</td>
+                    <td style="direction: ltr; color: #374151;">${sub.phone || '---'}</td>
+                    <td><span class="${isActive ? 'badge-active' : 'badge-inactive'}">${sub.status.toUpperCase()}</span></td>
+                    <td>
+                        ${isActive 
+                            ? `<button class="btn btn-deactivate" onclick="updateStatus('${sub.user_id}', 'inactive')">إيقاف</button>` 
+                            : `<button class="btn btn-activate" onclick="updateStatus('${sub.user_id}', 'active')">تفعيل</button>`
+                        }
+                    </td>
+                    <td><button class="btn btn-delete" onclick="deleteSubscription('${sub.user_id}')">حذف</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function updateStatus(userId, newStatus) {
+            const { error } = await supabaseClient
+                .from('subscriptions')
+                .update({ status: newStatus })
+                .eq('user_id', userId);
+
+            if (error) alert('خطأ في التحديث: ' + error.message);
+            else loadSubscriptions();
+        }
+
+        async function deleteSubscription(userId) {
+            if (!confirm('هل أنت متأكد من حذف هذا المستخدم نهائياً؟')) return;
+
+            const { error } = await supabaseClient
+                .from('subscriptions')
+                .delete()
+                .eq('user_id', userId);
+
+            if (error) alert('خطأ في الحذف: ' + error.message);
+            else {
+                alert('تم حذف المستخدم');
+                loadSubscriptions();
+            }
+        }
+
+        loadSubscriptions();
+    </script>
+</body>
+</html>
