@@ -2,87 +2,263 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام إدارة المحلات - SaaS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شاشة الكاشير - POS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // التحقق من الجلسة وحماية الصفحة
-        const user = localStorage.getItem('user');
-        if (!user) {
-            window.location.href = 'login.html';
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #059669;
+            --danger: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
         }
-    </script>
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; }
+
+        .pos-layout { display: grid; grid-template-columns: 380px 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; height: calc(100vh - 40px); }
+        @media(max-width: 900px) { .pos-layout { grid-template-columns: 1fr; height: auto; } }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn-back { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; }
+
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; overflow-y: auto; padding: 5px; flex-grow: 1; }
+        
+        .product-item { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .product-item:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1); }
+        .product-item img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; }
+
+        .cart-items { flex-grow: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 15px; background: #f8fafc; }
+        .cart-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        
+        .btn-checkout { background: var(--success); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; }
+        .btn-checkout:hover { background: #047857; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h1>نظام إدارة المبيعات والمخزن</h1>
-                <p>لوحة التحكم الاحترافية للمحلات</p>
+
+    <div class="pos-layout">
+        <!-- فاتورة البيع (يمين) -->
+        <div class="card">
+            <div class="header-row">
+                <h3>فاتورة البيع الحالية</h3>
+                <button onclick="clearCart()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:13px;">إفراغ الفاتورة</button>
             </div>
-            <button onclick="logout()" style="width: auto; padding: 10px 20px; background: #ef4444;">تسجيل الخروج</button>
-        </header>
+            
+            <div class="cart-items" id="cartItemsContainer">
+                <p style="color:var(--text-muted); text-align:center; margin-top:40px;">السلة فارغة</p>
+            </div>
 
-        <div class="main-grid">
-            <!-- شاشة الكاشير -->
-            <section class="card pos-section">
-                <h2>🛒 نقطة البيع</h2>
-                <div class="form-group">
-                    <label>اختر المنتج</label>
-                    <select id="selectProduct"><option value="">-- اختر منتج --</option></select>
-                </div>
-                <div class="form-group">
-                    <label>الكمية</label>
-                    <input type="number" id="saleQty" value="1" min="1">
-                </div>
-                <button class="btn-main" onclick="checkout()">إتمام عملية البيع</button>
-            </section>
+            <div style="margin-bottom: 15px; display: flex; justify-content: space-between; font-size: 18px; font-weight: bold;">
+                <span>الإجمالي:</span>
+                <span id="cartTotal" style="color: var(--success);">0.00 ج.م</span>
+            </div>
 
-            <!-- إضافة أو تعديل منتج -->
-            <section class="card">
-                <h2 id="formTitle">📦 إضافة منتج جديد</h2>
-                <input type="hidden" id="editProductId">
-                <input type="text" id="pName" placeholder="اسم المنتج">
-                <input type="text" id="pBarcode" placeholder="الباركود">
-                <div class="row-inputs">
-                    <input type="number" id="pBuy" placeholder="سعر الشراء">
-                    <input type="number" id="pSell" placeholder="سعر البيع">
-                </div>
-                <input type="number" id="pQty" placeholder="الكمية المتاحة">
-                <button class="btn-save" id="saveBtn" onclick="saveProduct()">حفظ المنتج في المخزن</button>
-            </section>
+            <button onclick="checkout()" class="btn-checkout">إتمام البيع وخصم المخزون</button>
         </div>
 
-        <!-- جدول المخزن مع البحث -->
-        <section class="card table-section">
-            <h2>📊 المخزون الحالي</h2>
-            <input type="text" id="searchBox" placeholder="🔍 بحث عن منتج بالاسم أو الباركود..." onkeyup="filterProducts()">
-            <table>
-                <thead>
-                    <tr><th>اسم المنتج</th><th>الباركود</th><th>سعر البيع</th><th>الكمية</th><th>الإجراءات</th></tr>
-                </thead>
-                <tbody id="productsTableBody"></tbody>
-            </table>
-        </section>
+        <!-- اختيار المنتجات (يسار) -->
+        <div class="card">
+            <div class="header-row">
+                <h2>اختر المنتجات للبيع</h2>
+                <a href="store-dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-right"></i> لوحة التحكم</a>
+            </div>
 
-        <!-- سجل الفواتير -->
-        <section class="card table-section">
-            <h2>🧾 سجل الفواتير ومبيعات اليوم</h2>
-            <table>
-                <thead>
-                    <tr><th>رقم الفاتورة</th><th>إجمالي المبلغ</th><th>الربح المحقق</th><th>الوقت والتاريخ</th></tr>
-                </thead>
-                <tbody id="invoicesTableBody"></tbody>
-            </table>
-        </section>
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="searchBox" onkeyup="filterProducts()" placeholder="ابحث باسم المنتج..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;">
+            </div>
+
+            <div class="products-grid" id="posProductsContainer">
+                <p style="color:var(--text-muted); text-align:center; grid-column:span 3;">جاري تحميل المنتجات...</p>
+            </div>
+        </div>
     </div>
-    <script src="app.js"></script>
+
     <script>
-        function logout() {
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
+        const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUserId = '';
+        let cart = [];
+        let productsList = [];
+
+        async function initPOS() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            currentUserId = session.user.id;
+            loadPOSProducts();
         }
+
+        async function loadPOSProducts() {
+            const { data } = await supabaseClient.from('products').select('*').eq('user_id', currentUserId);
+            productsList = data || [];
+            displayProducts(productsList);
+        }
+
+        function displayProducts(items) {
+            const container = document.getElementById('posProductsContainer');
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; grid-column:span 3; margin-top:20px;">لا توجد منتجات بالمخزن</p>';
+                return;
+            }
+
+            items.forEach(p => {
+                const pName = p.product_name || p.name;
+                const pPrice = p.sell_price !== undefined ? p.sell_price : (p.price || 0);
+                const pStock = p.stock !== undefined ? p.stock : (p.quantity || 0);
+                const pImg = p.image || p.image_url || 'https://via.placeholder.com/150';
+
+                container.innerHTML += `
+                    <div class="product-item" onclick="addToCart('${p.id}')">
+                        <img src="${pImg}" onerror="this.src='https://via.placeholder.com/150'">
+                        <h4 style="font-size:14px; margin-bottom:4px;">${pName}</h4>
+                        <p style="color:var(--primary); font-weight:bold; font-size:13px; margin-bottom:4px;">${pPrice} ج.م</p>
+                        <p style="font-size:11px; color:var(--text-muted);">متبقي: ${pStock}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('searchBox').value.toLowerCase();
+            const filtered = productsList.filter(p => {
+                const name = (p.product_name || p.name || '').toLowerCase();
+                return name.includes(query);
+            });
+            displayProducts(filtered);
+        }
+
+        function addToCart(productId) {
+            const product = productsList.find(p => p.id == productId);
+            if (!product) return;
+
+            const pStock = product.stock !== undefined ? product.stock : product.quantity;
+            if (pStock <= 0) {
+                alert('هذا المنتج نفذ من المخزن!');
+                return;
+            }
+
+            const existing = cart.find(item => item.id == productId);
+            if (existing) {
+                if (existing.quantity < pStock) {
+                    existing.quantity++;
+                } else {
+                    alert('الكمية المطلوبة تتجاوز المتاح في المخزن!');
+                }
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.product_name || product.name,
+                    price: product.sell_price !== undefined ? product.sell_price : product.price,
+                    quantity: 1,
+                    maxStock: pStock
+                });
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            const cartContainer = document.getElementById('cartItemsContainer');
+            const totalElement = document.getElementById('cartTotal');
+            cartContainer.innerHTML = '';
+            
+            let total = 0;
+
+            if (cart.length === 0) {
+                cartContainer.innerHTML = '<p style="color:var(--text-muted); text-align:center; margin-top:40px;">السلة فارغة</p>';
+                totalElement.innerText = '0.00 ج.م';
+                return;
+            }
+
+            cart.forEach((item, index) => {
+                total += item.price * item.quantity;
+                cartContainer.innerHTML += `
+                    <div class="cart-row">
+                        <div>
+                            <h5 style="font-size:13px; margin-bottom:2px;">${item.name}</h5>
+                            <span style="font-size:11px; color:var(--text-muted);">${item.price} ج.م</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <button onclick="changeQty(${index}, 1)" style="padding:2px 8px; cursor:pointer; background:#f1f5f9; border:1px solid var(--border); border-radius:4px;">+</button>
+                            <span style="font-size:13px; font-weight:bold;">${item.quantity}</span>
+                            <button onclick="changeQty(${index}, -1)" style="padding:2px 8px; cursor:pointer; background:#f1f5f9; border:1px solid var(--border); border-radius:4px;">-</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            totalElement.innerText = total.toFixed(2) + ' ج.م';
+        }
+
+        function changeQty(index, delta) {
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            } else if (cart[index].quantity > cart[index].maxStock) {
+                cart[index].quantity = cart[index].maxStock;
+                alert('الكمية وصلت للحد الأقصى بالمخزن');
+            }
+            renderCart();
+        }
+
+        function clearCart() {
+            cart = [];
+            renderCart();
+        }
+
+        async function checkout() {
+            if (cart.length === 0) {
+                alert('السلة فارغة!');
+                return;
+            }
+
+            let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // 1. حفظ الفاتورة في جدول المبيعات (orders)
+            const { error: orderError } = await supabaseClient
+                .from('orders')
+                .insert([{
+                    user_id: currentUserId,
+                    total_amount: totalAmount,
+                    items: cart
+                }]);
+
+            if (orderError) {
+                alert('خطأ أثناء حفظ الفاتورة: ' + orderError.message);
+                return;
+            }
+
+            // 2. خصم الكمية المباعة من جدول المنتجات
+            for (let item of cart) {
+                const newStock = item.maxStock - item.quantity;
+                const { error: stockError } = await supabaseClient
+                    .from('products')
+                    .update({ stock: newStock, quantity: newStock })
+                    .eq('id', item.id);
+
+                if (stockError) {
+                    alert('حدث خطأ أثناء خصم المخزن: ' + stockError.message);
+                    return;
+                }
+            }
+
+            alert('تم إتمام البيع بنجاح وخصم الكمية من المخزن!');
+            cart = [];
+            renderCart();
+            loadPOSProducts();
+        }
+
+        initPOS();
     </script>
 </body>
 </html>

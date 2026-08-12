@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إعدادات المتجر</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background: #d4af37; border: none; color: white; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h3>إعدادات المتجر</h3>
+    <label>اسم المتجر الجديد:</label>
+    <input type="text" id="storeNameInput" placeholder="أدخل اسم متجرك">
+    <button onclick="updateStoreName()">حفظ الاسم</button>
+</div>
+
+<script>
+    const supabase = supabase.createClient('URL', 'KEY');
+
+    async function updateStoreName() {
+        const newName = document.getElementById('storeNameInput').value;
+        const userId = 'ID_المستخدم_الحالي'; // يجب جلبه من الجلسة (Session)
+
+        const { data, error } = await supabase
+            .from('stores') // اسم الجدول
+            .update({ store_name: newName })
+            .eq('user_id', userId);
+
+        if (error) alert('خطأ: ' + error.message);
+        else alert('تم تحديث اسم المتجر بنجاح!');
+    }
+</script>
+</body>
+</html>

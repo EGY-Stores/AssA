@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الموظفين</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #059669;
+            --danger: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 30px; }
+        
+        .container { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
+        .header h2 { color: var(--text-main); font-size: 24px; }
+        
+        .btn-back { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; }
+
+        .section-box { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 25px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: white; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); }
+
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; grid-column: span 2; }
+        .btn-primary:hover { background: #4338ca; }
+
+        .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; text-align: right; background: white; }
+        th, td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; text-align: center; }
+        th { background: #f1f5f9; color: var(--text-muted); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h2>إدارة الموظفين والصلاحيات</h2>
+            <a href="store-dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-right"></i> لوحة التحكم</a>
+        </div>
+
+        <div class="section-box">
+            <h3 style="margin-bottom: 15px; font-size: 18px;">إضافة موظف جديد</h3>
+            <form id="staffForm" onsubmit="addStaff(event)" class="form-grid">
+                <input type="text" id="staffName" placeholder="اسم الموظف" required>
+                <input type="text" id="staffPhone" placeholder="رقم الهاتف" required>
+                <select id="staffRole" style="grid-column: span 2;">
+                    <option value="cashier">كاشير (مبيعات POS فقط)</option>
+                    <option value="inventory_manager">مسؤول مخزن</option>
+                </select>
+                <button type="submit" class="btn-primary">حفظ وإضافة الموظف</button>
+            </form>
+        </div>
+
+        <h3 style="margin-bottom: 15px; font-size: 18px;">قائمة موظفي المحل</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم الموظف</th>
+                        <th>رقم الهاتف</th>
+                        <th>الصلاحية</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="staffTableBody">
+                    <tr><td colspan="4" style="color:var(--text-muted); padding:20px;">جاري تحميل الموظفين...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUserId = '';
+
+        async function initStaff() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            currentUserId = session.user.id;
+            loadStaff();
+        }
+
+        async function addStaff(e) {
+            e.preventDefault();
+            const name = document.getElementById('staffName').value;
+            const phone = document.getElementById('staffPhone').value;
+            const role = document.getElementById('staffRole').value;
+
+            const { error } = await supabaseClient.from('staff').insert([{
+                user_id: currentUserId,
+                name: name,
+                phone: phone,
+                role: role
+            }]);
+
+            if (error) alert('خطأ: ' + error.message);
+            else {
+                document.getElementById('staffForm').reset();
+                loadStaff();
+            }
+        }
+
+        async function loadStaff() {
+            const { data } = await supabaseClient.from('staff').select('*').eq('user_id', currentUserId);
+            const tbody = document.getElementById('staffTableBody');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-muted); padding:20px;">لا يوجد موظفين مسجلين حتى الآن</td></tr>';
+                return;
+            }
+
+            data.forEach(s => {
+                const roleText = s.role === 'cashier' ? 'كاشير' : 'مسؤول مخزن';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${s.name}</b></td>
+                        <td>${s.phone}</td>
+                        <td><span style="background:#e0e7ff; color:#3730a3; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:12px;">${roleText}</span></td>
+                        <td><button onclick="deleteStaff('${s.id}')" style="background:#fee2e2; color:var(--danger); border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">حذف</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function deleteStaff(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا الموظف؟')) return;
+            const { error } = await supabaseClient.from('staff').delete().eq('id', id);
+            if (error) alert('خطأ: ' + error.message);
+            else loadStaff();
+        }
+
+        initStaff();
+    </script>
+</body>
+</html>

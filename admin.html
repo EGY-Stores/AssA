@@ -3,42 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم الأدمن - إدارة الاشتراكات</title>
+    <title>لوحة تحكم الأدمن - SaaS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
-        body { background-color: #f3f4f6; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h2 { color: #1f2937; margin-bottom: 20px; text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border: 1px solid #e5e7eb; text-align: center; font-size: 14px; }
-        th { background-color: #f9fafb; color: #374151; }
-        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin: 2px; }
-        .btn-activate { background-color: #10b981; color: white; }
-        .btn-deactivate { background-color: #dc2626; color: white; }
-        .btn-delete { background-color: #6b7280; color: white; }
-        .badge-active { color: #059669; font-weight: bold; }
-        .badge-inactive { color: #dc2626; font-weight: bold; }
+        :root {
+            --primary: #4f46e5;
+            --success: #059669;
+            --danger: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 30px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
+        .header h2 { color: var(--text-main); font-size: 24px; }
+        
+        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; text-align: right; background: white; }
+        th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; text-align: center; }
+        th { background: #f1f5f9; color: var(--text-muted); font-weight: 600; }
+        
+        .badge-active { background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; }
+        .badge-inactive { background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; }
+        
+        .btn-action { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>لوحة تحكم المشتركين (Admin Panel)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>البريد الإلكتروني</th>
-                    <th>رقم الهاتف</th>
-                    <th>حالة الاشتراك</th>
-                    <th>الإجراء</th>
-                    <th>حذف</th>
-                </tr>
-            </thead>
-            <tbody id="subscriptionsTableBody">
-                <!-- سيتم تعبئة البيانات هنا -->
-            </tbody>
-        </table>
+        <div class="header">
+            <h2>لوحة تحكم المشرف العام (Admin Panel)</h2>
+            <button onclick="logoutAdmin()" style="background:#fee2e2; color:var(--danger); border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">تسجيل الخروج</button>
+        </div>
+
+        <h3 style="margin-bottom: 15px; font-size: 18px;">إدارة المتاجر واشتراكات التجار</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>معرف التاجر (UID)</th>
+                        <th>رقم الهاتف / البيانات</th>
+                        <th>الباقة الحالية</th>
+                        <th>حالة الاشتراك</th>
+                        <th>التحكم في الباقة والحالة</th>
+                    </tr>
+                </thead>
+                <tbody id="adminSubsTable">
+                    <tr><td colspan="5" style="color: var(--text-muted); padding: 20px;">جاري التحقق وتحميل الاشتراكات...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -47,70 +70,102 @@
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // دالة حماية صفحة الأدمن والتاكد من بريد المشرف
+        async function checkAdminAuth() {
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            
+            if (error || !session) {
+                alert('يجب تسجيل الدخول أولاً للوصول لوحة التحكم.');
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            const userEmail = session.user.email;
+            const adminEmail = 'mofjfysb@gmail.com'; // بريدك الخاص بالإدارة
+
+            if (userEmail !== adminEmail) {
+                alert('عذراً، لا تمتلك صلاحيات للوصول إلى هذه الصفحة.');
+                await supabaseClient.auth.signOut();
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
         async function loadSubscriptions() {
             const { data, error } = await supabaseClient
                 .from('subscriptions')
                 .select('*');
 
-            if (error) {
-                console.error('خطأ Supabase:', error);
-                return;
-            }
-
-            const tbody = document.getElementById('subscriptionsTableBody');
+            const tbody = document.getElementById('adminSubsTable');
             tbody.innerHTML = '';
 
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">لا توجد حسابات مسجلة حالياً</td></tr>';
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="color: var(--text-muted); padding: 20px;">لا توجد اشتراكات مسجلة حالياً</td></tr>';
                 return;
             }
 
             data.forEach(sub => {
-                const tr = document.createElement('tr');
-                const isActive = sub.status === 'active';
-                
-                tr.innerHTML = `
-                    <td style="font-weight: bold; color: #374151;">${sub.email || '---'}</td>
-                    <td style="direction: ltr; color: #374151;">${sub.phone || '---'}</td>
-                    <td><span class="${isActive ? 'badge-active' : 'badge-inactive'}">${sub.status.toUpperCase()}</span></td>
-                    <td>
-                        ${isActive 
-                            ? `<button class="btn btn-deactivate" onclick="updateStatus('${sub.user_id}', 'inactive')">إيقاف</button>` 
-                            : `<button class="btn btn-activate" onclick="updateStatus('${sub.user_id}', 'active')">تفعيل</button>`
-                        }
-                    </td>
-                    <td><button class="btn btn-delete" onclick="deleteSubscription('${sub.user_id}')">حذف</button></td>
+                const statusBadge = sub.status === 'active' 
+                    ? `<span class="badge-active">مفعل</span>` 
+                    : `<span class="badge-inactive">موقوف</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-family: monospace; font-size: 12px; color: var(--text-muted);">${sub.user_id}</td>
+                        <td><b>${sub.phone || 'غير مسجل'}</b></td>
+                        <td>
+                            <select id="plan_${sub.user_id}" onchange="updatePlan('${sub.user_id}')" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border);">
+                                <option value="basic" ${sub.plan_type === 'basic' ? 'selected' : ''}>Basic (300 ج.م)</option>
+                                <option value="business" ${sub.plan_type === 'business' ? 'selected' : ''}>Business (600 ج.م)</option>
+                                <option value="pro" ${sub.plan_type === 'pro' ? 'selected' : ''}>Pro (900 ج.م)</option>
+                            </select>
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn-action" style="background:#e0e7ff; color:#3730a3;" onclick="toggleStatus('${sub.user_id}', '${sub.status}')">
+                                ${sub.status === 'active' ? 'إيقاف الحساب' : 'تفعيل الحساب'}
+                            </button>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             });
         }
 
-        async function updateStatus(userId, newStatus) {
+        async function updatePlan(userId) {
+            const selectedPlan = document.getElementById(`plan_${userId}`).value;
+            const { error } = await supabaseClient
+                .from('subscriptions')
+                .update({ plan_type: selectedPlan })
+                .eq('user_id', userId);
+
+            if (error) alert('خطأ أثناء تحديث الباقة: ' + error.message);
+            else alert('تم تحديث باقة التاجر بنجاح!');
+        }
+
+        async function toggleStatus(userId, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
             const { error } = await supabaseClient
                 .from('subscriptions')
                 .update({ status: newStatus })
                 .eq('user_id', userId);
 
-            if (error) alert('خطأ في التحديث: ' + error.message);
+            if (error) alert('خطأ أثناء تغيير الحالة: ' + error.message);
             else loadSubscriptions();
         }
 
-        async function deleteSubscription(userId) {
-            if (!confirm('هل أنت متأكد من حذف هذا المستخدم نهائياً؟')) return;
-
-            const { error } = await supabaseClient
-                .from('subscriptions')
-                .delete()
-                .eq('user_id', userId);
-
-            if (error) alert('خطأ في الحذف: ' + error.message);
-            else {
-                alert('تم حذف المستخدم');
-                loadSubscriptions();
-            }
+        async function logoutAdmin() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
         }
 
-        loadSubscriptions();
+        // تشغيل التحقق عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', async () => {
+            const authorized = await checkAdminAuth();
+            if (authorized) {
+                loadSubscriptions();
+            }
+        });
     </script>
 </body>
 </html>

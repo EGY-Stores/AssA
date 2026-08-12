@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة التحكم | <span id="storeTitle">جاري التحميل...</span></title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #f8fafc; padding: 20px; text-align: center; }
+        .header { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #1e293b; }
+        .settings-box { max-width: 400px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        input { width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; background: #d4af37; border: none; color: white; cursor: pointer; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>أهلاً بك في: <span id="storeTitle">...</span></h1>
+        <p>لوحة التحكم الخاصة بمتجرك</p>
+    </div>
+
+    <div class="settings-box">
+        <h3>تغيير اسم المتجر</h3>
+        <input type="text" id="newName" placeholder="أدخل الاسم الجديد هنا">
+        <button onclick="updateStoreName()">حفظ الاسم</button>
+    </div>
+
+<script>
+    const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (ضع مفتاحك هنا)';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // افتراضاً: الـ uid يتم جلبه من الرابط أو الجلسة
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('uid') || 'المستخدم_الحالي'; 
+
+    async function loadStoreName() {
+        const { data, error } = await supabase
+            .from('stores')
+            .select('store_name')
+            .eq('user_id', userId)
+            .single();
+
+        if (data) {
+            document.getElementById('storeTitle').innerText = data.store_name;
+            document.getElementById('newName').value = data.store_name;
+        } else {
+            document.getElementById('storeTitle').innerText = "متجري الخاص";
+        }
+    }
+
+    async function updateStoreName() {
+        const newName = document.getElementById('newName').value;
+        const { error } = await supabase
+            .from('stores')
+            .update({ store_name: newName })
+            .eq('user_id', userId);
+
+        if (error) {
+            alert('خطأ: ' + error.message);
+        } else {
+            alert('تم تغيير الاسم بنجاح!');
+            loadStoreName(); // تحديث الصفحة
+        }
+    }
+
+    loadStoreName();
+</script>
+</body>
+</html>
