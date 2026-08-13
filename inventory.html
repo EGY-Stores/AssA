@@ -34,6 +34,7 @@
 
         input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: white; width: 100%; }
         input:focus { outline: none; border-color: var(--primary); }
+        input:disabled { background: #e2e8f0; color: #64748b; cursor: not-allowed; }
 
         .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-primary:hover { background: #4338ca; }
@@ -61,8 +62,8 @@
                 <input type="text" id="prodName" placeholder="اسم المنتج" required>
                 <input type="number" step="0.01" id="prodBuyPrice" placeholder="سعر الشراء" required>
                 <input type="number" step="0.01" id="prodSellPrice" placeholder="سعر البيع" required>
-                <input type="number" id="prodStock" placeholder="الكمية الإجمالية" required>
-                <input type="text" id="prodSizes" placeholder="المقاس والكمية (مثال: S:10, M:15, L:5)">
+                <input type="number" id="prodStock" placeholder="الكمية الإجمالية (تلقائي)" title="يتم حساب الإجمالي تلقائياً من مجموع المقاسات" disabled style="background:#e2e8f0; font-weight:bold;">
+                <input type="text" id="prodSizes" placeholder="المقاس والكمية (مثال: S:10, M:15)" oninput="autoCalculateTotal()" required>
                 <input type="text" id="prodImage" placeholder="رابط الصورة (URL)">
                 <button type="submit" id="submitBtn" class="btn-primary">حفظ</button>
             </form>
@@ -103,15 +104,51 @@
             loadProducts();
         }
 
+        function autoCalculateTotal() {
+            const sizesVal = document.getElementById('prodSizes').value.trim();
+            const stockInput = document.getElementById('prodStock');
+            
+            if (!sizesVal || !sizesVal.includes(':')) {
+                stockInput.value = '';
+                return;
+            }
+
+            let total = 0;
+            let parts = sizesVal.split(',');
+            for (let part of parts) {
+                let sub = part.trim().split(':');
+                if (sub.length === 2) {
+                    let q = parseInt(sub[1]) || 0;
+                    total += q;
+                }
+            }
+            stockInput.value = total;
+        }
+
         async function handleFormSubmit(e) {
             e.preventDefault();
             const editId = document.getElementById('editProdId').value;
             const name = document.getElementById('prodName').value;
             const buyPrice = document.getElementById('prodBuyPrice').value;
             const sellPrice = document.getElementById('prodSellPrice').value;
-            const stock = document.getElementById('prodStock').value;
-            const sizes = document.getElementById('prodSizes').value;
+            const sizes = document.getElementById('prodSizes').value.trim();
             const image = document.getElementById('prodImage').value;
+
+            let calculatedStock = 0;
+            if (sizes.includes(':')) {
+                let parts = sizes.split(',');
+                for (let part of parts) {
+                    let sub = part.trim().split(':');
+                    if (sub.length === 2) {
+                        calculatedStock += parseInt(sub[1]) || 0;
+                    }
+                }
+            }
+
+            if (calculatedStock <= 0) {
+                alert('الرجاء كتابة المقاسات والكميات بشكل صحيح (مثال: S:10, M:15)');
+                return;
+            }
 
             const productData = {
                 user_id: currentUserId,
@@ -120,9 +157,9 @@
                 buy_price: buyPrice,
                 price: sellPrice,
                 sell_price: sellPrice,
-                stock: stock,
-                quantity: stock,
-                sizes: sizes, // حفظ المقاسات بالشكل الجديد (مثال: S:10, M:15)
+                stock: calculatedStock,
+                quantity: calculatedStock,
+                sizes: sizes,
                 image: image,
                 image_url: image
             };
@@ -165,7 +202,7 @@
                         <td>${itemStock}</td>
                         <td><span style="background: #e0e7ff; color: #3730a3; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;">${itemSizes}</span></td>
                         <td style="display:flex; justify-content:center; gap:8px;">
-                            <button onclick="editProduct('${p.id}', \`${itemName}\`, '${itemBuyPrice}', '${itemSellPrice}', '${itemStock}', \`${itemSizes}\`, \`${itemImg}\`)" class="btn-warning">تعديل</button>
+                            <button onclick="editProduct('${p.id}', \`${itemName}\`, '${itemBuyPrice}', '${itemSellPrice}', \`${itemSizes}\`, \`${itemImg}\`)" class="btn-warning">تعديل</button>
                             <button onclick="deleteProduct('${p.id}')" class="btn-danger">حذف</button>
                         </td>
                     </tr>
@@ -173,14 +210,15 @@
             });
         }
 
-        function editProduct(id, name, buyPrice, sellPrice, stock, sizes, image) {
+        function editProduct(id, name, buyPrice, sellPrice, sizes, image) {
             document.getElementById('editProdId').value = id;
             document.getElementById('prodName').value = name;
             document.getElementById('prodBuyPrice').value = buyPrice;
             document.getElementById('prodSellPrice').value = sellPrice;
-            document.getElementById('prodStock').value = stock;
             document.getElementById('prodSizes').value = sizes === 'لا توجد' ? '' : sizes;
             document.getElementById('prodImage').value = image === 'https://via.placeholder.com/50' ? '' : image;
+            
+            autoCalculateTotal();
             
             document.getElementById('formTitle').innerText = 'تعديل بيانات المنتج';
             document.getElementById('submitBtn').innerText = 'تحديث';
@@ -190,6 +228,7 @@
         function resetForm() {
             document.getElementById('productForm').reset();
             document.getElementById('editProdId').value = '';
+            document.getElementById('prodStock').value = '';
             document.getElementById('formTitle').innerText = 'إضافة منتج جديد للمخزن';
             document.getElementById('submitBtn').innerText = 'حفظ';
         }

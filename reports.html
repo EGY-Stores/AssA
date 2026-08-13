@@ -150,7 +150,6 @@
                     if (p.name || p.product_name) {
                         const rawPName = p.name || p.product_name;
                         const cleanName = rawPName.trim().toLowerCase();
-                        // دعم جميع احتمالات أسماء أعمدة سعر الشراء في جدول المنتجات
                         const cost = Number(p.buy_price || p.cost_price || p.purchase_price || p.cost || p.price_buy || 0);
                         productsMap[cleanName] = cost;
                     }
@@ -196,8 +195,8 @@
 
                 if (inv.items && Array.isArray(inv.items)) {
                     inv.items.forEach(item => {
-                        const rawName = item.name || item.product_name || '';
-                        const cleanItemName = rawName.trim().toLowerCase();
+                        const rawName = item.rawName || item.name || item.product_name || '';
+                        const cleanItemName = rawName.replace(/\(مقاس:.*?\)/g, '').trim().toLowerCase();
                         const itemQty = Number(item.quantity || 1);
 
                         let unitCost = productsMap[cleanItemName] || 0;
@@ -275,7 +274,6 @@
                 });
             }
 
-            // المعادلة المظبوطة: إجمالي المبيعات - تكلفة البضاعة المباعة - إجمالي المصروفات
             let grossProfit = totalSales - totalCostOfGoodsSold;
             let netProfit = grossProfit - totalExpenses;
 

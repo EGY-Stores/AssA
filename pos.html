@@ -21,7 +21,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; }
 
-        .pos-layout { display: grid; grid-template-columns: 380px 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; height: calc(100vh - 40px); }
+        .pos-layout { display: grid; grid-template-columns: 420px 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; height: calc(100vh - 40px); }
         @media(max-width: 900px) { .pos-layout { grid-template-columns: 1fr; height: auto; } }
 
         .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
@@ -29,9 +29,9 @@
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .btn-back { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; }
 
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; overflow-y: auto; padding: 5px; flex-grow: 1; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; overflow-y: auto; padding: 5px; flex-grow: 1; }
         
-        .product-item { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .product-item { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
         .product-item:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1); }
         .product-item img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; }
 
@@ -40,6 +40,8 @@
         
         .btn-checkout { background: var(--success); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; }
         .btn-checkout:hover { background: #047857; }
+
+        .size-select-box { margin-top: 8px; width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; background: #fff; outline: none; }
     </style>
 </head>
 <body>
@@ -114,16 +116,33 @@
 
             items.forEach(p => {
                 const pName = p.product_name || p.name;
-                const pPrice = p.sell_price !== undefined ? p.sell_price : (p.price || 0);
-                const pStock = p.stock !== undefined ? p.stock : (p.quantity || 0);
+                const pPrice = Number(p.sell_price !== undefined ? p.sell_price : (p.price || 0));
+                const pStock = p.total_stock !== undefined ? p.total_stock : (p.stock !== undefined ? p.stock : (p.quantity || 0));
                 const pImg = p.image || p.image_url || 'https://via.placeholder.com/150';
+                const pSizes = p.sizes || '';
+
+                let sizeSelectHtml = '';
+                if (pSizes && pSizes.trim() !== '') {
+                    let sizesArr = pSizes.split(',').map(s => s.trim());
+                    let options = sizesArr.map(s => {
+                        let parts = s.split(':');
+                        let sName = parts[0].trim();
+                        let sQty = parts[1] ? parts[1].trim() : '0';
+                        return `<option value="${sName}">${sName} (متبقي: ${sQty})</option>`;
+                    }).join('');
+
+                    sizeSelectHtml = `<select class="size-select-box" id="size_select_${p.id}" onclick="event.stopPropagation()">${options}</select>`;
+                }
 
                 container.innerHTML += `
                     <div class="product-item" onclick="addToCart('${p.id}')">
-                        <img src="${pImg}" onerror="this.src='https://via.placeholder.com/150'">
-                        <h4 style="font-size:14px; margin-bottom:4px;">${pName}</h4>
-                        <p style="color:var(--primary); font-weight:bold; font-size:13px; margin-bottom:4px;">${pPrice} ج.م</p>
-                        <p style="font-size:11px; color:var(--text-muted);">متبقي: ${pStock}</p>
+                        <div>
+                            <img src="${pImg}" onerror="this.src='https://via.placeholder.com/150'">
+                            <h4 style="font-size:14px; margin-bottom:4px;">${pName}</h4>
+                            <p style="color:var(--primary); font-weight:bold; font-size:13px; margin-bottom:4px;">${pPrice} ج.م</p>
+                            <p style="font-size:11px; color:var(--text-muted);">المخزن الكلي: ${pStock}</p>
+                        </div>
+                        ${sizeSelectHtml}
                     </div>
                 `;
             });
@@ -142,26 +161,26 @@
             const product = productsList.find(p => p.id == productId);
             if (!product) return;
 
-            const pStock = product.stock !== undefined ? product.stock : product.quantity;
-            if (pStock <= 0) {
-                alert('هذا المنتج نفذ من المخزن!');
-                return;
+            let selectedSize = 'افتراضي';
+            const sizeSelect = document.getElementById(`size_select_${productId}`);
+            if (sizeSelect) {
+                selectedSize = sizeSelect.value;
             }
 
-            const existing = cart.find(item => item.id == productId);
+            const pName = product.product_name || product.name;
+            const pPrice = Number(product.sell_price !== undefined ? product.sell_price : product.price);
+            
+            const existing = cart.find(item => item.id == productId && item.size === selectedSize);
             if (existing) {
-                if (existing.quantity < pStock) {
-                    existing.quantity++;
-                } else {
-                    alert('الكمية المطلوبة تتجاوز المتاح في المخزن!');
-                }
+                existing.quantity++;
             } else {
                 cart.push({
                     id: product.id,
-                    name: product.product_name || product.name,
-                    price: product.sell_price !== undefined ? product.sell_price : product.price,
-                    quantity: 1,
-                    maxStock: pStock
+                    name: pName + (selectedSize !== 'افتراضي' ? ` (مقاس: ${selectedSize})` : ''),
+                    rawName: pName,
+                    size: selectedSize,
+                    price: pPrice,
+                    quantity: 1
                 });
             }
             renderCart();
@@ -204,9 +223,6 @@
             cart[index].quantity += delta;
             if (cart[index].quantity <= 0) {
                 cart.splice(index, 1);
-            } else if (cart[index].quantity > cart[index].maxStock) {
-                cart[index].quantity = cart[index].maxStock;
-                alert('الكمية وصلت للحد الأقصى بالمخزن');
             }
             renderCart();
         }
@@ -224,7 +240,7 @@
 
             let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            // 1. حفظ الفاتورة في جدول المبيعات (orders)
+            // 1. حفظ الفاتورة في جدول المبيعات (orders) الخاص بالكاشير حصرياً
             const { error: orderError } = await supabaseClient
                 .from('orders')
                 .insert([{
@@ -238,21 +254,40 @@
                 return;
             }
 
-            // 2. خصم الكمية المباعة من جدول المنتجات
+            // 2. خصم الكميات والمقاسات المباعة من جدول المنتجات
             for (let item of cart) {
-                const newStock = item.maxStock - item.quantity;
-                const { error: stockError } = await supabaseClient
-                    .from('products')
-                    .update({ stock: newStock, quantity: newStock })
-                    .eq('id', item.id);
+                const product = productsList.find(p => p.id == item.id);
+                if (product) {
+                    let currentSizesStr = product.sizes || '';
+                    let updatedSizesStr = currentSizesStr;
 
-                if (stockError) {
-                    alert('حدث خطأ أثناء خصم المخزن: ' + stockError.message);
-                    return;
+                    if (currentSizesStr.includes(':')) {
+                        let sizesArr = currentSizesStr.split(',').map(s => s.trim());
+                        sizesArr = sizesArr.map(sItem => {
+                            let parts = sItem.split(':');
+                            let sName = parts[0].trim();
+                            let sStock = parseInt(parts[1]) || 0;
+                            if (sName === item.size) {
+                                sStock = Math.max(0, sStock - item.quantity);
+                            }
+                            return `${sName}:${sStock}`;
+                        });
+                        updatedSizesStr = sizesArr.join(', ');
+                    }
+
+                    let currentTotalStock = Number(product.total_stock || product.stock || product.quantity || 0);
+                    let newTotalStock = Math.max(0, currentTotalStock - item.quantity);
+
+                    await supabaseClient.from('products').update({
+                        sizes: updatedSizesStr,
+                        total_stock: newTotalStock,
+                        stock: newTotalStock,
+                        quantity: newTotalStock
+                    }).eq('id', item.id);
                 }
             }
 
-            alert('تم إتمام البيع بنجاح وخصم الكمية من المخزن!');
+            alert('تم إتمام البيع بنجاح وخصم الكمية والمقاس من المخزن!');
             cart = [];
             renderCart();
             loadPOSProducts();

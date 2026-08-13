@@ -110,7 +110,7 @@
             currentUserId = user.id;
             document.getElementById('userEmailText').innerText = `مرحباً بك: ${user.email}`;
 
-            // توليد رابط المتجر الإلكتروني الخاص بالتاجر بناءً على الـ UID الخاص به[cite: 5]
+            // توليد رابط المتجر الإلكتروني الخاص بالتاجر بناءً على الـ UID وتوجيهه لملف store.html
             const storeUrl = `store.html?uid=${user.id}`;
             document.getElementById('storeLinkContainer').innerHTML = `
                 <a href="${storeUrl}" target="_blank" style="background: var(--primary); color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; display:inline-flex; align-items:center; gap:8px;">
@@ -118,7 +118,6 @@
                 </a>
             `;
 
-            // جلب اسم المحل الحالي إن وجد لعرضه في الحقل
             loadCurrentStoreName(user.id);
         }
 
@@ -135,7 +134,7 @@
         }
 
         async function updateStoreName() {
-            const newName = document.getElementById('storeNameInput').value.trim();
+            const newName = document.getElementById('storeNameInput.value' || 'storeNameInput').value.trim();
             if (!newName) {
                 alert('الرجاء إدخال اسم صحيح للمحل!');
                 return;
