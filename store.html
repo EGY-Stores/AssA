@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المتجر الإلكتروني | تسوق أونلاين</title>
+    <title id="pageTitle">المتجر الإلكتروني | تسوق أونلاين</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -51,11 +51,118 @@
         .product-title { font-size: 17px; font-weight: 700; color: var(--text-main); }
         .product-price { font-size: 18px; font-weight: 800; color: var(--primary); }
         
+        /* تنسيق قسم المقاسات الفاخر (Chips Design) */
+        .sizes-container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            background: #111; 
+            padding: 14px; 
+            border-radius: 14px; 
+            border: 1px solid var(--border); 
+            margin-top: 8px; 
+        }
+        .sizes-title { 
+            font-size: 13px; 
+            color: var(--primary); 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            margin-bottom: 2px;
+        }
+
+        .sizes-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .size-chip {
+            position: relative;
+            background: #181818;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 65px;
+            user-select: none;
+        }
+        .size-chip input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .size-chip-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .size-chip-stock {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .size-chip.selected {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+        .size-chip.selected .size-chip-name {
+            color: var(--primary);
+        }
+        .size-chip.selected .size-chip-stock {
+            color: var(--text-main);
+        }
+
+        .size-qty-wrapper {
+            display: none;
+            margin-top: 10px;
+            align-items: center;
+            justify-content: space-between;
+            background: #161616;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--primary);
+            animation: fadeIn 0.3s ease;
+        }
+        .size-qty-wrapper.active {
+            display: flex;
+        }
+        .size-qty-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .size-qty-input {
+            width: 60px;
+            padding: 4px;
+            background: #0b0b0b;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            outline: none;
+            font-size: 13px;
+        }
+        .size-qty-input:focus { border-color: var(--primary); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .btn-add-cart { margin-top: auto; background: var(--primary); color: #000; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 800; width: 100%; transition: background 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
         .btn-add-cart:hover { background: var(--primary-dark); color: #fff; }
         .btn-add-cart:active { transform: scale(0.98); }
 
-        /* أزرار التنقل بين الصفحات (Pagination) */
+        /* أزرار التنقل بين الصفحات */
         .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 60px; }
         .page-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .page-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); background: #1a1a1a; }
@@ -72,7 +179,6 @@
         .cart-body { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
         .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; gap: 10px; }
         
-        /* أزرار التحكم بالكمية داخل السلة */
         .quantity-controls { display: flex; align-items: center; gap: 8px; background: #1a1a1a; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border); }
         .qty-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 14px; font-weight: bold; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: background 0.2s; }
         .qty-btn:hover { background: #262626; }
@@ -82,25 +188,23 @@
         .checkout-btn { width: 100%; background: var(--primary); color: #000; border: none; padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 16px; transition: all 0.2s; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2); }
         .checkout-btn:hover { background: var(--primary-dark); color: #fff; }
 
-        /* نافذة إتمام الطلب (Modal) */
+        /* نافذة إتمام الطلب */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 480px; border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8); animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 480px; border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8); }
         
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 14px; color: var(--primary); }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; background: #0b0b0b; color: var(--text-main); }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1); }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; outline: none; background: #0b0b0b; color: var(--text-main); }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); }
         
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; backdrop-filter: blur(2px); }
-        
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-muted); font-size: 16px; background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); font-weight: 600; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo"><i class="fa-solid fa-crown"></i> متجر العرض الفاخر</div>
+        <div class="logo" id="dynamicStoreTitle"><i class="fa-solid fa-crown"></i> المتجر الإلكتروني</div>
         <button class="cart-btn" onclick="toggleCart()">
             <i class="fa-solid fa-cart-shopping"></i> سلة الطلبات
             <span class="cart-badge" id="cartBadge">0</span>
@@ -108,7 +212,7 @@
     </header>
 
     <div class="hero">
-        <h1>مجموعة المنتجات الحصرية الفاخرة</h1>
+        <h1 id="heroStoreName">مجموعة المنتجات الحصرية الفاخرة</h1>
         <p>تذوق معنى الأناقة والتسوق الراقي، اختر ما يعبر عن ذوقك واطلبه بكل سهولة.</p>
     </div>
 
@@ -116,7 +220,6 @@
         <div class="products-grid" id="storeProductsGrid">
             <div class="empty-state">جاري تحميل المنتجات بتصميم ملكي...</div>
         </div>
-        <!-- أزرار التنقل بين الصفحات -->
         <div class="pagination" id="paginationContainer" style="display: none;">
             <button class="page-btn" id="prevPageBtn" onclick="changePage(-1)"><i class="fa-solid fa-arrow-right"></i> السابق</button>
             <span class="page-info" id="pageInfo">صفحة 1 من 1</span>
@@ -161,7 +264,7 @@
                 </div>
                 <div class="form-group">
                     <label>عنوان التوصيل بالتفصيل</label>
-                    <textarea id="clientAddress" rows="3" placeholder="المدينة، الحي، الشارع، رقم الحلة..." required></textarea>
+                    <textarea id="clientAddress" rows="3" placeholder="المدينة، الحي، الشارع..." required></textarea>
                 </div>
                 <button type="submit" class="checkout-btn" id="submitOrderBtn" style="margin-top: 10px;">تأكيد وإرسال الطلب</button>
             </form>
@@ -177,14 +280,16 @@
         let productsData = [];
         let cart = [];
         let ownerId = '';
-        
-        // متغيرات التقسيم (Pagination)
         let currentPage = 1;
         const itemsPerPage = 10;
 
-        async function loadStoreProducts() {
+        async function initStore() {
             const urlParams = new URLSearchParams(window.location.search);
             ownerId = urlParams.get('uid');
+
+            if (ownerId) {
+                await loadStoreName(ownerId);
+            }
 
             let query = supabaseClient.from('products').select('*');
             if (ownerId) {
@@ -206,14 +311,26 @@
             renderProductsPage();
         }
 
+        async function loadStoreName(userId) {
+            const { data, error } = await supabaseClient
+                .from('store_settings')
+                .select('store_name')
+                .eq('user_id', userId)
+                .single();
+
+            if (data && data.store_name) {
+                document.getElementById('dynamicStoreTitle').innerHTML = `<i class="fa-solid fa-crown"></i> ${data.store_name}`;
+                document.getElementById('heroStoreName').innerText = `مرحباً بك في ${data.store_name}`;
+                document.getElementById('pageTitle').innerText = data.store_name;
+            }
+        }
+
         function renderProductsPage() {
             const grid = document.getElementById('storeProductsGrid');
             const paginationContainer = document.getElementById('paginationContainer');
             grid.innerHTML = '';
 
             const totalPages = Math.ceil(productsData.length / itemsPerPage);
-            
-            // حساب بداية ونهاية المنتجات في الصفحة الحالية
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const currentProducts = productsData.slice(startIndex, endIndex);
@@ -222,6 +339,49 @@
                 const pName = product.product_name || product.name || 'منتج بدون اسم';
                 const pPrice = Number(product.sell_price || product.price || 0);
                 const pImg = product.image_url || product.image || 'https://via.placeholder.com/300?text=No+Image';
+                const pSizes = product.sizes || ''; 
+
+                let sizesHtml = '';
+                if (pSizes && pSizes.trim() !== '') {
+                    const sizesArray = pSizes.split(',').map(s => s.trim());
+                    
+                    let chipsHtml = sizesArray.map((sizeItem, idx) => {
+                        let parts = sizeItem.split(':');
+                        let sizeName = parts[0].trim();
+                        let sizeStock = parts[1] ? parseInt(parts[1].trim()) : 99;
+
+                        return `
+                            <label class="size-chip" id="chip_${product.id}_${idx}" onclick="handleSizeSelect('${product.id}', ${idx})">
+                                <input type="checkbox" id="chk_${product.id}_${idx}">
+                                <span class="size-chip-name">${sizeName}</span>
+                                <span class="size-chip-stock">${sizeStock > 0 ? `متبقي ${sizeStock}` : 'نفذت'}</span>
+                            </label>
+                        `;
+                    }).join('');
+
+                    let qtyRowsHtml = sizesArray.map((sizeItem, idx) => {
+                        let parts = sizeItem.split(':');
+                        let sizeName = parts[0].trim();
+                        let maxStock = parts[1] ? parseInt(parts[1].trim()) : 99;
+
+                        return `
+                            <div class="size-qty-wrapper" id="qty_wrapper_${product.id}_${idx}">
+                                <span class="size-qty-label">كمية مقاس (<strong style="color:var(--primary);">${sizeName}</strong>):</span>
+                                <input type="number" min="1" value="1" max="${maxStock}" class="size-qty-input" id="qty_${product.id}_${idx}">
+                            </div>
+                        `;
+                    }).join('');
+
+                    sizesHtml = `
+                        <div class="sizes-container">
+                            <div class="sizes-title"><i class="fa-solid fa-ruler-combined"></i> اختر المقاسات المطلوبة:</div>
+                            <div class="sizes-grid">
+                                ${chipsHtml}
+                            </div>
+                            ${qtyRowsHtml}
+                        </div>
+                    `;
+                }
 
                 grid.innerHTML += `
                     <div class="product-card">
@@ -231,6 +391,7 @@
                         <div class="product-info">
                             <div class="product-title">${pName}</div>
                             <div class="product-price">${pPrice.toFixed(2)} ج.م</div>
+                            ${sizesHtml}
                             <button onclick="addToCart('${product.id}')" class="btn-add-cart">
                                 <i class="fa-solid fa-cart-plus"></i> إضافة إلى السلة
                             </button>
@@ -239,7 +400,6 @@
                 `;
             });
 
-            // التحكم في ظهور وتحديث أزرار الصفحات
             if (totalPages > 1) {
                 paginationContainer.style.display = 'flex';
                 document.getElementById('pageInfo').innerText = `صفحة ${currentPage} من ${totalPages}`;
@@ -248,6 +408,22 @@
             } else {
                 paginationContainer.style.display = 'none';
             }
+        }
+
+        function handleSizeSelect(productId, idx) {
+            const chk = document.getElementById(`chk_${productId}_${idx}`);
+            const chip = document.getElementById(`chip_${productId}_${idx}`);
+            const qtyWrapper = document.getElementById(`qty_wrapper_${productId}_${idx}`);
+
+            setTimeout(() => {
+                if (chk.checked) {
+                    chip.classList.add('selected');
+                    qtyWrapper.classList.add('active');
+                } else {
+                    chip.classList.remove('selected');
+                    qtyWrapper.classList.remove('active');
+                }
+            }, 10);
         }
 
         function changePage(direction) {
@@ -271,17 +447,62 @@
             const product = productsData.find(p => p.id == productId);
             if (!product) return;
 
-            const existingItem = cart.find(item => item.id == productId);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({
-                    id: product.id,
-                    name: product.product_name || product.name,
-                    price: Number(product.sell_price || product.price || 0),
-                    quantity: 1
+            const pSizes = product.sizes || '';
+
+            if (pSizes && pSizes.trim() !== '') {
+                const sizesArray = pSizes.split(',').map(s => s.trim());
+                let addedAny = false;
+
+                sizesArray.forEach((sizeItem, idx) => {
+                    const chk = document.getElementById(`chk_${productId}_${idx}`);
+                    if (chk && chk.checked) {
+                        addedAny = true;
+                        let parts = sizeItem.split(':');
+                        let sizeName = parts[0].trim();
+                        let maxStock = parts[1] ? parseInt(parts[1].trim()) : 99;
+                        
+                        const qtyInput = document.getElementById(`qty_${productId}_${idx}`);
+                        let quantity = parseInt(qtyInput.value) || 1;
+
+                        if (quantity > maxStock) {
+                            alert(`الكمية المطلوبة للمقاس (${sizeName}) أكبر من المخزون المتاح (${maxStock})!`);
+                            quantity = maxStock;
+                        }
+
+                        const existingItem = cart.find(item => item.id == productId && item.size === sizeName);
+                        if (existingItem) {
+                            existingItem.quantity += quantity;
+                        } else {
+                            cart.push({
+                                id: product.id,
+                                name: (product.product_name || product.name) + ` (مقاس: ${sizeName})`,
+                                size: sizeName,
+                                price: Number(product.sell_price || product.price || 0),
+                                quantity: quantity
+                            });
+                        }
+                    }
                 });
+
+                if (!addedAny) {
+                    alert('الرجاء اختيار مقاس واحد على الأقل لتتمكن من إضافته للسلة!');
+                    return;
+                }
+            } else {
+                const existingItem = cart.find(item => item.id == productId && item.size === 'افتراضي');
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        id: product.id,
+                        name: product.product_name || product.name,
+                        size: 'افتراضي',
+                        price: Number(product.sell_price || product.price || 0),
+                        quantity: 1
+                    });
+                }
             }
+
             updateCartUI();
             toggleCart();
         }
@@ -353,61 +574,59 @@
         }
 
         async function submitOrder(e) {
-    e.preventDefault();
-    const btn = document.getElementById('submitOrderBtn');
-    btn.innerText = 'جاري إرسال الطلب...';
-    btn.disabled = true;
+            e.preventDefault();
+            const btn = document.getElementById('submitOrderBtn');
+            btn.innerText = 'جاري إرسال الطلب...';
+            btn.disabled = true;
 
-    const name = document.getElementById('clientName').value;
-    const phone = document.getElementById('clientPhone').value;
-    const address = document.getElementById('clientAddress').value;
+            const name = document.getElementById('clientName').value;
+            const phone = document.getElementById('clientPhone').value;
+            const address = document.getElementById('clientAddress').value;
 
-    let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    let targetUserId = ownerId;
-    if (!targetUserId && productsData.length > 0) {
-        targetUserId = productsData[0].user_id;
-    }
+            let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            let targetUserId = ownerId;
+            if (!targetUserId && productsData.length > 0) {
+                targetUserId = productsData[0].user_id;
+            }
 
-    // 1. تسجيل الطلب في جدول الطلبات (orders)
-    const { error: orderError } = await supabaseClient.from('orders').insert([{
-        user_id: targetUserId,
-        total_amount: totalPrice,
-        items: cart,
-        client_name: name,
-        client_phone: phone,
-        client_address: address,
-        status: 'pending'
-    }]);
+            const { error: orderError } = await supabaseClient.from('orders').insert([{
+                user_id: targetUserId,
+                total_amount: totalPrice,
+                items: cart,
+                client_name: name,
+                client_phone: phone,
+                client_address: address,
+                status: 'pending'
+            }]);
 
-    // 2. تسجيل الفاتورة في جدول (invoices) مع تمرير كافة الأعمدة الإلزامية لتجنب القيود
-    const { error: invoiceError } = await supabaseClient.from('invoices').insert([{
-        user_id: targetUserId,
-        total_amount: totalPrice,
-        paid_amount: totalPrice,
-        change_amount: 0, // تمرير القيمة لتجنب خطأ الـ Not-Null constraint
-        items: cart,
-        client_name: name,
-        client_phone: phone,
-        client_address: address
-    }]);
+            const { error: invoiceError } = await supabaseClient.from('invoices').insert([{
+                user_id: targetUserId,
+                total_amount: totalPrice,
+                paid_amount: totalPrice,
+                change_amount: 0,
+                items: cart,
+                client_name: name,
+                client_phone: phone,
+                client_address: address
+            }]);
 
-    if (orderError || invoiceError) {
-        alert('حدث خطأ أثناء إتمام الطلب: ' + (orderError?.message || invoiceError?.message));
-        btn.innerText = 'تأكيد وإرسال الطلب';
-        btn.disabled = false;
-    } else {
-        alert('تم إرسال طلبك بنجاح! سيتم التواصل معك قريباً لتأكيد الشحن.');
-        cart = [];
-        updateCartUI();
-        closeCheckoutModal();
-        document.getElementById('checkoutForm').reset();
-        btn.innerText = 'تأكيد وإرسال الطلب';
-        btn.disabled = false;
-    }
-}
+            if (orderError || invoiceError) {
+                alert('حدث خطأ أثناء إتمام الطلب: ' + (orderError?.message || invoiceError?.message));
+                btn.innerText = 'تأكيد وإرسال الطلب';
+                btn.disabled = false;
+            } else {
+                alert('تم إرسال طلبك بنجاح! سيتم التواصل معك قريباً لتأكيد الشحن.');
+                cart = [];
+                updateCartUI();
+                closeCheckoutModal();
+                document.getElementById('checkoutForm').reset();
+                btn.innerText = 'تأكيد وإرسال الطلب';
+                btn.disabled = false;
+            }
+        }
 
-        loadStoreProducts();
+        initStore();
     </script>
 </body>
 </html>

@@ -21,7 +21,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 30px; }
         
-        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
         
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
         .header h2 { color: var(--text-main); font-size: 24px; }
@@ -29,13 +29,13 @@
         .btn-back { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; }
 
         .section-box { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 25px; }
-        .form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2fr auto; gap: 10px; }
-        @media(max-width: 900px) { .form-grid { grid-template-columns: 1fr; } }
+        .form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2fr 2fr auto; gap: 10px; align-items: center; }
+        @media(max-width: 1100px) { .form-grid { grid-template-columns: 1fr; } }
 
         input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: white; width: 100%; }
         input:focus { outline: none; border-color: var(--primary); }
 
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-primary:hover { background: #4338ca; }
         
         .btn-warning { background: #fef3c7; color: #d97706; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
@@ -61,7 +61,8 @@
                 <input type="text" id="prodName" placeholder="اسم المنتج" required>
                 <input type="number" step="0.01" id="prodBuyPrice" placeholder="سعر الشراء" required>
                 <input type="number" step="0.01" id="prodSellPrice" placeholder="سعر البيع" required>
-                <input type="number" id="prodStock" placeholder="الكمية" required>
+                <input type="number" id="prodStock" placeholder="الكمية الإجمالية" required>
+                <input type="text" id="prodSizes" placeholder="المقاس والكمية (مثال: S:10, M:15, L:5)">
                 <input type="text" id="prodImage" placeholder="رابط الصورة (URL)">
                 <button type="submit" id="submitBtn" class="btn-primary">حفظ</button>
             </form>
@@ -76,12 +77,13 @@
                         <th>اسم المنتج</th>
                         <th>سعر الشراء</th>
                         <th>سعر البيع</th>
-                        <th>المخزون المتاح</th>
+                        <th>المخزون الإجمالي</th>
+                        <th>المقاسات والكميات</th>
                         <th>الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="productsTableBody">
-                    <tr><td colspan="6" style="color:var(--text-muted); padding:20px;">جاري تحميل المنتجات...</td></tr>
+                    <tr><td colspan="7" style="color:var(--text-muted); padding:20px;">جاري تحميل المنتجات...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -108,6 +110,7 @@
             const buyPrice = document.getElementById('prodBuyPrice').value;
             const sellPrice = document.getElementById('prodSellPrice').value;
             const stock = document.getElementById('prodStock').value;
+            const sizes = document.getElementById('prodSizes').value;
             const image = document.getElementById('prodImage').value;
 
             const productData = {
@@ -119,6 +122,7 @@
                 sell_price: sellPrice,
                 stock: stock,
                 quantity: stock,
+                sizes: sizes, // حفظ المقاسات بالشكل الجديد (مثال: S:10, M:15)
                 image: image,
                 image_url: image
             };
@@ -140,7 +144,7 @@
             tbody.innerHTML = '';
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-muted); padding:20px;">لا توجد منتجات مسجلة في المخزن</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-muted); padding:20px;">لا توجد منتجات مسجلة في المخزن</td></tr>';
                 return;
             }
 
@@ -149,6 +153,7 @@
                 const itemBuyPrice = p.buy_price !== undefined ? p.buy_price : 0;
                 const itemSellPrice = p.sell_price !== undefined ? p.sell_price : (p.price || 0);
                 const itemStock = p.stock !== undefined ? p.stock : (p.quantity || 0);
+                const itemSizes = p.sizes || 'لا توجد';
                 const itemImg = p.image || p.image_url || '';
 
                 tbody.innerHTML += `
@@ -158,8 +163,9 @@
                         <td style="color: var(--text-muted);">${itemBuyPrice} ج.م</td>
                         <td><span style="color:var(--success); font-weight:bold;">${itemSellPrice} ج.م</span></td>
                         <td>${itemStock}</td>
+                        <td><span style="background: #e0e7ff; color: #3730a3; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;">${itemSizes}</span></td>
                         <td style="display:flex; justify-content:center; gap:8px;">
-                            <button onclick="editProduct('${p.id}', \`${itemName}\`, '${itemBuyPrice}', '${itemSellPrice}', '${itemStock}', \`${itemImg}\`)" class="btn-warning">تعديل</button>
+                            <button onclick="editProduct('${p.id}', \`${itemName}\`, '${itemBuyPrice}', '${itemSellPrice}', '${itemStock}', \`${itemSizes}\`, \`${itemImg}\`)" class="btn-warning">تعديل</button>
                             <button onclick="deleteProduct('${p.id}')" class="btn-danger">حذف</button>
                         </td>
                     </tr>
@@ -167,12 +173,13 @@
             });
         }
 
-        function editProduct(id, name, buyPrice, sellPrice, stock, image) {
+        function editProduct(id, name, buyPrice, sellPrice, stock, sizes, image) {
             document.getElementById('editProdId').value = id;
             document.getElementById('prodName').value = name;
             document.getElementById('prodBuyPrice').value = buyPrice;
             document.getElementById('prodSellPrice').value = sellPrice;
             document.getElementById('prodStock').value = stock;
+            document.getElementById('prodSizes').value = sizes === 'لا توجد' ? '' : sizes;
             document.getElementById('prodImage').value = image === 'https://via.placeholder.com/50' ? '' : image;
             
             document.getElementById('formTitle').innerText = 'تعديل بيانات المنتج';

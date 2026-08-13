@@ -35,6 +35,9 @@
         .links { text-align: center; margin-top: 20px; font-size: 14px; }
         .links a { color: var(--primary); text-decoration: none; font-weight: bold; }
         .links a:hover { text-decoration: underline; }
+        .forgot-password { text-align: left; margin-top: -10px; margin-bottom: 20px; }
+        .forgot-password a { font-size: 13px; color: var(--text-muted); text-decoration: none; }
+        .forgot-password a:hover { color: var(--primary); text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -50,6 +53,12 @@
                 <label>كلمة المرور</label>
                 <input type="password" id="password" required placeholder="أدخل كلمة المرور">
             </div>
+            
+            <!-- زر نسيت كلمة المرور -->
+            <div class="forgot-password">
+                <a href="#" onclick="forgotPassword(event)">هل نسيت كلمة المرور؟</a>
+            </div>
+
             <button type="submit" class="btn-submit">دخول</button>
         </form>
         <div class="links">
@@ -94,16 +103,34 @@
                 return;
             }
 
-            // 3. فحص هل الحساب مفعل أم لا
+            // 3. فحص هل الحساب مفعل أم لا[cite: 5]
             if (subData.status !== 'active') {
-                alert('حسابك غير مفعل حالياً. يجب انتظار تفعيل المشرف (الأدمن) لتتمكن من الدخول.');
-                await supabaseClient.auth.signOut(); // تسجيل الخروج مباشرة لمنعه من الدخول
+                alert('حسابك غير مفعل حالياً. يجب انتظار تفعيل المشرف (الأدمن) لتتمكن من الدخول[cite: 5].');
+                await supabaseClient.auth.signOut(); // تسجيل الخروج مباشرة لمنعه من الدخول[cite: 5]
                 return;
             }
 
-            // 4. إذا كان مفعل بنجاح، يتم توجيهه للوحة تحكم المتجر
+            // 4. إذا كان مفعل بنجاح، يتم توجيهه للوحة تحكم المتجر[cite: 5]
             alert('مرحباً بك! تم تسجيل الدخول بنجاح.');
             window.location.href = 'store-dashboard.html';
+        }
+
+        // دالة إرسال بريد استعادة كلمة المرور
+        async function forgotPassword(e) {
+            e.preventDefault();
+            const email = prompt("الرجاء إدخال البريد الإلكتروني الخاص بحسابك لإرسال رابط إعادة تعيين كلمة المرور:");
+            
+            if (!email) return;
+
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password.html',
+            });
+
+            if (error) {
+                alert("حدث خطأ: " + error.message);
+            } else {
+                alert("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح. يرجى تفقد صندوق الوارد أو البريد غير المرغوب فيه (Spam).");
+            }
         }
     </script>
 </body>

@@ -146,7 +146,7 @@
 
             const { error } = await supabaseClient.from('expenses').insert([{
                 user_id: currentUserId,
-                title: title,
+                description: title,
                 amount: amount
             }]);
 
@@ -175,9 +175,10 @@
 
             data.forEach(exp => {
                 const amountVal = Number(exp.amount || 0);
+                const expTitle = exp.description || exp.title || exp.name || 'بدون بيان';
                 tbody.innerHTML += `
                     <tr>
-                        <td><b>${exp.title || 'بدون بيان'}</b></td>
+                        <td><b>${expTitle}</b></td>
                         <td><span style="color:var(--danger); font-weight:bold;">${amountVal.toFixed(2)} ج.م</span></td>
                         <td>
                             <button onclick="deleteExpense('${exp.id}')" class="btn-danger-sm">حذف</button>

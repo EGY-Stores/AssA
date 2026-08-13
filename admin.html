@@ -34,7 +34,7 @@
         .badge-active { background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; }
         .badge-inactive { background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; }
         
-        .btn-action { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-action { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; margin: 2px; }
     </style>
 </head>
 <body>
@@ -42,7 +42,7 @@
     <div class="container">
         <div class="header">
             <h2>لوحة تحكم المشرف العام (Admin Panel)</h2>
-            <button onclick="logoutAdmin()" style="background:#fee2e2; color:var(--danger); border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">تسجيل الخروج</button>
+            <button onclick="logoutAdmin()" style="background:#fee2e2; color:var(--danger); border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">خروج</button>
         </div>
 
         <h3 style="margin-bottom: 15px; font-size: 18px;">إدارة المتاجر واشتراكات التجار</h3>
@@ -51,14 +51,15 @@
                 <thead>
                     <tr>
                         <th>معرف التاجر (UID)</th>
-                        <th>رقم الهاتف / البيانات</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>رقم الهاتف</th>
                         <th>الباقة الحالية</th>
                         <th>حالة الاشتراك</th>
-                        <th>التحكم في الباقة والحالة</th>
+                        <th>التحكم</th>
                     </tr>
                 </thead>
                 <tbody id="adminSubsTable">
-                    <tr><td colspan="5" style="color: var(--text-muted); padding: 20px;">جاري التحقق وتحميل الاشتراكات...</td></tr>
+                    <tr><td colspan="6" style="color: var(--text-muted); padding: 20px;">جاري التحقق وتحميل الاشتراكات...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -69,24 +70,13 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const ADMIN_PASSWORD = "01141360644";
 
-        // دالة حماية صفحة الأدمن والتاكد من بريد المشرف
-        async function checkAdminAuth() {
-            const { data: { session }, error } = await supabaseClient.auth.getSession();
-            
-            if (error || !session) {
-                alert('يجب تسجيل الدخول أولاً للوصول لوحة التحكم.');
-                window.location.href = 'login.html';
-                return false;
-            }
-
-            const userEmail = session.user.email;
-            const adminEmail = 'mofjfysb@gmail.com'; // بريدك الخاص بالإدارة
-
-            if (userEmail !== adminEmail) {
-                alert('عذراً، لا تمتلك صلاحيات للوصول إلى هذه الصفحة.');
-                await supabaseClient.auth.signOut();
-                window.location.href = 'login.html';
+        function checkAdminAuth() {
+            const enteredPassword = prompt("الرجاء إدخال كلمة مرور لوحة التحكم:");
+            if (enteredPassword !== ADMIN_PASSWORD) {
+                alert('كلمة المرور غير صحيحة!');
+                window.location.href = 'index.html';
                 return false;
             }
             return true;
@@ -101,7 +91,7 @@
             tbody.innerHTML = '';
 
             if (error || !data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="color: var(--text-muted); padding: 20px;">لا توجد اشتراكات مسجلة حالياً</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="color: var(--text-muted); padding: 20px;">لا توجد اشتراكات مسجلة حالياً</td></tr>';
                 return;
             }
 
@@ -112,7 +102,8 @@
 
                 tbody.innerHTML += `
                     <tr>
-                        <td style="font-family: monospace; font-size: 12px; color: var(--text-muted);">${sub.user_id}</td>
+                        <td style="font-family: monospace; font-size: 11px; color: var(--text-muted);">${sub.user_id}</td>
+                        <td>${sub.email || 'غير مسجل'}</td>
                         <td><b>${sub.phone || 'غير مسجل'}</b></td>
                         <td>
                             <select id="plan_${sub.user_id}" onchange="updatePlan('${sub.user_id}')" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border);">
@@ -124,12 +115,34 @@
                         <td>${statusBadge}</td>
                         <td>
                             <button class="btn-action" style="background:#e0e7ff; color:#3730a3;" onclick="toggleStatus('${sub.user_id}', '${sub.status}')">
-                                ${sub.status === 'active' ? 'إيقاف الحساب' : 'تفعيل الحساب'}
+                                ${sub.status === 'active' ? 'إيقاف' : 'تفعيل'}
+                            </button>
+                            <button class="btn-action" style="background:#fee2e2; color:#b91c1c;" onclick="deleteUser('${sub.user_id}')">
+                                حذف
                             </button>
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        // دالة حذف المستخدم
+        async function deleteUser(userId) {
+            if (!confirm("هل أنت متأكد أنك تريد حذف هذا التاجر نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.")) {
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('subscriptions')
+                .delete()
+                .eq('user_id', userId);
+
+            if (error) {
+                alert('خطأ أثناء الحذف: ' + error.message);
+            } else {
+                alert('تم حذف التاجر بنجاح!');
+                loadSubscriptions(); // إعادة تحميل الجدول
+            }
         }
 
         async function updatePlan(userId) {
@@ -154,15 +167,12 @@
             else loadSubscriptions();
         }
 
-        async function logoutAdmin() {
-            await supabaseClient.auth.signOut();
-            window.location.href = 'login.html';
+        function logoutAdmin() {
+            window.location.href = 'index.html';
         }
 
-        // تشغيل التحقق عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', async () => {
-            const authorized = await checkAdminAuth();
-            if (authorized) {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkAdminAuth()) {
                 loadSubscriptions();
             }
         });
