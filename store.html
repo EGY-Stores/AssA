@@ -37,15 +37,21 @@
         .hero h1 { font-size: 30px; font-weight: 800; margin-bottom: 2px; color: var(--primary); }
         .hero p { font-size: 15px; color: #aaa; max-width: 600px; margin: 0 auto; }
 
-        /* تصميم شريط البحث تحت قسم الترحيب */
         .search-box { position: relative; width: 100%; max-width: 450px; margin-top: 5px; }
         .search-box input { width: 100%; background: #1a1a1a; border: 1px solid var(--border); border-radius: 8px; padding: 10px 40px 10px 16px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
         .search-box input:focus { border-color: var(--primary); }
         .search-box i { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
 
-        .container { max-width: 1280px; margin: 0 auto; padding: 0 20px 40px; width: 100%; flex-grow: 1; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 40px; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 20px 40px; width: 100%; flex-grow: 1; display: flex; flex-direction: column; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
         
+        /* تنسيق أزرار التنقل بين الصفحات (Pagination) */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 20px 0 40px; flex-wrap: wrap; }
+        .page-btn { background: #161616; border: 1px solid var(--border); color: var(--text-main); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px; transition: all 0.2s; }
+        .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .page-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+        .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
         .product-card { background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; transition: all 0.2s ease; position: relative; }
         .product-card:hover { box-shadow: 0 4px 15px rgba(212,175,55,0.15); border-color: var(--primary); }
         
@@ -152,7 +158,6 @@
         <h1 id="heroStoreName">مجموعة المنتجات الحصرية</h1>
         <p>تسوق أحدث المنتجات بأفضل الأسعار وبكل سهولة.</p>
         
-        <!-- حقل البحث تحت رسالة الترحيب -->
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="ابحث عن منتج..." oninput="filterProducts()">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -160,9 +165,13 @@
     </div>
 
     <div class="container">
+        <!-- شبكة عرض المنتجات -->
         <div class="products-grid" id="storeProductsGrid">
             <div class="empty-state">جاري تحميل المنتجات...</div>
         </div>
+
+        <!-- أزرار التقسيم إلى صفحات -->
+        <div class="pagination" id="paginationContainer"></div>
     </div>
 
     <div class="modal" id="reviewModal">
@@ -240,11 +249,16 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let productsData = [];
+        let filteredProductsData = [];
         let cart = [];
         let ownerId = '';
         let autoPlayIntervals = {};
         let currentSelectedProductId = null;
         let selectedRatingVal = 5;
+
+        // متغيرات التقسيم لصفحات (Pagination)
+        let currentPage = 1;
+        const itemsPerPage = 10;
 
         async function initStore() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -264,11 +278,14 @@
 
             if (error || !data || data.length === 0) {
                 grid.innerHTML = '<div class="empty-state">لا توجد منتجات متاحة في المتجر حالياً</div>';
+                document.getElementById('paginationContainer').innerHTML = '';
                 return;
             }
 
             productsData = data;
-            renderProducts(productsData);
+            filteredProductsData = data;
+            currentPage = 1;
+            renderCurrentPage();
         }
 
         async function loadStoreSettings(userId) {
@@ -300,26 +317,44 @@
 
         function filterProducts() {
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
-            const filtered = productsData.filter(product => {
+            filteredProductsData = productsData.filter(product => {
                 const name = (product.product_name || product.name || '').toLowerCase();
                 return name.includes(searchVal);
             });
-            renderProducts(filtered);
+            currentPage = 1; // العودة للصفحة الأولى عند البحث الجديد
+            renderCurrentPage();
         }
 
-        function renderProducts(itemsToRender) {
+        function changePage(pageNumber) {
+            currentPage = pageNumber;
+            renderCurrentPage();
+            window.scrollTo({ top: 300, behavior: 'smooth' }); // التمرير لأعلى المنتجات بسلاسة
+        }
+
+        function renderCurrentPage() {
             const grid = document.getElementById('storeProductsGrid');
+            const paginationContainer = document.getElementById('paginationContainer');
             grid.innerHTML = '';
 
             Object.values(autoPlayIntervals).forEach(interval => clearInterval(interval));
             autoPlayIntervals = {};
 
-            if (!itemsToRender || itemsToRender.length === 0) {
+            if (!filteredProductsData || filteredProductsData.length === 0) {
                 grid.innerHTML = '<div class="empty-state">لا توجد منتجات مطابقة للبحث</div>';
+                paginationContainer.innerHTML = '';
                 return;
             }
 
-            itemsToRender.forEach((product) => {
+            // حساب المنتجات التي تخص الصفحة الحالية فقط (10 منتجات كحد أقصى)
+            const totalPages = Math.ceil(filteredProductsData.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageItems = filteredProductsData.slice(startIndex, endIndex);
+
+            pageItems.forEach((product) => {
                 const pName = product.product_name || product.name || 'منتج بدون اسم';
                 const pPrice = Number(product.sell_price || product.price || 0);
                 
@@ -476,6 +511,37 @@
                     startAutoPlay(product.id);
                 }
             });
+
+            // بناء أزرار الانتقال بين الصفحات
+            renderPaginationControls(totalPages);
+        }
+
+        function renderPaginationControls(totalPages) {
+            const paginationContainer = document.getElementById('paginationContainer');
+            paginationContainer.innerHTML = '';
+
+            if (totalPages <= 1) return; // إذا كانت صفحة واحدة فلا داعي للأزرار
+
+            // زر السابق
+            paginationContainer.innerHTML += `
+                <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                    <i class="fa-solid fa-chevron-right"></i> السابق
+                </button>
+            `;
+
+            // أزرار أرقام الصفحات
+            for (let i = 1; i <= totalPages; i++) {
+                paginationContainer.innerHTML += `
+                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>
+                `;
+            }
+
+            // زر التالي
+            paginationContainer.innerHTML += `
+                <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                    التالي <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            `;
         }
 
         function openReviewModal(productId, productName) {
