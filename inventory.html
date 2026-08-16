@@ -104,27 +104,25 @@
             loadProducts();
         }
 
-        // دالة موحدة وحساسة لحساب مجموع الكميات من النصوص (تدعم القيم التي تحتوي على أصفار مثل 30:0)
-        function calculateTotalStock(sizesVal) {
-            if (!sizesVal || !sizesVal.includes(':')) return 0;
+        function autoCalculateTotal() {
+            const sizesVal = document.getElementById('prodSizes').value.trim();
+            const stockInput = document.getElementById('prodStock');
+            
+            if (!sizesVal || !sizesVal.includes(':')) {
+                stockInput.value = '';
+                return;
+            }
+
             let total = 0;
             let parts = sizesVal.split(',');
             for (let part of parts) {
                 let sub = part.trim().split(':');
                 if (sub.length === 2) {
-                    let q = parseInt(sub[1].trim());
-                    if (!isNaN(q)) {
-                        total += q;
-                    }
+                    let q = parseInt(sub[1]) || 0;
+                    total += q;
                 }
             }
-            return total;
-        }
-
-        function autoCalculateTotal() {
-            const sizesVal = document.getElementById('prodSizes').value.trim();
-            const stockInput = document.getElementById('prodStock');
-            stockInput.value = calculateTotalStock(sizesVal);
+            stockInput.value = total;
         }
 
         async function handleFormSubmit(e) {
@@ -136,8 +134,21 @@
             const sizes = document.getElementById('prodSizes').value.trim();
             const image = document.getElementById('prodImage').value;
 
-            // حساب دقيق للمخزون الإجمالي يتفادى الأخطاء
-            const calculatedStock = calculateTotalStock(sizes);
+            let calculatedStock = 0;
+            if (sizes.includes(':')) {
+                let parts = sizes.split(',');
+                for (let part of parts) {
+                    let sub = part.trim().split(':');
+                    if (sub.length === 2) {
+                        calculatedStock += parseInt(sub[1]) || 0;
+                    }
+                }
+            }
+
+            if (calculatedStock <= 0) {
+                alert('الرجاء كتابة المقاسات والكميات بشكل صحيح (مثال: S:10, M:15)');
+                return;
+            }
 
             const productData = {
                 user_id: currentUserId,
@@ -178,11 +189,8 @@
                 const itemName = p.product_name || p.name || '';
                 const itemBuyPrice = p.buy_price !== undefined ? p.buy_price : 0;
                 const itemSellPrice = p.sell_price !== undefined ? p.sell_price : (p.price || 0);
-                
-                // إعادة حساب الإجمالي برمجياً أثناء العرض بناءً على حقل المقاسات لضمان عدم ظهور أخطاء أو أصفار قديمة
-                const itemSizes = p.sizes || '';
-                const itemStock = calculateTotalStock(itemSizes) > 0 ? calculateTotalStock(itemSizes) : (p.stock !== undefined ? p.stock : (p.quantity || 0));
-                
+                const itemStock = p.stock !== undefined ? p.stock : (p.quantity || 0);
+                const itemSizes = p.sizes || 'لا توجد';
                 const itemImg = p.image || p.image_url || '';
 
                 tbody.innerHTML += `
@@ -191,8 +199,8 @@
                         <td><b>${itemName}</b></td>
                         <td style="color: var(--text-muted);">${itemBuyPrice} ج.م</td>
                         <td><span style="color:var(--success); font-weight:bold;">${itemSellPrice} ج.م</span></td>
-                        <td><span style="font-weight:bold; color:var(--primary);">${itemStock}</span></td>
-                        <td><span style="background: #e0e7ff; color: #3730a3; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;">${itemSizes || 'لا توجد'}</span></td>
+                        <td>${itemStock}</td>
+                        <td><span style="background: #e0e7ff; color: #3730a3; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;">${itemSizes}</span></td>
                         <td style="display:flex; justify-content:center; gap:8px;">
                             <button onclick="editProduct('${p.id}', \`${itemName}\`, '${itemBuyPrice}', '${itemSellPrice}', \`${itemSizes}\`, \`${itemImg}\`)" class="btn-warning">تعديل</button>
                             <button onclick="deleteProduct('${p.id}')" class="btn-danger">حذف</button>
