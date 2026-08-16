@@ -99,8 +99,29 @@
             loadPOSProducts();
         }
 
+        // دالة دقيقة لحساب المجموع الإجمالي للكميات من نص المقاسات (تدعم الأصفار مثل 30:0)[cite: 4]
+        function calculateTotalStock(sizesVal) {
+            if (!sizesVal || !sizesVal.includes(':')) return 0;
+            let total = 0;
+            let parts = sizesVal.split(',');
+            for (let part of parts) {
+                let sub = part.trim().split(':');
+                if (sub.length === 2) {
+                    let q = parseInt(sub[1].trim());
+                    if (!isNaN(q)) {
+                        total += q;
+                    }
+                }
+            }
+            return total;
+        }
+
         async function loadPOSProducts() {
-            const { data } = await supabaseClient.from('products').select('*').eq('user_id', currentUserId);
+            const { data, error } = await supabaseClient.from('products').select('*').eq('user_id', currentUserId);
+            if (error) {
+                console.error("Error loading products:", error.message);
+                return;
+            }
             productsList = data || [];
             displayProducts(productsList);
         }
@@ -117,9 +138,13 @@
             items.forEach(p => {
                 const pName = p.product_name || p.name;
                 const pPrice = Number(p.sell_price !== undefined ? p.sell_price : (p.price || 0));
-                const pStock = p.total_stock !== undefined ? p.total_stock : (p.stock !== undefined ? p.stock : (p.quantity || 0));
-                const pImg = p.image || p.image_url || 'https://via.placeholder.com/150';
                 const pSizes = p.sizes || '';
+                
+                // حساب المخزون الكلي برمجياً من حقل المقاسات لضمان عدم ظهوره بصفر إذا كانت حقول المخزون القديمة فارغة[cite: 4]
+                const calculatedStock = calculateTotalStock(pSizes);
+                const pStock = calculatedStock > 0 ? calculatedStock : (p.stock !== undefined ? p.stock : 0);
+                
+                const pImg = p.image_url || p.image || 'https://via.placeholder.com/150';
 
                 let sizeSelectHtml = '';
                 if (pSizes && pSizes.trim() !== '') {
@@ -128,7 +153,7 @@
                         let parts = s.split(':');
                         let sName = parts[0].trim();
                         let sQty = parts[1] ? parts[1].trim() : '0';
-                        return `<option value="${sName}">${sName} (متبقي: ${sQty})</option>`;
+                        return `<option value="${sName}">مقاس: ${sName} (متبقي: ${sQty})</option>`;
                     }).join('');
 
                     sizeSelectHtml = `<select class="size-select-box" id="size_select_${p.id}" onclick="event.stopPropagation()">${options}</select>`;
@@ -158,7 +183,7 @@
         }
 
         function addToCart(productId) {
-            const product = productsList.find(p => p.id == productId);
+            const product = productsList.find(p => String(p.id) === String(productId));
             if (!product) return;
 
             let selectedSize = 'افتراضي';
@@ -170,7 +195,29 @@
             const pName = product.product_name || product.name;
             const pPrice = Number(product.sell_price !== undefined ? product.sell_price : product.price);
             
-            const existing = cart.find(item => item.id == productId && item.size === selectedSize);
+            // التحقق من مخزون المقاس المحدد أو المخزون الكلي[cite: 4]
+            let currentStock = calculateTotalStock(product.sizes);
+            if (currentStock === 0) {
+                currentStock = Number(product.stock || 0);
+            }
+            
+            let currentSizesStr = product.sizes || '';
+            if (currentSizesStr.includes(':') && selectedSize !== 'افتراضي') {
+                let sizesArr = currentSizesStr.split(',').map(s => s.trim());
+                for (let sItem of sizesArr) {
+                    let parts = sItem.split(':');
+                    if (parts[0].trim() === selectedSize) {
+                        currentStock = parseInt(parts[1]) || 0;
+                        break;
+                    }
+                }
+            }
+
+            if (currentStock < 10) {
+                alert(`⚠️ تنبيه: هذا المنتج (المقاس: ${selectedSize}) ناقص، المتبقي في المخزن ${currentStock} قطع فقط!`);
+            }
+
+            const existing = cart.find(item => String(item.id) === String(productId) && item.size === selectedSize);
             if (existing) {
                 existing.quantity++;
             } else {
@@ -219,75 +266,93 @@
             totalElement.innerText = total.toFixed(2) + ' ج.م';
         }
 
-        function changeQty(index, delta) {
-            cart[index].quantity += delta;
-            if (cart[index].quantity <= 0) {
-                cart.splice(index, 1);
-            }
-            renderCart();
-        }
-
         function clearCart() {
             cart = [];
             renderCart();
         }
 
+        function changeQty(index, delta) {
+            const item = cart[index];
+            
+            if (delta > 0) {
+                const product = productsList.find(p => (p.product_name || p.name) === item.rawName);
+                if (product) {
+                    let maxAvailable = calculateTotalStock(product.sizes);
+                    if (maxAvailable === 0) maxAvailable = Number(product.stock || 0);
+                    
+                    let currentSizesStr = product.sizes || '';
+                    if (currentSizesStr.includes(':') && item.size !== 'افتراضي') {
+                        let sizesArr = currentSizesStr.split(',').map(s => s.trim());
+                        for (let sItem of sizesArr) {
+                            let parts = sItem.split(':');
+                            if (parts[0].trim() === item.size) {
+                                maxAvailable = parseInt(parts[1]) || 0;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (item.quantity + delta > maxAvailable) {
+                        alert(`عذراً، الكمية المطلوبة غير متوفرة في المخزن! المتبقي فقط: ${maxAvailable}`);
+                        return;
+                    }
+                }
+            }
+
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                cart.splice(index, 1);
+            }
+            renderCart();
+        }
+
+        // دالة إتمام البيع وخصم المخزون
         async function checkout() {
             if (cart.length === 0) {
                 alert('السلة فارغة!');
                 return;
             }
 
-            let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            for (let cartItem of cart) {
+                const product = productsList.find(p => String(p.id) === String(cartItem.id));
+                if (!product) continue;
 
-            // 1. حفظ الفاتورة في جدول المبيعات (orders) الخاص بالكاشير حصرياً
-            const { error: orderError } = await supabaseClient
-                .from('orders')
-                .insert([{
-                    user_id: currentUserId,
-                    total_amount: totalAmount,
-                    items: cart
-                }]);
+                let updatedSizes = product.sizes;
+                
+                // تحديث كميات المقاسات في حقل النص إذا كان المنتج يحتوي على مقاسات
+                if (product.sizes && product.sizes.includes(':') && cartItem.size !== 'افتراضي') {
+                    let sizesArr = product.sizes.split(',').map(s => s.trim());
+                    sizesArr = sizesArr.map(s => {
+                        let parts = s.split(':');
+                        let sName = parts[0].trim();
+                        let sQty = parseInt(parts[1]) || 0;
+                        if (sName === cartItem.size) {
+                            sQty = Math.max(0, sQty - cartItem.quantity);
+                        }
+                        return `${sName}:${sQty}`;
+                    });
+                    updatedSizes = sizesArr.join(', ');
+                }
 
-            if (orderError) {
-                alert('خطأ أثناء حفظ الفاتورة: ' + orderError.message);
-                return;
-            }
+                let newStock = calculateTotalStock(updatedSizes);
 
-            // 2. خصم الكميات والمقاسات المباعة من جدول المنتجات
-            for (let item of cart) {
-                const product = productsList.find(p => p.id == item.id);
-                if (product) {
-                    let currentSizesStr = product.sizes || '';
-                    let updatedSizesStr = currentSizesStr;
+                // تحديث قاعدة البيانات في Supabase
+                const { error } = await supabaseClient
+                    .from('products')
+                    .update({
+                        sizes: updatedSizes,
+                        stock: newStock,
+                        quantity: newStock
+                    })
+                    .eq('id', product.id);
 
-                    if (currentSizesStr.includes(':')) {
-                        let sizesArr = currentSizesStr.split(',').map(s => s.trim());
-                        sizesArr = sizesArr.map(sItem => {
-                            let parts = sItem.split(':');
-                            let sName = parts[0].trim();
-                            let sStock = parseInt(parts[1]) || 0;
-                            if (sName === item.size) {
-                                sStock = Math.max(0, sStock - item.quantity);
-                            }
-                            return `${sName}:${sStock}`;
-                        });
-                        updatedSizesStr = sizesArr.join(', ');
-                    }
-
-                    let currentTotalStock = Number(product.total_stock || product.stock || product.quantity || 0);
-                    let newTotalStock = Math.max(0, currentTotalStock - item.quantity);
-
-                    await supabaseClient.from('products').update({
-                        sizes: updatedSizesStr,
-                        total_stock: newTotalStock,
-                        stock: newTotalStock,
-                        quantity: newTotalStock
-                    }).eq('id', item.id);
+                if (error) {
+                    alert('حدث خطأ أثناء خصم المخزون: ' + error.message);
+                    return;
                 }
             }
 
-            alert('تم إتمام البيع بنجاح وخصم الكمية والمقاس من المخزن!');
+            alert('تم إتمام البيع بنجاح وخصم الكميات من المخزن!');
             cart = [];
             renderCart();
             loadPOSProducts();
