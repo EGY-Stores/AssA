@@ -33,9 +33,15 @@
         .cart-btn:hover { border-color: var(--primary); color: var(--primary); }
         .cart-badge { background: var(--primary); color: #000; border-radius: 50px; padding: 2px 7px; font-size: 11px; font-weight: 800; position: absolute; top: -8px; left: -8px; }
 
-        .hero { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); color: white; padding: 50px 20px; text-align: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); }
-        .hero h1 { font-size: 30px; font-weight: 800; margin-bottom: 10px; color: var(--primary); }
+        .hero { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); color: white; padding: 40px 20px; text-align: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .hero h1 { font-size: 30px; font-weight: 800; margin-bottom: 2px; color: var(--primary); }
         .hero p { font-size: 15px; color: #aaa; max-width: 600px; margin: 0 auto; }
+
+        /* تصميم شريط البحث تحت قسم الترحيب */
+        .search-box { position: relative; width: 100%; max-width: 450px; margin-top: 5px; }
+        .search-box input { width: 100%; background: #1a1a1a; border: 1px solid var(--border); border-radius: 8px; padding: 10px 40px 10px 16px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .search-box input:focus { border-color: var(--primary); }
+        .search-box i { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
 
         .container { max-width: 1280px; margin: 0 auto; padding: 0 20px 40px; width: 100%; flex-grow: 1; }
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 40px; }
@@ -145,6 +151,12 @@
     <div class="hero">
         <h1 id="heroStoreName">مجموعة المنتجات الحصرية</h1>
         <p>تسوق أحدث المنتجات بأفضل الأسعار وبكل سهولة.</p>
+        
+        <!-- حقل البحث تحت رسالة الترحيب -->
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="ابحث عن منتج..." oninput="filterProducts()">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
     </div>
 
     <div class="container">
@@ -256,7 +268,7 @@
             }
 
             productsData = data;
-            renderProducts();
+            renderProducts(productsData);
         }
 
         async function loadStoreSettings(userId) {
@@ -286,14 +298,28 @@
             }
         }
 
-        function renderProducts() {
+        function filterProducts() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = productsData.filter(product => {
+                const name = (product.product_name || product.name || '').toLowerCase();
+                return name.includes(searchVal);
+            });
+            renderProducts(filtered);
+        }
+
+        function renderProducts(itemsToRender) {
             const grid = document.getElementById('storeProductsGrid');
             grid.innerHTML = '';
 
             Object.values(autoPlayIntervals).forEach(interval => clearInterval(interval));
             autoPlayIntervals = {};
 
-            productsData.forEach((product) => {
+            if (!itemsToRender || itemsToRender.length === 0) {
+                grid.innerHTML = '<div class="empty-state">لا توجد منتجات مطابقة للبحث</div>';
+                return;
+            }
+
+            itemsToRender.forEach((product) => {
                 const pName = product.product_name || product.name || 'منتج بدون اسم';
                 const pPrice = Number(product.sell_price || product.price || 0);
                 
