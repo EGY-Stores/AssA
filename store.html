@@ -321,14 +321,14 @@
                 const name = (product.product_name || product.name || '').toLowerCase();
                 return name.includes(searchVal);
             });
-            currentPage = 1; // العودة للصفحة الأولى عند البحث الجديد
+            currentPage = 1;
             renderCurrentPage();
         }
 
         function changePage(pageNumber) {
             currentPage = pageNumber;
             renderCurrentPage();
-            window.scrollTo({ top: 300, behavior: 'smooth' }); // التمرير لأعلى المنتجات بسلاسة
+            window.scrollTo({ top: 300, behavior: 'smooth' });
         }
 
         function renderCurrentPage() {
@@ -345,7 +345,6 @@
                 return;
             }
 
-            // حساب المنتجات التي تخص الصفحة الحالية فقط (10 منتجات كحد أقصى)
             const totalPages = Math.ceil(filteredProductsData.length / itemsPerPage);
             if (currentPage > totalPages) currentPage = totalPages;
             if (currentPage < 1) currentPage = 1;
@@ -512,7 +511,6 @@
                 }
             });
 
-            // بناء أزرار الانتقال بين الصفحات
             renderPaginationControls(totalPages);
         }
 
@@ -520,23 +518,20 @@
             const paginationContainer = document.getElementById('paginationContainer');
             paginationContainer.innerHTML = '';
 
-            if (totalPages <= 1) return; // إذا كانت صفحة واحدة فلا داعي للأزرار
+            if (totalPages <= 1) return;
 
-            // زر السابق
             paginationContainer.innerHTML += `
                 <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
                     <i class="fa-solid fa-chevron-right"></i> السابق
                 </button>
             `;
 
-            // أزرار أرقام الصفحات
             for (let i = 1; i <= totalPages; i++) {
                 paginationContainer.innerHTML += `
                     <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>
                 `;
             }
 
-            // زر التالي
             paginationContainer.innerHTML += `
                 <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
                     التالي <i class="fa-solid fa-chevron-left"></i>
@@ -865,6 +860,7 @@
             let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             let targetUserId = ownerId || (productsData.length > 0 ? productsData[0].user_id : '');
 
+            // 1. تسجيل الفاتورة في جدول invoices
             const { error: invoiceError } = await supabaseClient.from('invoices').insert([{
                 user_id: targetUserId,
                 total_amount: totalPrice,
@@ -883,46 +879,60 @@
                 return;
             }
 
+            // 2. تحديث المخزون وخصم الكميات والمقاسات بدقة بناءً على الكمية المطلوبة في السلة
             for (let item of cart) {
-                const product = productsData.find(p => p.id == item.id);
-                if (product) {
-                    let currentSizesStr = product.sizes || '';
-                    let updatedSizesStr = currentSizesStr;
+                // جلب أحدث بيانات المنتج من قاعدة البيانات
+                const { data: freshProduct, error: fetchErr } = await supabaseClient
+                    .from('products')
+                    .select('*')
+                    .eq('id', item.id)
+                    .single();
 
-                    if (currentSizesStr.includes(':') && item.size) {
-                        let sizesArr = currentSizesStr.split(',').map(s => s.trim());
-                        sizesArr = sizesArr.map(sItem => {
-                            let parts = sItem.split(':');
-                            let sName = parts[0] ? parts[0].trim() : '';
-                            let sStock = parts[1] ? parseInt(parts[1].trim()) : 0;
-                            
-                            if (sName === item.size) {
-                                sStock = Math.max(0, sStock - item.quantity);
-                            }
-                            return `${sName}:${sStock}`;
-                        });
-                        updatedSizesStr = sizesArr.join(', ');
-                    }
+                if (fetchErr || !freshProduct) continue;
 
-                    let newTotalStock = 0;
-                    if (updatedSizesStr.includes(':')) {
-                        updatedSizesStr.split(',').forEach(part => {
-                            let sub = part.trim().split(':');
-                            if (sub.length === 2) {
-                                newTotalStock += parseInt(sub[1]) || 0;
-                            }
-                        });
-                    }
+                let currentSizesStr = freshProduct.sizes || '';
+                let updatedSizesStr = currentSizesStr;
 
-                    await supabaseClient.from('products').update({
-                        sizes: updatedSizesStr,
-                        stock: newTotalStock,
-                        quantity: newTotalStock
-                    }).eq('id', item.id);
+                // إذا كان المنتج يحتوي على مقاسات
+                if (currentSizesStr.includes(':') && item.size) {
+                    let sizesArr = currentSizesStr.split(',').map(s => s.trim());
+                    sizesArr = sizesArr.map(sItem => {
+                        let parts = sItem.split(':');
+                        let sName = parts[0] ? parts[0].trim() : '';
+                        let sStock = parts[1] ? parseInt(parts[1].trim()) : 0;
+                        
+                        if (sName === item.size) {
+                            // خصم الكمية الفعلية المطلوبة (item.quantity) وليست قطعة واحدة
+                            sStock = Math.max(0, sStock - Number(item.quantity));
+                        }
+                        return `${sName}:${sStock}`;
+                    });
+                    updatedSizesStr = sizesArr.join(', ');
                 }
+
+                // حساب إجمالي المخزون الجديد بناءً على مجموع المقاسات المحدثة
+                let newTotalStock = 0;
+                if (updatedSizesStr.includes(':')) {
+                    updatedSizesStr.split(',').forEach(part => {
+                        let sub = part.trim().split(':');
+                        if (sub.length === 2) {
+                            newTotalStock += parseInt(sub[1]) || 0;
+                        }
+                    });
+                } else {
+                    let generalStock = parseInt(freshProduct.stock || freshProduct.quantity || 0);
+                    newTotalStock = Math.max(0, generalStock - Number(item.quantity));
+                }
+
+                // تحديث قاعدة البيانات بالكميات والمقاسات الجديدة
+                await supabaseClient.from('products').update({
+                    sizes: updatedSizesStr,
+                    stock: newTotalStock,
+                    quantity: newTotalStock
+                }).eq('id', item.id);
             }
 
-            alert('تم إرسال طلبك بنجاح وتم خصم الكميات والمقاسات من المخزن تلقائياً!');
+            alert('تم إرسال طلبك بنجاح وتم خصم الكميات والمقاسات المطلوبة بدقة من المخزن!');
             cart = [];
             updateCartUI();
             closeCheckoutModal();
