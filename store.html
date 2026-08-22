@@ -33,7 +33,7 @@
         .cart-btn:hover { border-color: var(--primary); color: var(--primary); }
         .cart-badge { background: var(--primary); color: #000; border-radius: 50px; padding: 2px 7px; font-size: 11px; font-weight: 800; position: absolute; top: -8px; left: -8px; }
 
-        .hero { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); color: white; padding: 40px 20px; text-align: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .hero { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); color: white; padding: 40px 20px; text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .hero h1 { font-size: 30px; font-weight: 800; margin-bottom: 2px; color: var(--primary); }
         .hero p { font-size: 15px; color: #aaa; max-width: 600px; margin: 0 auto; }
 
@@ -42,10 +42,15 @@
         .search-box input:focus { border-color: var(--primary); }
         .search-box i { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
 
+        /* شريط التصنيفات الديناميكي العلوي */
+        .categories-container { background: #111; border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: center; gap: 10px; overflow-x: auto; margin-bottom: 30px; }
+        .cat-btn { background: #1a1a1a; border: 1px solid var(--border); color: var(--text-main); padding: 8px 18px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; transition: all 0.2s; white-space: nowrap; }
+        .cat-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .cat-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+
         .container { max-width: 1280px; margin: 0 auto; padding: 0 20px 40px; width: 100%; flex-grow: 1; display: flex; flex-direction: column; }
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
         
-        /* تنسيق أزرار التنقل بين الصفحات (Pagination) */
         .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 20px 0 40px; flex-wrap: wrap; }
         .page-btn { background: #161616; border: 1px solid var(--border); color: var(--text-main); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px; transition: all 0.2s; }
         .page-btn:hover { border-color: var(--primary); color: var(--primary); }
@@ -164,6 +169,11 @@
         </div>
     </div>
 
+    <!-- شريط الأقسام والتصنيفات العلوي الديناميكي -->
+    <div class="categories-container" id="categoriesContainerBar">
+        <button onclick="filterByCategory('all', this)" class="cat-btn active">الرئيسية (الكل)</button>
+    </div>
+
     <div class="container">
         <!-- شبكة عرض المنتجات -->
         <div class="products-grid" id="storeProductsGrid">
@@ -256,7 +266,8 @@
         let currentSelectedProductId = null;
         let selectedRatingVal = 5;
 
-        // متغيرات التقسيم لصفحات (Pagination)
+        // متغيرات الفلترة والتقسيم
+        let currentCategory = 'all';
         let currentPage = 1;
         const itemsPerPage = 10;
 
@@ -266,6 +277,7 @@
 
             if (ownerId) {
                 await loadStoreSettings(ownerId);
+                await loadStoreCategories(ownerId); // جلب الأقسام الديناميكية من قاعدة البيانات
             }
 
             let query = supabaseClient.from('products').select('*');
@@ -283,9 +295,7 @@
             }
 
             productsData = data;
-            filteredProductsData = data;
-            currentPage = 1;
-            renderCurrentPage();
+            applyFilters();
         }
 
         async function loadStoreSettings(userId) {
@@ -315,13 +325,65 @@
             }
         }
 
+        // دالة جلب الأقسام الديناميكية وعرضها في الشريط العلوي للمتجر
+        async function loadStoreCategories(userId) {
+            const { data, error } = await supabaseClient
+                .from('store_categories')
+                .select('*')
+                .eq('user_id', userId);
+
+            const containerBar = document.getElementById('categoriesContainerBar');
+            if (!containerBar) return;
+
+            containerBar.innerHTML = `<button onclick="filterByCategory('all', this)" class="cat-btn active">الرئيسية (الكل)</button>`;
+
+            if (data && data.length > 0) {
+                data.forEach(cat => {
+                    containerBar.innerHTML += `
+                        <button onclick="filterByCategory('${cat.category_slug}', this)" class="cat-btn">${cat.category_name}</button>
+                    `;
+                });
+            }
+        }
+
+        // دالة تغيير التصنيف من الشريط العلوي
+        function filterByCategory(category, btnElement) {
+            currentCategory = category;
+            
+            // تحديث تصميم الأزرار النشطة
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElement) {
+                btnElement.classList.add('active');
+            }
+
+            currentPage = 1;
+            applyFilters();
+        }
+
         function filterProducts() {
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function applyFilters() {
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+
             filteredProductsData = productsData.filter(product => {
                 const name = (product.product_name || product.name || '').toLowerCase();
-                return name.includes(searchVal);
+                const categoryField = (product.category || '').toLowerCase();
+
+                // فلترة البحث بالنص
+                const matchesSearch = name.includes(searchVal);
+
+                // فلترة التصنيف بناءً على الـ slug أو مطابقة اسم القسم المخزن مع المنتج
+                let matchesCategory = true;
+                if (currentCategory !== 'all') {
+                    matchesCategory = (categoryField === currentCategory);
+                }
+
+                return matchesSearch && matchesCategory;
             });
-            currentPage = 1;
+
             renderCurrentPage();
         }
 
@@ -340,7 +402,7 @@
             autoPlayIntervals = {};
 
             if (!filteredProductsData || filteredProductsData.length === 0) {
-                grid.innerHTML = '<div class="empty-state">لا توجد منتجات مطابقة للبحث</div>';
+                grid.innerHTML = '<div class="empty-state">لا توجد منتجات مطابقة للبحث أو القسم المحدد</div>';
                 paginationContainer.innerHTML = '';
                 return;
             }
@@ -356,7 +418,6 @@
             pageItems.forEach((product) => {
                 const pName = product.product_name || product.name || 'منتج بدون اسم';
                 const pPrice = Number(product.sell_price || product.price || 0);
-                
                 const productDiscount = Number(product.discount || 0);
                 
                 let discountBadgeHtml = '';
@@ -860,7 +921,6 @@
             let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             let targetUserId = ownerId || (productsData.length > 0 ? productsData[0].user_id : '');
 
-            // 1. تسجيل الفاتورة في جدول invoices
             const { error: invoiceError } = await supabaseClient.from('invoices').insert([{
                 user_id: targetUserId,
                 total_amount: totalPrice,
@@ -879,9 +939,7 @@
                 return;
             }
 
-            // 2. تحديث المخزون وخصم الكميات والمقاسات بدقة بناءً على الكمية المطلوبة في السلة
             for (let item of cart) {
-                // جلب أحدث بيانات المنتج من قاعدة البيانات
                 const { data: freshProduct, error: fetchErr } = await supabaseClient
                     .from('products')
                     .select('*')
@@ -893,7 +951,6 @@
                 let currentSizesStr = freshProduct.sizes || '';
                 let updatedSizesStr = currentSizesStr;
 
-                // إذا كان المنتج يحتوي على مقاسات
                 if (currentSizesStr.includes(':') && item.size) {
                     let sizesArr = currentSizesStr.split(',').map(s => s.trim());
                     sizesArr = sizesArr.map(sItem => {
@@ -902,7 +959,6 @@
                         let sStock = parts[1] ? parseInt(parts[1].trim()) : 0;
                         
                         if (sName === item.size) {
-                            // خصم الكمية الفعلية المطلوبة (item.quantity) وليست قطعة واحدة
                             sStock = Math.max(0, sStock - Number(item.quantity));
                         }
                         return `${sName}:${sStock}`;
@@ -910,7 +966,6 @@
                     updatedSizesStr = sizesArr.join(', ');
                 }
 
-                // حساب إجمالي المخزون الجديد بناءً على مجموع المقاسات المحدثة
                 let newTotalStock = 0;
                 if (updatedSizesStr.includes(':')) {
                     updatedSizesStr.split(',').forEach(part => {
@@ -924,7 +979,6 @@
                     newTotalStock = Math.max(0, generalStock - Number(item.quantity));
                 }
 
-                // تحديث قاعدة البيانات بالكميات والمقاسات الجديدة
                 await supabaseClient.from('products').update({
                     sizes: updatedSizesStr,
                     stock: newTotalStock,

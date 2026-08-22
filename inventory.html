@@ -3,90 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المخزن والمنتجات</title>
+    <title>إدارة المخزن والمنتجات - نظام إدارة المحلات</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4f46e5;
-            --success: #059669;
-            --danger: #ef4444;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --success-bg: #d1fae5;
+            --warning: #f59e0b;
+            --warning-bg: #fef3c7;
+            --danger: #f43f5e;
+            --danger-bg: #ffe4e6;
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #0f172a;
+            --text-main: #1e293b;
             --text-muted: #64748b;
-            --border: #e2e8f0;
+            --border: #f1f5f9;
+            --border-hover: #cbd5e1;
+            --radius: 16px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 5px 15px -5px rgba(0, 0, 0, 0.02);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 30px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 30px 20px; line-height: 1.7; }
         
-        .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
+        .container { 
+            max-width: 1350px; 
+            margin: 0 auto; 
+            background: var(--card-bg); 
+            padding: 35px; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+            border: 1px solid var(--border); 
+        }
         
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
-        .header h2 { color: var(--text-main); font-size: 24px; }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid var(--border); 
+            padding-bottom: 20px; 
+            margin-bottom: 25px; 
+        }
+        .header h2 { color: var(--text-main); font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .header h2 i { color: var(--primary); background: var(--primary-light); padding: 10px; border-radius: 12px; font-size: 18px; }
         
-        .btn-back { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; }
+        .btn-back { 
+            background: #f1f5f9; 
+            color: var(--text-main); 
+            border: 1px solid var(--border); 
+            padding: 10px 18px; 
+            border-radius: 12px; 
+            text-decoration: none; 
+            font-size: 14px; 
+            font-weight: 700; 
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .btn-back:hover { background: #e2e8f0; transform: translateY(-2px); }
 
-        .section-box { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 25px; }
-        .form-grid { display: grid; grid-template-columns: 2fr 1.2fr 1.2fr 1.2fr 1fr 2fr 2fr auto; gap: 10px; align-items: center; }
-        @media(max-width: 1200px) { .form-grid { grid-template-columns: 1fr; } }
+        .section-box { 
+            background: #fafafa; 
+            padding: 25px; 
+            border-radius: 14px; 
+            border: 1px solid var(--border); 
+            margin-bottom: 30px; 
+            transition: var(--transition);
+        }
+        .section-box:hover { border-color: var(--border-hover); }
 
-        input { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: white; width: 100%; }
-        input:focus { outline: none; border-color: var(--primary); }
-        input:disabled { background: #e2e8f0; color: #64748b; cursor: not-allowed; }
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: 1.8fr 1.2fr 1fr 1fr 1fr 0.9fr 1.8fr 1.8fr auto; 
+            gap: 10px; 
+            align-items: center; 
+        }
+        @media(max-width: 1300px) { .form-grid { grid-template-columns: 1fr; } }
 
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-primary:hover { background: #4338ca; }
+        input, select { 
+            padding: 12px 14px; 
+            border: 2px solid var(--border); 
+            border-radius: 12px; 
+            font-size: 13px; 
+            background: white; 
+            width: 100%; 
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
+        input:disabled { background: #f1f5f9; color: var(--text-muted); cursor: not-allowed; border-color: var(--border); }
+
+        .btn-primary { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 14px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
         
-        .btn-warning { background: #fef3c7; color: #d97706; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn-danger { background: #fee2e2; color: var(--danger); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-warning { 
+            background: var(--warning-bg); 
+            color: #b45309; 
+            border: none; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 12px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-warning:hover { background: #fde68a; transform: scale(1.05); }
 
-        .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+        .btn-danger { 
+            background: var(--danger-bg); 
+            color: var(--danger); 
+            border: none; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 12px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-danger:hover { background: #fecdd3; transform: scale(1.05); }
+
+        .table-container { 
+            overflow-x: auto; 
+            border-radius: 14px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
         table { width: 100%; border-collapse: collapse; text-align: right; background: white; }
-        th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 14px; text-align: center; }
-        th { background: #f1f5f9; color: var(--text-muted); font-weight: 600; }
+        th, td { padding: 14px; border-bottom: 1px solid var(--border); font-size: 13px; text-align: center; }
+        th { background: #f8fafc; color: var(--text-muted); font-weight: 700; }
+        tr:hover { background: #fafafa; }
+        
+        .table-title { 
+            font-size: 18px; 
+            font-weight: 700; 
+            margin-bottom: 15px; 
+            color: var(--text-main); 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
-            <h2 id="formTitle">إضافة منتج جديد للمخزن</h2>
+            <h2 id="formTitle"><i class="fa-solid fa-boxes-stacked"></i> إضافة منتج جديد للمخزن</h2>
             <a href="store-dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-right"></i> لوحة التحكم</a>
         </div>
 
         <div class="section-box">
             <form id="productForm" onsubmit="handleFormSubmit(event)" class="form-grid">
                 <input type="hidden" id="editProdId">
-                <input type="text" id="prodName" placeholder="اسم المنتج" required>
+                <input type="text" id="prodName" placeholder="اسم المنتج" required oninput="autoDetectCategory()">
+                <select id="prodCategory" required>
+                    <option value="">اختر القسم...</option>
+                </select>
                 <input type="number" step="0.01" id="prodBuyPrice" placeholder="سعر الشراء" required>
                 <input type="number" step="0.01" id="prodSellPrice" placeholder="سعر البيع الأصلي" required>
-                <input type="text" id="prodDiscount" placeholder="قيمة الخصم (مثال: 20 أو 20% أو 50 ج.م)">
-                <input type="number" id="prodStock" placeholder="الكمية (تلقائي)" title="يتم حساب الإجمالي تلقائياً من مجموع المقاسات" disabled style="background:#e2e8f0; font-weight:bold;">
-                <input type="text" id="prodSizes" placeholder="المقاس والكمية (مثال: S:10, M:15)" oninput="autoCalculateTotal()" required>
+                <input type="text" id="prodDiscount" placeholder="الخصم (مثال: 20%)">
+                <input type="number" id="prodStock" placeholder="الكمية" disabled>
+                <input type="text" id="prodSizes" placeholder="المقاسات (مثال: S:10, M:15)" oninput="autoCalculateTotal()" required>
                 <input type="text" id="prodImage" placeholder="رابط الصورة (URL)">
-                <button type="submit" id="submitBtn" class="btn-primary">حفظ</button>
+                <button type="submit" id="submitBtn" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
             </form>
         </div>
 
-        <h3 style="margin-bottom: 15px; font-size: 18px;">قائمة منتجات المخزن</h3>
+        <div class="table-title"><i class="fa-solid fa-list" style="color: var(--primary);"></i> قائمة منتجات المخزن</div>
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th>الصورة</th>
                         <th>اسم المنتج</th>
+                        <th>القسم</th>
                         <th>سعر الشراء</th>
                         <th>سعر البيع</th>
-                        <th>قيمة الخصم</th>
-                        <th>المخزون الإجمالي</th>
+                        <th>الخصم</th>
+                        <th>المخزون</th>
                         <th>المقاسات والكميات</th>
                         <th>الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="productsTableBody">
-                    <tr><td colspan="8" style="color:var(--text-muted); padding:20px;">جاري تحميل المنتجات...</td></tr>
+                    <tr><td colspan="9" style="color:var(--text-muted); padding:25px;">جاري تحميل المنتجات...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -98,12 +226,47 @@
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUserId = '';
+        let categoriesMap = {};
+        let keywordsList = [];
 
         async function initInventory() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return; }
             currentUserId = session.user.id;
+            
+            await loadCategoriesAndKeywords();
             loadProducts();
+        }
+
+        async function loadCategoriesAndKeywords() {
+            const { data: catData } = await supabaseClient.from('store_categories').select('*').eq('user_id', currentUserId);
+            const select = document.getElementById('prodCategory');
+            select.innerHTML = '<option value="">اختر القسم...</option>';
+            categoriesMap = {};
+
+            if (catData) {
+                catData.forEach(cat => {
+                    categoriesMap[cat.category_slug] = cat.category_name;
+                    select.innerHTML += `<option value="${cat.category_slug}">${cat.category_name}</option>`;
+                });
+            }
+
+            const { data: kwData } = await supabaseClient.from('category_keywords').select('*').eq('user_id', currentUserId);
+            if (kwData) {
+                keywordsList = kwData;
+            }
+        }
+
+        function autoDetectCategory() {
+            const prodName = document.getElementById('prodName').value.trim().toLowerCase();
+            if (!prodName) return;
+
+            for (let item of keywordsList) {
+                if (prodName.includes(item.keyword.toLowerCase())) {
+                    document.getElementById('prodCategory').value = item.category_slug;
+                    break;
+                }
+            }
         }
 
         function autoCalculateTotal() {
@@ -131,6 +294,7 @@
             e.preventDefault();
             const editId = document.getElementById('editProdId').value;
             const name = document.getElementById('prodName').value;
+            const category = document.getElementById('prodCategory').value;
             const buyPrice = document.getElementById('prodBuyPrice').value;
             const sellPrice = document.getElementById('prodSellPrice').value;
             const discount = document.getElementById('prodDiscount').value.trim();
@@ -157,6 +321,7 @@
                 user_id: currentUserId,
                 product_name: name,
                 name: name,
+                category: category,
                 buy_price: buyPrice,
                 price: sellPrice,
                 sell_price: sellPrice,
@@ -185,12 +350,14 @@
             tbody.innerHTML = '';
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text-muted); padding:20px;">لا توجد منتجات مسجلة في المخزن</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="color:var(--text-muted); padding:25px;">لا توجد منتجات مسجلة في المخزن</td></tr>';
                 return;
             }
 
             data.forEach(p => {
                 const itemName = p.product_name || p.name || '';
+                const itemCategorySlug = p.category || '';
+                const itemCategoryName = categoriesMap[itemCategorySlug] || itemCategorySlug || 'غير مصنف';
                 const itemBuyPrice = p.buy_price !== undefined ? p.buy_price : 0;
                 const itemSellPrice = p.sell_price !== undefined ? p.sell_price : (p.price || 0);
                 const itemDiscount = p.discount || 'لا يوجد';
@@ -200,25 +367,29 @@
 
                 tbody.innerHTML += `
                     <tr>
-                        <td><img src="${itemImg || 'https://via.placeholder.com/50'}" style="width:40px; height:40px; object-fit:cover; border-radius:6px;" onerror="this.src='https://via.placeholder.com/50'"></td>
-                        <td><b>${itemName}</b></td>
-                        <td style="color: var(--text-muted);">${itemBuyPrice} ج.م</td>
+                        <td><img src="${itemImg || 'https://via.placeholder.com/50'}" style="width:40px; height:40px; object-fit:cover; border-radius:8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" onerror="this.src='https://via.placeholder.com/50'"></td>
+                        <td><b style="color: var(--text-main);">${itemName}</b></td>
+                        <td><span style="background: var(--primary-light); color: var(--primary-dark); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold;">${itemCategoryName}</span></td>
+                        <td style="color: var(--text-muted); font-weight: 600;">${itemBuyPrice} ج.م</td>
                         <td><span style="color:var(--success); font-weight:bold;">${itemSellPrice} ج.م</span></td>
-                        <td><span style="background: #fef2f2; color: #dc2626; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;">${itemDiscount}</span></td>
-                        <td>${itemStock}</td>
-                        <td><span style="background: #e0e7ff; color: #3730a3; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;">${itemSizes}</span></td>
-                        <td style="display:flex; justify-content:center; gap:8px;">
-                            <button onclick="editProduct('${p.id}', \`${itemName}\`, '${itemBuyPrice}', '${itemSellPrice}', \`${itemDiscount}\`, \`${itemSizes}\`, \`${itemImg}\`)" class="btn-warning">تعديل</button>
-                            <button onclick="deleteProduct('${p.id}')" class="btn-danger">حذف</button>
+                        <td><span style="background: var(--danger-bg); color: var(--danger); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold;">${itemDiscount}</span></td>
+                        <td><span style="font-weight: bold;">${itemStock}</span></td>
+                        <td><span style="background: #f1f5f9; color: var(--text-main); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold;">${itemSizes}</span></td>
+                        <td>
+                            <div style="display:flex; justify-content:center; gap:6px;">
+                                <button onclick="editProduct('${p.id}', \`${itemName}\`, '${itemCategorySlug}', '${itemBuyPrice}', '${itemSellPrice}', \`${itemDiscount}\`, \`${itemSizes}\`, \`${itemImg}\`)" class="btn-warning"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
+                                <button onclick="deleteProduct('${p.id}')" class="btn-danger"><i class="fa-solid fa-trash-can"></i> حذف</button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function editProduct(id, name, buyPrice, sellPrice, discount, sizes, image) {
+        function editProduct(id, name, category, buyPrice, sellPrice, discount, sizes, image) {
             document.getElementById('editProdId').value = id;
             document.getElementById('prodName').value = name;
+            document.getElementById('prodCategory').value = category;
             document.getElementById('prodBuyPrice').value = buyPrice;
             document.getElementById('prodSellPrice').value = sellPrice;
             document.getElementById('prodDiscount').value = discount === 'لا يوجد' ? '' : discount;
@@ -227,8 +398,8 @@
             
             autoCalculateTotal();
             
-            document.getElementById('formTitle').innerText = 'تعديل بيانات المنتج';
-            document.getElementById('submitBtn').innerText = 'تحديث';
+            document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> تعديل بيانات المنتج';
+            document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> تحديث';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -236,8 +407,8 @@
             document.getElementById('productForm').reset();
             document.getElementById('editProdId').value = '';
             document.getElementById('prodStock').value = '';
-            document.getElementById('formTitle').innerText = 'إضافة منتج جديد للمخزن';
-            document.getElementById('submitBtn').innerText = 'حفظ';
+            document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-boxes-stacked"></i> إضافة منتج جديد للمخزن';
+            document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> حفظ';
         }
 
         async function deleteProduct(id) {

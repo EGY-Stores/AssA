@@ -9,6 +9,7 @@
     <style>
         :root {
             --primary: #4f46e5;
+            --primary-light: #e0e7ff;
             --success: #059669;
             --danger: #ef4444;
             --bg-color: #f8fafc;
@@ -29,6 +30,28 @@
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .btn-back { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; }
 
+        .categories-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        .category-btn {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+        .category-btn:hover { background: #e2e8f0; color: var(--text-main); }
+        .category-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; overflow-y: auto; padding: 5px; flex-grow: 1; }
         
         .product-item { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
@@ -47,10 +70,12 @@
 <body>
 
     <div class="pos-layout">
-        <!-- فاتورة البيع (يمين) -->
         <div class="card">
             <div class="header-row">
-                <h3>فاتورة البيع الحالية</h3>
+                <div>
+                    <h3 style="font-size: 16px;">فاتورة البيع الحالية</h3>
+                    <span id="nextInvoiceBadge" style="font-size: 12px; color: var(--primary); font-weight: bold;">رقم الفاتورة القادمة: --</span>
+                </div>
                 <button onclick="clearCart()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:13px;">إفراغ الفاتورة</button>
             </div>
             
@@ -66,15 +91,18 @@
             <button onclick="checkout()" class="btn-checkout">إتمام البيع وخصم المخزون</button>
         </div>
 
-        <!-- اختيار المنتجات (يسار) -->
         <div class="card">
             <div class="header-row">
                 <h2>اختر المنتجات للبيع</h2>
-                <a href="store-dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-right"></i> لوحة التحكم</a>
+                <a href="store-dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-right"></i> الصفحة الرئيسية</a>
             </div>
 
-            <div style="margin-bottom: 15px;">
-                <input type="text" id="searchBox" onkeyup="filterProducts()" placeholder="ابحث باسم المنتج..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;">
+            <div style="margin-bottom: 10px;">
+                <input type="text" id="searchBox" onkeyup="filterProducts()" placeholder="ابحث باسم المنتج..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; outline:none;">
+            </div>
+
+            <div class="categories-scroll" id="categoriesBar">
+                <button class="category-btn active" onclick="filterByCategory('all', this)">الكل</button>
             </div>
 
             <div class="products-grid" id="posProductsContainer">
@@ -91,12 +119,64 @@
         let currentUserId = '';
         let cart = [];
         let productsList = [];
+        let selectedCategory = 'all';
+        let nextInvoiceNum = 1000;
 
         async function initPOS() {
             const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
-            currentUserId = session.user.id;
-            loadPOSProducts();
+            
+            let ownerId = '';
+            if (session && session.user) {
+                ownerId = session.user.id;
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                ownerId = urlParams.get('uid') || urlParams.get('user_id') || localStorage.getItem('user_id') || localStorage.getItem('uid');
+            }
+
+            if (!ownerId) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUserId = ownerId;
+            localStorage.setItem('user_id', ownerId);
+            
+            await loadStoreSettings(ownerId);
+            await loadCategories();
+            await loadPOSProducts();
+        }
+
+        async function loadStoreSettings(ownerId) {
+            const { data } = await supabaseClient
+                .from('store_settings')
+                .select('next_invoice_number')
+                .eq('user_id', ownerId)
+                .single();
+
+            if (data && data.next_invoice_number) {
+                nextInvoiceNum = Number(data.next_invoice_number);
+            } else {
+                nextInvoiceNum = 1000;
+            }
+            document.getElementById('nextInvoiceBadge').innerText = `رقم الفاتورة القادمة: #${nextInvoiceNum}`;
+        }
+
+        async function loadCategories() {
+            const { data } = await supabaseClient.from('store_categories').select('*').eq('user_id', currentUserId);
+            const bar = document.getElementById('categoriesBar');
+            bar.innerHTML = `<button class="category-btn active" onclick="filterByCategory('all', this)">الكل</button>`;
+
+            if (data) {
+                data.forEach(cat => {
+                    bar.innerHTML += `<button class="category-btn" onclick="filterByCategory('${cat.category_slug}', this)">${cat.category_name}</button>`;
+                });
+            }
+        }
+
+        function filterByCategory(slug, btnElement) {
+            selectedCategory = slug;
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            filterProducts();
         }
 
         function calculateTotalStock(sizesVal) {
@@ -130,7 +210,7 @@
             container.innerHTML = '';
 
             if (items.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; grid-column:span 3; margin-top:20px;">لا توجد منتجات بالمخزن</p>';
+                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; grid-column:span 3; margin-top:20px;">لا توجد منتجات مطابقة</p>';
                 return;
             }
 
@@ -162,7 +242,7 @@
                             <img src="${pImg}" onerror="this.src='https://via.placeholder.com/150'">
                             <h4 style="font-size:14px; margin-bottom:4px;">${pName}</h4>
                             <p style="color:var(--primary); font-weight:bold; font-size:13px; margin-bottom:4px;">${pPrice} ج.م</p>
-                            <p style="font-size:11px; color:var(--text-muted);">المخزن الكلي: ${pStock}</p>
+                            <p style="font-size:11px; color:var(--text-muted);">المخزن: ${pStock}</p>
                         </div>
                         ${sizeSelectHtml}
                     </div>
@@ -174,7 +254,12 @@
             const query = document.getElementById('searchBox').value.toLowerCase();
             const filtered = productsList.filter(p => {
                 const name = (p.product_name || p.name || '').toLowerCase();
-                return name.includes(query);
+                const category = p.category || '';
+
+                const matchesSearch = name.includes(query);
+                const matchesCategory = (selectedCategory === 'all' || category === selectedCategory);
+
+                return matchesSearch && matchesCategory;
             });
             displayProducts(filtered);
         }
@@ -209,12 +294,17 @@
                 }
             }
 
-            if (currentStock < 10) {
-                alert(`⚠️ تنبيه: هذا المنتج (المقاس: ${selectedSize}) ناقص، المتبقي في المخزن ${currentStock} قطع فقط!`);
+            if (currentStock <= 0) {
+                alert(`⚠️ عذراً، هذا المنتج (المقاس: ${selectedSize}) غير متوفر في المخزن (الكمية: 0) ولا يمكن إضافته للفاتورة!`);
+                return;
             }
 
             const existing = cart.find(item => String(item.id) === String(productId) && item.size === selectedSize);
             if (existing) {
+                if (existing.quantity + 1 > currentStock) {
+                    alert(`⚠️ عذراً، الكمية المطلوبة تتجاوز المتاح في المخزن (${currentStock} فقط)!`);
+                    return;
+                }
                 existing.quantity++;
             } else {
                 cart.push({
@@ -271,7 +361,7 @@
             const item = cart[index];
             
             if (delta > 0) {
-                const product = productsList.find(p => (p.product_name || p.name) === item.rawName);
+                const product = productsList.find(p => String(p.id) === String(item.id));
                 if (product) {
                     let maxAvailable = calculateTotalStock(product.sizes);
                     if (maxAvailable === 0) maxAvailable = Number(product.stock || 0);
@@ -309,9 +399,10 @@
             }
 
             let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const currentInvoiceId = nextInvoiceNum;
 
-            // 1. تسجيل الطلب في جدول orders ليظهر في التقارير
             const { error: orderError } = await supabaseClient.from('orders').insert([{
+                id: currentInvoiceId,
                 user_id: currentUserId,
                 total_amount: totalPrice,
                 items: cart,
@@ -323,7 +414,6 @@
                 return;
             }
 
-            // 2. تحديث وخصم الكميات بالكامل بناءً على الكمية المحددة في السلة لكل منتج ومقاس
             for (let cartItem of cart) {
                 const { data: latestProduct, error: fetchError } = await supabaseClient
                     .from('products')
@@ -378,9 +468,16 @@
                 }
             }
 
-            alert('تم إتمام البيع بنجاح، وخصم الكميات والمقاسات بالكامل، وتسجيل الفاتورة في التقارير!');
+            const nextNum = currentInvoiceId + 1;
+            await supabaseClient
+                .from('store_settings')
+                .upsert({ user_id: currentUserId, next_invoice_number: nextNum });
+
+            alert(`تم إتمام البيع بنجاح برقم الفاتورة: #${currentInvoiceId}، وخصم الكميات والمقاسات بالكامل!`);
+            
             cart = [];
             renderCart();
+            await loadStoreSettings(currentUserId);
             loadPOSProducts();
         }
 

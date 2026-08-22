@@ -24,13 +24,79 @@
 
         .container { max-width: 1380px; margin: 0 auto; padding: 0; width: 100%; flex-grow: 1; }
         
-        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--card-bg); padding: 20px 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: var(--card-bg); padding: 20px 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         h1 { font-size: 22px; font-weight: 800; color: var(--text-main); }
         
         .back-btn { background: #f1f5f9; border: 1px solid var(--border); color: var(--text-main); padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; transition: all 0.2s; }
         .back-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        /* إعدادات تسلسل الفواتير */
+        .invoice-setting-card {
+            background: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .invoice-setting-card h4 { font-size: 15px; margin-bottom: 5px; color: var(--text-main); }
+        .invoice-setting-card p { font-size: 12px; color: var(--text-muted); }
+        .setting-action { display: flex; gap: 10px; align-items: center; }
+        .setting-input { padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; width: 140px; outline: none; font-size: 14px; background: #f8fafc; font-weight: bold; }
+        .setting-input:focus { border-color: var(--primary); background: #fff; }
+        .save-setting-btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .save-setting-btn:hover { opacity: 0.9; }
+
+        /* شريط البحث والأقسام */
+        .filters-section {
+            background: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            background: #f8fafc;
+        }
+        .search-box:focus { border-color: var(--primary); background: #fff; }
+
+        .categories-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        .category-btn {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+        .category-btn:hover { background: #e2e8f0; color: var(--text-main); }
+        .category-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); text-align: center; }
         .stat-card h3 { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; }
         .stat-value { font-size: 24px; font-weight: 800; }
@@ -60,7 +126,27 @@
     <div class="container">
         <div class="header-section">
             <h1>التقارير المالية والمبيعات (شامل الكاشير والأونلاين)</h1>
-            <a href="inventory.html" class="back-btn"><i class="fa-solid fa-arrow-right"></i> لوحة التحكم</a>
+            <a href="store-dashboard.html" class="back-btn"><i class="fa-solid fa-arrow-right"></i> الصفحة الرئيسية</a>
+        </div>
+
+        <!-- إعداد رقم بداية الفواتير -->
+        <div class="invoice-setting-card">
+            <div>
+                <h4>رقم بداية الفواتير القادمة</h4>
+                <p>حدد الرقم الذي ترغب أن تبدأ منه الفاتورة التالية في متجرك (سيتحدث تلقائياً بعد كل عملية بيع)</p>
+            </div>
+            <div class="setting-action">
+                <input type="number" id="nextInvoiceInput" class="setting-input" placeholder="مثال: 1000">
+                <button onclick="saveStartingInvoiceNumber()" class="save-setting-btn"><i class="fa-solid fa-floppy-disk"></i> حفظ الرقم</button>
+            </div>
+        </div>
+
+        <!-- شريط البحث والتصنيفات (الأقسام) -->
+        <div class="filters-section">
+            <input type="text" id="searchInput" class="search-box" placeholder="ابحث برقم الفاتورة، اسم العميل، أو اسم المنتج..." oninput="filterTransactions()">
+            <div class="categories-scroll" id="categoriesBar">
+                <button class="category-btn active" onclick="filterByCategory('all', this)">جميع الأقسام</button>
+            </div>
         </div>
 
         <div class="stats-grid">
@@ -87,7 +173,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>نوع الطلب / المعرف</th>
+                        <th>رقم الفاتورة / النوع</th>
                         <th>المنتجات المباعة والكميات</th>
                         <th>بيانات العميل / تفاصيل الدفع</th>
                         <th>إجمالي المبلغ</th>
@@ -107,6 +193,13 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let allTransactions = [];
+        let productsMap = {};
+        let productCategoryMap = {};
+        let totalExpensesGlobal = 0;
+        let selectedCategory = 'all';
+        let currentOwnerId = '';
 
         async function initReports() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -125,8 +218,63 @@
                 return;
             }
 
+            currentOwnerId = ownerId;
             localStorage.setItem('user_id', ownerId);
+
+            await loadInvoiceSetting(ownerId);
+            await loadCategories(ownerId);
             loadReportsData(ownerId);
+        }
+
+        async function loadInvoiceSetting(ownerId) {
+            const { data, error } = await supabaseClient
+                .from('store_settings')
+                .select('next_invoice_number')
+                .eq('user_id', ownerId)
+                .single();
+
+            if (data && data.next_invoice_number) {
+                document.getElementById('nextInvoiceInput').value = data.next_invoice_number;
+            } else {
+                document.getElementById('nextInvoiceInput').value = 1000;
+            }
+        }
+
+        async function saveStartingInvoiceNumber() {
+            const val = document.getElementById('nextInvoiceInput').value;
+            if (!val || isNaN(val)) {
+                alert('يرجى إدخال رقم صحيح صالح!');
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('store_settings')
+                .upsert({ user_id: currentOwnerId, next_invoice_number: parseInt(val) });
+
+            if (error) {
+                alert('حدث خطأ أثناء حفظ رقم الفاتورة: ' + error.message);
+            } else {
+                alert('تم تحديث رقم بداية الفواتير بنجاح! الفواتير القادمة ستبدأ من هذا الرقم.');
+            }
+        }
+
+        async function loadCategories(ownerId) {
+            const { data } = await supabaseClient.from('store_categories').select('*').eq('user_id', ownerId);
+            const bar = document.getElementById('categoriesBar');
+            bar.innerHTML = `<button class="category-btn active" onclick="filterByCategory('all', this)">جميع الأقسام</button>`;
+
+            if (data) {
+                data.forEach(cat => {
+                    bar.innerHTML += `<button class="category-btn" onclick="filterByCategory('${cat.category_slug}', this)">${cat.category_name}</button>`;
+                });
+            }
+        }
+
+        function filterByCategory(slug, btnElement) {
+            selectedCategory = slug;
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            filterTransactions();
         }
 
         async function loadReportsData(ownerId) {
@@ -144,7 +292,8 @@
 
             const [salesRes, ordersRes, expRes, productsRes] = await Promise.all([salesQuery, ordersQuery, expQuery, productsQuery]);
 
-            const productsMap = {};
+            productsMap = {};
+            productCategoryMap = {};
             if (productsRes.data) {
                 productsRes.data.forEach(p => {
                     if (p.name || p.product_name) {
@@ -152,13 +301,15 @@
                         const cleanName = rawPName.trim().toLowerCase();
                         const cost = Number(p.buy_price || p.cost_price || p.purchase_price || p.cost || p.price_buy || 0);
                         productsMap[cleanName] = cost;
+                        
+                        if (p.category) {
+                            productCategoryMap[cleanName] = p.category;
+                        }
                     }
                 });
             }
 
-            let totalSales = 0;
-            let totalCostOfGoodsSold = 0;
-            let allTransactions = [];
+            allTransactions = [];
 
             if (salesRes.data) {
                 salesRes.data.forEach(inv => {
@@ -182,13 +333,54 @@
 
             allTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
+            totalExpensesGlobal = 0;
+            if (expRes.data) {
+                expRes.data.forEach(exp => {
+                    totalExpensesGlobal += Number(exp.amount || 0);
+                });
+            }
+
+            filterTransactions();
+        }
+
+        function filterTransactions() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            const filtered = allTransactions.filter(inv => {
+                const invIdStr = String(inv.id).toLowerCase();
+                const clientName = (inv.client_name || '').toLowerCase();
+                const clientPhone = (inv.client_phone || '').toLowerCase();
+                const items = inv.items || [];
+
+                const matchesSearch = invIdStr.includes(query) || 
+                                      clientName.includes(query) || 
+                                      clientPhone.includes(query) || 
+                                      items.some(item => (item.name || item.product_name || '').toLowerCase().includes(query));
+
+                let matchesCategory = true;
+                if (selectedCategory !== 'all') {
+                    matchesCategory = items.some(item => {
+                        const itemName = (item.rawName || item.name || item.product_name || '').replace(/\(مقاس:.*?\)/g, '').trim().toLowerCase();
+                        return productCategoryMap[itemName] === selectedCategory || item.category === selectedCategory;
+                    });
+                }
+
+                return matchesSearch && matchesCategory;
+            });
+
+            renderTableAndStats(filtered);
+        }
+
+        function renderTableAndStats(transactions) {
             const tbody = document.getElementById('salesTableBody');
             tbody.innerHTML = '';
 
+            let totalSales = 0;
+            let totalCostOfGoodsSold = 0;
             let hasRows = false;
-            let totalOrdersCount = allTransactions.length;
+            let totalOrdersCount = transactions.length;
 
-            allTransactions.forEach(inv => {
+            transactions.forEach(inv => {
                 hasRows = true;
                 const invTotal = Number(inv.total_amount || inv.total || 0);
                 totalSales += invTotal;
@@ -215,7 +407,7 @@
                 }
 
                 const dateStr = new Date(inv.created_at).toLocaleString('ar-EG');
-                const invIdShort = '...' + String(inv.id).slice(-8);
+                const invIdDisplay = `#${inv.id}`;
 
                 let productsText = '';
                 if (inv.items && Array.isArray(inv.items) && inv.items.length > 0) {
@@ -236,9 +428,9 @@
                 if (inv.sourceType === 'online') {
                     const phone = inv.client_phone || 'غير متوفرة';
                     const address = inv.client_address || 'غير متوفر';
-                    const clientName = inv.client_name ? `<strong>${inv.client_name}</strong> - ` : '';
+                    const cName = inv.client_name ? `<strong>${inv.client_name}</strong> - ` : '';
                     detailsHtml = `
-                        <div>${clientName}📞 ${phone}</div>
+                        <div>${cName}📞 ${phone}</div>
                         <div class="client-info">📍 ${address}</div>
                     `;
                 } else {
@@ -247,8 +439,8 @@
 
                 tbody.innerHTML += `
                     <tr>
-                        <td style="font-weight: 700; color: var(--text-muted);">
-                            ${badgeHtml} <br><span style="font-size: 12px;">${invIdShort}</span>
+                        <td style="font-weight: 700; color: var(--text-main);">
+                            ${badgeHtml} <br><span style="font-size: 13px; color: var(--primary); font-weight:800;">${invIdDisplay}</span>
                         </td>
                         <td style="font-weight: 700; color: var(--text-main);">${productsText}</td>
                         <td>${detailsHtml}</td>
@@ -264,23 +456,16 @@
             });
 
             if (!hasRows) {
-                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">لا توجد مبيعات مسجلة في متجرك حتى الآن</td></tr>`;
-            }
-
-            let totalExpenses = 0;
-            if (expRes.data) {
-                expRes.data.forEach(exp => {
-                    totalExpenses += Number(exp.amount || 0);
-                });
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">لا توجد مبيعات مطابقة لبحثك</td></tr>`;
             }
 
             let grossProfit = totalSales - totalCostOfGoodsSold;
-            let netProfit = grossProfit - totalExpenses;
+            let netProfit = grossProfit - totalExpensesGlobal;
 
             document.getElementById('totalSales').innerText = totalSales.toFixed(2) + ' ج.م';
-            document.getElementById('totalExpenses').innerText = totalExpenses.toFixed(2) + ' ج.م';
+            document.getElementById('totalExpenses').innerText = totalExpensesGlobal.toFixed(2) + ' ج.م';
             document.getElementById('netProfit').innerText = netProfit.toFixed(2) + ' ج.م';
-            document.getElementById('totalOnlineOrders').innerText = totalOrdersCount;
+            document.getElementById('totalOrdersCount').innerText = totalOrdersCount;
         }
 
         async function deleteTransaction(id, sourceType) {
@@ -290,7 +475,7 @@
             if (error) {
                 alert('حدث خطأ أثناء الحذف: ' + error.message);
             } else {
-                initReports();
+                loadReportsData(currentOwnerId);
             }
         }
 

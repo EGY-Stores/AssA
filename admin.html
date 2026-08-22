@@ -163,8 +163,12 @@
                 .update({ status: newStatus })
                 .eq('user_id', userId);
 
-            if (error) alert('خطأ أثناء تغيير الحالة: ' + error.message);
-            else loadSubscriptions();
+            if (error) {
+                alert('خطأ أثناء تغيير الحالة: ' + error.message);
+            } else {
+                // إعادة رسم الجدول وتحديث الحالة فوراً تلقائياً بدون الحاجة لعمل Refresh للصفحة
+                await loadSubscriptions();
+            }
         }
 
         function logoutAdmin() {
