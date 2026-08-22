@@ -296,7 +296,7 @@
                 <button class="btn-action" onclick="saveKeyword()"><i class="fa-solid fa-plus"></i> إضافة الكلمة</button>
             </div>
             <div id="keywordsListContainer" class="keywords-grid">
-                <span style="color: var(--text-muted); font-size: 13px;">جاري تحميل الكلمات...</span>
+                <span style="color: var(--text-muted); font-size: 13px;">لا توجد كلمات مفتاحية مسجلة بعد.</span>
             </div>
         </div>
 
@@ -330,6 +330,7 @@
         let currentUserId = '';
         let categoriesMap = {};
 
+        // 1. الدالة الأساسية للتحقق من الصلاحيات وحالة الحساب من store_settings
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) {
@@ -339,31 +340,65 @@
 
             const user = session.user;
             currentUserId = user.id;
+
+            // جلب إعدادات المتجر وحالة الحساب
+            const { data: storeSettings, error } = await supabaseClient
+                .from('store_settings')
+                .select('*')
+                .eq('user_id', currentUserId)
+                .maybeSingle();
+
+            console.log("بيانات المتجر الراجعة:", storeSettings);
+
+            // التحقق الحاسم من إيقاف الحساب
+            if (storeSettings && storeSettings.is_active === false) {
+                alert('تم تعطيل حسابك من قبل الإدارة.');
+                await supabaseClient.auth.signOut();
+                window.location.href = 'login.html';
+                return;
+            }
+
             document.getElementById('userEmailText').innerText = `مرحباً بك: ${user.email}`;
 
             const storeUrl = `store.html?uid=${user.id}`;
             document.getElementById('storeLinkContainer').innerHTML = `
                 <a href="${storeUrl}" target="_blank" class="btn-store-visit">
-                    <i class="fa-solid fa-store"></i> زيارة متجرك الإلكتروني
+                    <i class="fa-solid fa-store"></i> زيارة متجرتك الإلكتروني
                 </a>
             `;
 
-            loadStoreSettings(user.id);
+            if (storeSettings) {
+                if (storeSettings.store_name) document.getElementById('storeNameInput').value = storeSettings.store_name;
+                if (storeSettings.instagram) document.getElementById('instagramInput').value = storeSettings.instagram;
+            }
+
             loadCategories();
             loadKeywords();
+            
+            listenToAccountStatus(user.id);
         }
 
-        async function loadStoreSettings(userId) {
-            const { data } = await supabaseClient
-                .from('store_settings')
-                .select('store_name, instagram')
-                .eq('user_id', userId)
-                .single();
-
-            if (data) {
-                if (data.store_name) document.getElementById('storeNameInput').value = data.store_name;
-                if (data.instagram) document.getElementById('instagramInput').value = data.instagram;
-            }
+        // 2. الاستماع اللحظي لتغييرات حالة الحظر من جدول store_settings
+        function listenToAccountStatus(userId) {
+            supabaseClient
+                .channel('store_settings_status_changes')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'store_settings',
+                        filter: `user_id=eq.${userId}`
+                    },
+                    async (payload) => {
+                        if (payload.new && payload.new.is_active === false) {
+                            alert('تم تعطيل حسابك من قبل الإدارة.');
+                            await supabaseClient.auth.signOut();
+                            window.location.href = 'login.html';
+                        }
+                    }
+                )
+                .subscribe();
         }
 
         async function updateStoreName() {
@@ -508,6 +543,7 @@
             window.location.href = 'login.html';
         }
 
+        // تشغيل التحقق فور تحميل الصفحة
         checkAuth();
     </script>
 </body>

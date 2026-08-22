@@ -76,7 +76,7 @@
             const enteredPassword = prompt("الرجاء إدخال كلمة مرور لوحة التحكم:");
             if (enteredPassword !== ADMIN_PASSWORD) {
                 alert('كلمة المرور غير صحيحة!');
-                window.location.href = 'index.html';
+                window.location.href = 'admin.html';
                 return false;
             }
             return true;
@@ -180,6 +180,7 @@
                 loadSubscriptions();
             }
         });
+        checkAuth();
     </script>
 </body>
 </html>

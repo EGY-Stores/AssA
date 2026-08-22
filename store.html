@@ -271,11 +271,36 @@
         let currentPage = 1;
         const itemsPerPage = 10;
 
+        // دالة التحقق من حالة المتجر (هل هو نشط أم معطل من الأدمن)
+        async function checkStoreStatus(userId) {
+            const { data: storeSettings, error } = await supabaseClient
+                .from('store_settings')
+                .select('is_active')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+            if (storeSettings && storeSettings.is_active === false) {
+                document.body.innerHTML = `
+                    <div style="text-align: center; margin-top: 15vh; font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; color: #fff;">
+                        <i class="fa-solid fa-store-slash" style="font-size: 70px; color: #ef4444; margin-bottom: 20px;"></i>
+                        <h2 style="color: #f5f5f5; margin-bottom: 10px; font-size: 24px;">عذراً، هذا المتجر غير متاح حالياً</h2>
+                        <p style="color: #999999; font-size: 15px;">تم إيقاف هذا المتجر أو تعليقه مؤقتاً من قبل الإدارة.</p>
+                    </div>
+                `;
+                return false; // المتجر مغلق
+            }
+            return true; // المتجر شغال طبيعي
+        }
+
         async function initStore() {
             const urlParams = new URLSearchParams(window.location.search);
             ownerId = urlParams.get('uid');
 
             if (ownerId) {
+                // التحقق من حالة المتجر أولاً قبل تحميل أي بيانات
+                const isActive = await checkStoreStatus(ownerId);
+                if (!isActive) return; // إيقاف تنفيذ الكود نهائياً لو المتجر محظور
+
                 await loadStoreSettings(ownerId);
                 await loadStoreCategories(ownerId); // جلب الأقسام الديناميكية من قاعدة البيانات
             }
