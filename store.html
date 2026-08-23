@@ -449,6 +449,9 @@
 
             if (data.whatsapp && data.whatsapp.trim() !== '') {
                 let waValue = data.whatsapp.trim().replace(/[^0-9]/g, '');
+                if (waValue.startsWith('0')) {
+                    waValue = '20' + waValue.substring(1);
+                }
                 let waUrl = `https://wa.me/${waValue}`;
 
                 const headerWaBtn = document.getElementById('headerWhatsappBtn');
