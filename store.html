@@ -21,7 +21,6 @@
             --img-bg: #1a1a1a;
         }
 
-        /* ثيم الأسود والذهبي الفخم */
         body.theme-gold, body.theme-1 {
             --primary: #D4AF37;
             --primary-dark: #b89728;
@@ -36,7 +35,6 @@
             --img-bg: #1a1a1a;
         }
 
-        /* ثيم الجيم الرياضي */
         body.theme-gym {
             --primary: #243B53;
             --primary-dark: #1b2d40;
@@ -49,7 +47,6 @@
             --img-bg: #F2F2F2;
         }
 
-        /* التصميم البناتي */
         body.theme-royal {
             --primary: #e0a9b8;
             --primary-dark: #c48898;
@@ -62,7 +59,6 @@
             --img-bg: #ffffff;
         }
 
-        /* الثيم الكلاسيكي/الكريمسون */
         body.theme-crimson {
             --primary: #E63946;
             --primary-dark: #c52a37;
@@ -188,11 +184,11 @@
         .checkout-btn:hover { background: var(--primary-dark); box-shadow: 0 0 15px rgba(212,175,55,0.4); }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 450px; border-radius: 14px; padding: 26px; color: var(--text-main); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 450px; border-radius: 14px; padding: 26px; color: var(--text-main); box-shadow: 0 15px 40px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 13px; color: var(--text-muted); }
-        .form-group input, .form-group textarea { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; outline: none; background: var(--bg-color); color: var(--text-main); transition: border-color 0.3s; }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(212,175,55,0.2); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; outline: none; background: var(--bg-color); color: var(--text-main); transition: border-color 0.3s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(212,175,55,0.2); }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; }
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 15px; background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); font-weight: 600; }
 
@@ -278,7 +274,15 @@
             <div style="text-align: center; color: var(--text-muted); margin-top: 60px; font-weight: 600;">السلة فارغة حالياً</div>
         </div>
         <div class="cart-footer">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 800; font-size: 16px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">
+                <span>مجموع المنتجات:</span>
+                <span id="cartSubtotalPrice">0.00 ج.م</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: var(--text-muted);">
+                <span>سعر الشحن:</span>
+                <span id="cartShippingPrice">0.00 ج.م</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 800; font-size: 16px; border-top: 1px solid var(--border); padding-top: 8px;">
                 <span>الإجمالي الكلي:</span>
                 <span id="cartTotalPrice" style="color: var(--price-color);">0.00 ج.م</span>
             </div>
@@ -301,8 +305,15 @@
                     <label>رقم الهاتف للتواصل</label>
                     <input type="tel" id="clientPhone" placeholder="010xxxxxxxx" required>
                 </div>
+                <!-- اختيار المحافظة وسعر الشحن للعميل -->
                 <div class="form-group">
-                    <label>عنوان التوصيل بالتفصيل</label>
+                    <label for="customerGovSelect"><i class="fa-solid fa-truck" style="color:var(--primary);"></i> اختر محافظة التوصيل:</label>
+                    <select id="customerGovSelect" onchange="updateShippingPrice()" required>
+                        <option value="">اختر المحافظة...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>عنوان التوصيل بالتفصيل (الشارع، رقم العلامة المميزة...)</label>
                     <textarea id="clientAddress" rows="3" placeholder="المدينة، الحي، الشارع..." required></textarea>
                 </div>
                 <button type="submit" class="checkout-btn" id="submitOrderBtn" style="margin-top: 5px;">تأكيد وإرسال الطلب</button>
@@ -327,6 +338,9 @@
         let currentCategory = 'all';
         let currentPage = 1;
         const itemsPerPage = 10;
+
+        let merchantShippingRates = {}; // لتخزين أسعار الشحن الخاصة بالتاجر
+        let currentShippingCost = 0;   // قيمة الشحن المختارة حالياً
 
         async function checkStoreStatus(userId) {
             const { data: storeSettings, error } = await supabaseClient
@@ -358,6 +372,7 @@
 
                 await loadStoreSettings(ownerId);
                 await loadStoreCategories(ownerId);
+                await loadStoreShippingZones(ownerId); // جلب خيارات الشحن الخاصة بالتاجر
             }
 
             let query = supabaseClient.from('products').select('*');
@@ -478,6 +493,39 @@
                     `;
                 });
             }
+        }
+
+        // دالة لجلب محافظات الشحن الخاصة بالتاجر
+        async function loadStoreShippingZones(ownerId) {
+            const { data, error } = await supabaseClient
+                .from('store_shipping')
+                .select('*')
+                .eq('user_id', ownerId);
+
+            const selectElement = document.getElementById('customerGovSelect');
+            if (!selectElement) return;
+
+            if (error || !data || data.length === 0) {
+                selectElement.innerHTML = '<option value="">لا توجد محافظات شحن متاحة حالياً</option>';
+                return;
+            }
+
+            selectElement.innerHTML = '<option value="">اختر المحافظة...</option>';
+            merchantShippingRates = {};
+
+            data.forEach(zone => {
+                merchantShippingRates[zone.governorate_name] = Number(zone.shipping_price);
+                selectElement.innerHTML += `<option value="${zone.governorate_name}">${zone.governorate_name} (${zone.shipping_price} ج.م)</option>`;
+            });
+        }
+
+        // دالة تحديث سعر الشحن عند تغيير الاختيار من القائمة
+        function updateShippingPrice() {
+            const selectElement = document.getElementById('customerGovSelect');
+            const selectedGov = selectElement.value;
+            
+            currentShippingCost = merchantShippingRates[selectedGov] || 0;
+            updateCartUI();
         }
 
         function filterByCategory(category, btnElement) {
@@ -980,14 +1028,18 @@
         function updateCartUI() {
             const badge = document.getElementById('cartBadge');
             const list = document.getElementById('cartItemsList');
+            const subtotalEl = document.getElementById('cartSubtotalPrice');
+            const shippingEl = document.getElementById('cartShippingPrice');
             const totalPriceEl = document.getElementById('cartTotalPrice');
 
             let totalCount = 0;
-            let totalPrice = 0;
+            let subtotalPrice = 0;
 
             if (cart.length === 0) {
                 list.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 60px; font-weight: 600;">السلة فارغة حالياً</div>';
                 badge.innerText = '0';
+                subtotalEl.innerText = '0.00 ج.م';
+                shippingEl.innerText = '0.00 ج.م';
                 totalPriceEl.innerText = '0.00 ج.م';
                 return;
             }
@@ -995,7 +1047,7 @@
             list.innerHTML = '';
             cart.forEach((item, index) => {
                 totalCount += item.quantity;
-                totalPrice += item.price * item.quantity;
+                subtotalPrice += item.price * item.quantity;
 
                 list.innerHTML += `
                     <div class="cart-item">
@@ -1013,8 +1065,12 @@
                 `;
             });
 
+            let grandTotal = subtotalPrice + currentShippingCost;
+
             badge.innerText = totalCount;
-            totalPriceEl.innerText = totalPrice.toFixed(2) + ' ج.م';
+            subtotalEl.innerText = subtotalPrice.toFixed(2) + ' ج.م';
+            shippingEl.innerText = currentShippingCost.toFixed(2) + ' ج.م';
+            totalPriceEl.innerText = grandTotal.toFixed(2) + ' ج.م';
         }
 
         function removeFromCart(index) {
@@ -1043,9 +1099,19 @@
 
             const name = document.getElementById('clientName').value;
             const phone = document.getElementById('clientPhone').value;
+            const selectElement = document.getElementById('customerGovSelect');
+            const selectedGov = selectElement.value;
             const address = document.getElementById('clientAddress').value;
 
-            let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            if (!selectedGov) {
+                alert('الرجاء اختيار محافظة التوصيل!');
+                btn.innerText = 'تأكيد وإرسال الطلب';
+                btn.disabled = false;
+                return;
+            }
+
+            let subtotalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            let totalPrice = subtotalPrice + currentShippingCost;
             let targetUserId = ownerId || (productsData.length > 0 ? productsData[0].user_id : '');
 
             const { error: invoiceError } = await supabaseClient.from('invoices').insert([{
@@ -1056,7 +1122,8 @@
                 items: cart,
                 client_name: name,
                 client_phone: phone,
-                client_address: address
+                client_address: `${selectedGov} - ${address}`, // حفظ المحافظة مع العنوان
+                shipping_cost: currentShippingCost
             }]);
 
             if (invoiceError) {
@@ -1113,8 +1180,9 @@
                 }).eq('id', item.id);
             }
 
-            alert('تم إرسال طلبك بنجاح وتم خصم الكميات والمقاسات المطلوبة بدقة من المخزن!');
+            alert('تم إرسال طلبك بنجاح ');
             cart = [];
+            currentShippingCost = 0;
             updateCartUI();
             closeCheckoutModal();
             document.getElementById('checkoutForm').reset();

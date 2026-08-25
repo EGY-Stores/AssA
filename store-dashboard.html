@@ -27,14 +27,14 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 40px 20px; line-height: 1.7; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 40px 20px; line-height: 1.8; font-size: 16px; }
         
         .container { max-width: 1150px; margin: 0 auto; }
         
         /* الهيدر العلوي */
         .header { 
             background: var(--card-bg); 
-            padding: 22px 30px; 
+            padding: 24px 30px; 
             border-radius: var(--radius); 
             box-shadow: var(--shadow); 
             display: flex; 
@@ -43,18 +43,18 @@
             border: 1px solid var(--border);
             margin-bottom: 25px; 
         }
-        .header h2 { color: var(--text-main); font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
-        .header h2 i { color: var(--primary); background: var(--primary-light); padding: 10px; border-radius: 12px; font-size: 18px; }
+        .header h2 { color: var(--text-main); font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+        .header h2 i { color: var(--primary); background: var(--primary-light); padding: 12px; border-radius: 12px; font-size: 20px; }
         
         .btn-logout { 
             background: var(--danger-bg); 
             color: var(--danger); 
             border: none; 
-            padding: 10px 20px; 
+            padding: 12px 22px; 
             border-radius: 12px; 
             cursor: pointer; 
             font-weight: 700; 
-            font-size: 14px;
+            font-size: 15px;
             transition: var(--transition);
             display: flex;
             align-items: center;
@@ -66,7 +66,7 @@
         .welcome-box { 
             background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); 
             color: white;
-            padding: 30px; 
+            padding: 32px; 
             border-radius: var(--radius); 
             margin-bottom: 30px; 
             box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.15);
@@ -78,26 +78,17 @@
             position: relative;
             overflow: hidden;
         }
-        .welcome-box::after {
-            content: '';
-            position: absolute;
-            top: -50px; left: -50px;
-            width: 200px; height: 200px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .welcome-box h3 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-        .welcome-box p { color: rgba(255, 255, 255, 0.85); font-size: 14px; }
+        .welcome-box h3 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .welcome-box p { color: rgba(255, 255, 255, 0.9); font-size: 16px; }
         
         .btn-store-visit {
             background: white;
             color: var(--primary-dark);
-            padding: 12px 24px;
+            padding: 14px 26px;
             border-radius: 12px;
             text-decoration: none;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 16px;
             display: inline-flex;
             align-items: center;
             gap: 10px;
@@ -110,7 +101,7 @@
         .section-box { 
             background: var(--card-bg); 
             border: 1px solid var(--border); 
-            padding: 30px; 
+            padding: 32px; 
             border-radius: var(--radius); 
             margin-bottom: 25px; 
             box-shadow: var(--shadow);
@@ -119,24 +110,24 @@
         .section-box:hover { border-color: var(--border-hover); }
         .section-box h3 { 
             color: var(--text-main); 
-            font-size: 18px; 
+            font-size: 20px; 
             font-weight: 700;
-            margin-bottom: 8px; 
+            margin-bottom: 10px; 
             display: flex; 
             align-items: center; 
             gap: 12px; 
         }
-        .section-box h3 i { color: var(--primary); background: var(--primary-light); padding: 10px; border-radius: 10px; font-size: 16px; }
-        .section-desc { color: var(--text-muted); font-size: 14px; margin-bottom: 22px; }
+        .section-box h3 i { color: var(--primary); background: var(--primary-light); padding: 12px; border-radius: 12px; font-size: 18px; }
+        .section-desc { color: var(--text-muted); font-size: 15px; margin-bottom: 24px; }
 
         .form-row { display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap; }
         .form-row input, .form-row select { 
             flex-grow: 1; 
-            padding: 13px 18px; 
+            padding: 14px 18px; 
             border: 2px solid var(--border); 
             border-radius: 12px; 
             outline: none; 
-            font-size: 14px; 
+            font-size: 16px; 
             background: #fafafa; 
             color: var(--text-main);
             transition: var(--transition);
@@ -147,10 +138,10 @@
             background: var(--primary); 
             color: white; 
             border: none; 
-            padding: 13px 24px; 
+            padding: 14px 26px; 
             border-radius: 12px; 
             font-weight: 700; 
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer; 
             transition: var(--transition); 
             white-space: nowrap; 
@@ -163,19 +154,20 @@
         .btn-ig:hover { background: #c11f59 !important; box-shadow: 0 4px 12px rgba(225, 48, 108, 0.3) !important; }
         .btn-wa { background: #25d366 !important; }
         .btn-wa:hover { background: #1ebe5d !important; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3) !important; }
-        .btn-theme-save { background: var(--success) !important; width: 100%; justify-content: center; margin-top: 20px; }
+        .btn-theme-save { background: var(--success) !important; width: 100%; justify-content: center; margin-top: 20px; font-size: 18px; }
         .btn-theme-save:hover { background: #059669 !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important; }
 
-        /* الأقسام المضافة والكلمات المفتاحية */
-        .items-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        /* الأقسام المضافة والكلمات المفتاحية والمحافظات */
+        .items-container { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
         .item-row { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             background: #fafafa; 
-            padding: 14px 20px; 
+            padding: 16px 20px; 
             border: 1px solid var(--border); 
             border-radius: 12px; 
+            font-size: 16px;
             transition: var(--transition);
         }
         .item-row:hover { background: #f1f5f9; border-color: var(--border-hover); }
@@ -184,10 +176,10 @@
             background: var(--danger-bg); 
             color: var(--danger); 
             border: none; 
-            padding: 8px 14px; 
-            border-radius: 8px; 
+            padding: 10px 16px; 
+            border-radius: 10px; 
             cursor: pointer; 
-            font-size: 13px; 
+            font-size: 14px; 
             font-weight: 700;
             display: inline-flex;
             align-items: center;
@@ -196,13 +188,13 @@
         }
         .btn-delete:hover { background: #fecdd3; transform: scale(1.05); }
 
-        .keywords-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .keywords-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
         .keyword-chip { 
             background: #fafafa; 
             border: 1px solid var(--border); 
-            padding: 8px 16px; 
+            padding: 10px 18px; 
             border-radius: 30px; 
-            font-size: 13px; 
+            font-size: 15px; 
             display: inline-flex; 
             align-items: center; 
             gap: 10px; 
@@ -210,14 +202,14 @@
             transition: var(--transition);
         }
         .keyword-chip:hover { border-color: var(--border-hover); background: #f1f5f9; }
-        .keyword-chip i { cursor: pointer; color: var(--danger); transition: var(--transition); padding: 4px; border-radius: 50%; }
+        .keyword-chip i { cursor: pointer; color: var(--danger); transition: var(--transition); padding: 4px; border-radius: 50%; font-size: 14px; }
         .keyword-chip i:hover { background: var(--danger-bg); transform: scale(1.2); }
 
         /* شبكة التصاميم الأربعة المخصصة */
-        .themes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .themes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 15px; }
         .theme-option-card { 
             border: 2px solid var(--border); 
-            padding: 20px 15px; 
+            padding: 22px 15px; 
             border-radius: 12px; 
             cursor: pointer; 
             text-align: center; 
@@ -225,14 +217,16 @@
             transition: var(--transition); 
         }
         .theme-option-card:hover { border-color: var(--border-hover); background: #f1f5f9; transform: translateY(-3px); }
+        .theme-option-card h4 { font-size: 16px; margin-bottom: 6px; }
+        .theme-option-card p { font-size: 14px; color: var(--text-muted); }
 
         /* شبكة التنقل السريع */
-        .main-title { font-size: 19px; font-weight: 700; margin-bottom: 18px; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
-        .nav-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .main-title { font-size: 21px; font-weight: 700; margin-bottom: 18px; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .nav-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
         .nav-card { 
             background: var(--card-bg); 
             border: 1px solid var(--border); 
-            padding: 30px 20px; 
+            padding: 32px 20px; 
             border-radius: var(--radius); 
             text-align: center; 
             text-decoration: none; 
@@ -245,12 +239,12 @@
             gap: 15px; 
         }
         .nav-card:hover { border-color: var(--primary); transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1); }
-        .nav-card i { font-size: 28px; color: var(--primary); background: var(--primary-light); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 20px; transition: var(--transition); }
+        .nav-card i { font-size: 32px; color: var(--primary); background: var(--primary-light); width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; border-radius: 20px; transition: var(--transition); }
         .nav-card:hover i { background: var(--primary); color: white; transform: rotate(5deg) scale(1.1); }
-        .nav-card span { font-weight: 700; font-size: 16px; }
+        .nav-card span { font-weight: 700; font-size: 18px; }
 
         @media (max-width: 768px) {
-            body { padding: 15px; }
+            body { padding: 15px; font-size: 15px; }
             .header { padding: 18px; flex-direction: column; gap: 15px; text-align: center; }
             .welcome-box { padding: 22px; text-align: center; justify-content: center; }
         }
@@ -292,39 +286,79 @@
             </div>
         </div>
 
+        <!-- إدارة محافظات وأسعار الشحن -->
+        <div class="section-box">
+            <h3><i class="fa-solid fa-truck-fast"></i> إدارة محافظات وأسعار الشحن</h3>
+            <p class="section-desc">اختر المحافظة من القائمة وحدد سعر التوصيل الخاص بها.</p>
+            
+            <form id="shippingForm" onsubmit="addShippingZone(event)" class="form-row">
+                <select id="govNameSelect" required>
+                    <option value="">اختر المحافظة...</option>
+                    <option value="القاهرة">القاهرة</option>
+                    <option value="الجيزة">الجيزة</option>
+                    <option value="الإسكندرية">الإسكندرية</option>
+                    <option value="الدقهلية">الدقهلية</option>
+                    <option value="الشرقية">الشرقية</option>
+                    <option value="الغربية">الغربية</option>
+                    <option value="المنوفية">المنوفية</option>
+                    <option value="القليوبية">القليوبية</option>
+                    <option value="البحيرة">البحيرة</option>
+                    <option value="كفر الشيخ">كفر الشيخ</option>
+                    <option value="الفيوم">الفيوم</option>
+                    <option value="بني سويف">بني سويف</option>
+                    <option value="المنيا">المنيا</option>
+                    <option value="أسيوط">أسيوط</option>
+                    <option value="سوهاج">سوهاج</option>
+                    <option value="قنا">قنا</option>
+                    <option value="أسوان">أسوان</option>
+                    <option value="الأقصر">الأقصر</option>
+                    <option value="البحر الأحمر">البحر الأحمر</option>
+                    <option value="الوادي الجديد">الوادي الجديد</option>
+                    <option value="مطروح">مطروح</option>
+                    <option value="شمال سيناء">شمال سيناء</option>
+                    <option value="جنوب سيناء">جنوب سيناء</option>
+                    <option value="بورسعيد">بورسعيد</option>
+                    <option value="السويس">السويس</option>
+                    <option value="الإسماعيلية">الإسماعيلية</option>
+                    <option value="دمياط">دمياط</option>
+                </select>
+                <input type="number" id="govPrice" placeholder="سعر الشحن (ج.م)" required step="0.01">
+                <button type="submit" class="btn-action"><i class="fa-solid fa-plus"></i> حفظ سعر المحافظة</button>
+            </form>
+
+            <div id="shippingZonesList" class="items-container">
+                <span style="color: var(--text-muted); font-size: 15px;">جاري تحميل المحافظات المضافة...</span>
+            </div>
+        </div>
+
         <!-- اختيار وتصميم المتجر (الأربع تصاميم المخصصة) -->
         <div class="section-box">
             <h3><i class="fa-solid fa-paintbrush"></i> تصميم واجهة المتجر</h3>
             <p class="section-desc">اختر الهوية البصرية المناسبة لنشاطك التجاري، ثم اضغط على زر الحفظ أدناه لتطبيقها.</p>
             
             <div class="themes-grid">
-                <!-- التصميم الأول: أسود وذهبي (فخم للملابس والأزياء) -->
                 <div class="theme-option-card" id="theme-card-1" onclick="selectTheme('theme_1')">
-                    <i class="fa-solid fa-crown" style="font-size: 24px; color: #d4af37; margin-bottom: 10px;"></i>
-                    <h4 style="font-size: 15px; margin-bottom: 5px;">الأسود والذهبي</h4>
-                    <p style="font-size: 12px; color: var(--text-muted);">فخم ورسمي (ملابس وأزياء)</p>
+                    <i class="fa-solid fa-crown" style="font-size: 28px; color: #d4af37; margin-bottom: 10px;"></i>
+                    <h4>الأسود والذهبي</h4>
+                    <p>فخم ورسمي (ملابس وأزياء)</p>
                 </div>
-                <!-- التصميم الثاني: بناتي (روز وردي ناعم لمستحضرات التجميل والملابس النسائية) -->
                 <div class="theme-option-card" id="theme-card-2" onclick="selectTheme('theme_2')">
-                    <i class="fa-solid fa-gem" style="font-size: 24px; color: #ff69b4; margin-bottom: 10px;"></i>
-                    <h4 style="font-size: 15px; margin-bottom: 5px;">التصميم البناتي</h4>
-                    <p style="font-size: 12px; color: var(--text-muted);">عصري وناعم (تجميل وموضة)</p>
+                    <i class="fa-solid fa-gem" style="font-size: 28px; color: #ff69b4; margin-bottom: 10px;"></i>
+                    <h4>التصميم البناتي</h4>
+                    <p>عصري وناعم (تجميل وموضة)</p>
                 </div>
-                <!-- التصميم الثالث: جيم رياضي (أخضر نيون وقوي) -->
                 <div class="theme-option-card" id="theme-card-3" onclick="selectTheme('theme_3')">
-                    <i class="fa-solid fa-dumbbell" style="font-size: 24px; color: #00ff66; margin-bottom: 10px;"></i>
-                    <h4 style="font-size: 15px; margin-bottom: 5px;">جيم رياضي</h4>
-                    <p style="font-size: 12px; color: var(--text-muted);">قوي وحماسي (معدات ومكملات)</p>
+                    <i class="fa-solid fa-dumbbell" style="font-size: 28px; color: #00ff66; margin-bottom: 10px;"></i>
+                    <h4>جيم رياضي</h4>
+                    <p>قوي وحماسي (معدات ومكملات)</p>
                 </div>
-                <!-- التصميم الرابع: محل كوتشيات وأحذية (برتقالي شبابي كاجوال) -->
                 <div class="theme-option-card" id="theme-card-4" onclick="selectTheme('theme_4')">
-                    <i class="fa-solid fa-shoe-prints" style="font-size: 24px; color: #ff5722; margin-bottom: 10px;"></i>
-                    <h4 style="font-size: 15px; margin-bottom: 5px;">محل كوتشيات</h4>
-                    <p style="font-size: 12px; color: var(--text-muted);">شبابي كاجوال (أحذية)</p>
+                    <i class="fa-solid fa-shoe-prints" style="font-size: 28px; color: #ff5722; margin-bottom: 10px;"></i>
+                    <h4>محل كوتشيات</h4>
+                    <p>شبابي كاجوال (أحذية)</p>
                 </div>
             </div>
 
-            <!-- زر حفظ التصميم الجديد -->
             <button class="btn-action btn-theme-save" onclick="saveSelectedTheme()">
                 <i class="fa-solid fa-floppy-disk"></i> حفظ التصميم المختار
             </button>
@@ -339,7 +373,7 @@
                 <button class="btn-action" onclick="addNewCategory()"><i class="fa-solid fa-plus"></i> إضافة قسم جديد</button>
             </div>
             <div id="categoriesListContainer" class="items-container">
-                <span style="color: var(--text-muted); font-size: 13px;">جاري تحميل الأقسام...</span>
+                <span style="color: var(--text-muted); font-size: 15px;">جاري تحميل الأقسام...</span>
             </div>
         </div>
 
@@ -355,7 +389,7 @@
                 <button class="btn-action" onclick="saveKeyword()"><i class="fa-solid fa-plus"></i> إضافة الكلمة</button>
             </div>
             <div id="keywordsListContainer" class="keywords-grid">
-                <span style="color: var(--text-muted); font-size: 13px;">لا توجد كلمات مفتاحية مسجلة بعد.</span>
+                <span style="color: var(--text-muted); font-size: 15px;">لا توجد كلمات مفتاحية مسجلة بعد.</span>
             </div>
         </div>
 
@@ -439,6 +473,7 @@
 
             loadCategories();
             loadKeywords();
+            loadMerchantShippingZones(currentUserId);
             listenToAccountStatus(user.id);
         }
 
@@ -456,13 +491,11 @@
             }
         }
 
-        // تحديد التصميم محلياً فقط عند الضغط عليه (بدون حفظ تلقائي)
         function selectTheme(themeName) {
             currentThemeSaved = themeName;
             highlightSelectedThemeCard(themeName);
         }
 
-        // حفظ التصميم المختار نهائياً في قاعدة البيانات عند الضغط على زر الحفظ
         async function saveSelectedTheme() {
             const newName = document.getElementById('storeNameInput').value.trim() || 'متجري الإلكتروني';
             const igValue = document.getElementById('instagramInput').value.trim();
@@ -480,6 +513,68 @@
                 alert('حدث خطأ أثناء حفظ التصميم: ' + error.message);
             } else {
                 alert('تم حفظ وتطبيق التصميم الجديد بنجاح!');
+            }
+        }
+
+        // دوال إدارة محافظات وأسعار الشحن
+        async function addShippingZone(e) {
+            e.preventDefault();
+            const govName = document.getElementById('govNameSelect').value;
+            const govPrice = parseFloat(document.getElementById('govPrice').value);
+            
+            if (!currentUserId) return alert('يجب تسجيل الدخول أولاً');
+            if (!govName) return alert('الرجاء اختيار المحافظة');
+
+            const { error } = await supabaseClient.from('store_shipping').insert([{
+                user_id: currentUserId,
+                governorate_name: govName,
+                shipping_price: govPrice
+            }]);
+
+            if (error) {
+                if (error.code === '23505') {
+                    alert('هذه المحافظة مضافة مسبقاً، يمكنك تعديل سعرها أو حذفها.');
+                } else {
+                    alert('حدث خطأ: ' + error.message);
+                }
+            } else {
+                alert('تمت إضافة سعر المحافظة بنجاح');
+                document.getElementById('shippingForm').reset();
+                loadMerchantShippingZones(currentUserId);
+            }
+        }
+
+        async function loadMerchantShippingZones(userId) {
+            const { data, error } = await supabaseClient
+                .from('store_shipping')
+                .select('*')
+                .eq('user_id', userId);
+
+            const listContainer = document.getElementById('shippingZonesList');
+            if (!listContainer) return;
+
+            if (!data || data.length === 0) {
+                listContainer.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لم تقم بإضافة أي محافظات للشحن بعد.</span>';
+                return;
+            }
+
+            listContainer.innerHTML = data.map(item => `
+                <div class="item-row">
+                    <div>
+                        <span style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-map-pin" style="color: var(--primary); margin-left: 8px;"></i> ${item.governorate_name}</span>
+                        <span style="margin-right: 15px; color: var(--primary); font-weight: 700; font-size: 17px;">${item.shipping_price} ج.م</span>
+                    </div>
+                    <button class="btn-delete" onclick="deleteShippingZone('${item.id}')">
+                        <i class="fa-solid fa-trash-can"></i> حذف
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteShippingZone(id) {
+            if (confirm('هل أنت متأكد من حذف هذه المحافظة؟')) {
+                await supabaseClient.from('store_shipping').delete().eq('id', id);
+                loadMerchantShippingZones(currentUserId);
             }
         }
 
@@ -557,7 +652,7 @@
             categoriesMap = {};
 
             if (!data || data.length === 0) {
-                container.innerHTML = '<span style="color: var(--text-muted); font-size: 13px;">لا توجد أقسام مضافة بعد. أضف قسماً جديداً للبدء.</span>';
+                container.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لا توجد أقسام مضافة بعد. أضف قسماً جديداً للبدء.</span>';
                 return;
             }
 
@@ -616,7 +711,7 @@
 
             const container = document.getElementById('keywordsListContainer');
             if (!data || data.length === 0) {
-                container.innerHTML = '<span style="color: var(--text-muted); font-size: 13px;">لا توجد كلمات مفتاحية مسجلة بعد.</span>';
+                container.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لا توجد كلمات مفتاحية مسجلة بعد.</span>';
                 return;
             }
 
