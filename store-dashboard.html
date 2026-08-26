@@ -31,7 +31,6 @@
         
         .container { max-width: 1150px; margin: 0 auto; }
         
-        /* الهيدر العلوي */
         .header { 
             background: var(--card-bg); 
             padding: 24px 30px; 
@@ -46,6 +45,9 @@
         .header h2 { color: var(--text-main); font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
         .header h2 i { color: var(--primary); background: var(--primary-light); padding: 12px; border-radius: 12px; font-size: 20px; }
         
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .badge-package { background: var(--primary-light); color: var(--primary-dark); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; }
+
         .btn-logout { 
             background: var(--danger-bg); 
             color: var(--danger); 
@@ -62,7 +64,6 @@
         }
         .btn-logout:hover { background: #fecdd3; transform: translateY(-2px); }
 
-        /* بوكس الترحيب */
         .welcome-box { 
             background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); 
             color: white;
@@ -75,8 +76,6 @@
             align-items: center; 
             flex-wrap: wrap; 
             gap: 20px; 
-            position: relative;
-            overflow: hidden;
         }
         .welcome-box h3 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
         .welcome-box p { color: rgba(255, 255, 255, 0.9); font-size: 16px; }
@@ -95,9 +94,8 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             transition: var(--transition);
         }
-        .btn-store-visit:hover { background: #f8fafc; transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        .btn-store-visit:hover { background: #f8fafc; transform: translateY(-3px); }
 
-        /* حاوية الأقسام */
         .section-box { 
             background: var(--card-bg); 
             border: 1px solid var(--border); 
@@ -107,7 +105,6 @@
             box-shadow: var(--shadow);
             transition: var(--transition);
         }
-        .section-box:hover { border-color: var(--border-hover); }
         .section-box h3 { 
             color: var(--text-main); 
             font-size: 20px; 
@@ -149,15 +146,11 @@
             align-items: center;
             gap: 8px;
         }
-        .btn-action:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+        .btn-action:hover { background: var(--primary-dark); transform: translateY(-2px); }
         .btn-ig { background: #e1306c !important; }
-        .btn-ig:hover { background: #c11f59 !important; box-shadow: 0 4px 12px rgba(225, 48, 108, 0.3) !important; }
         .btn-wa { background: #25d366 !important; }
-        .btn-wa:hover { background: #1ebe5d !important; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3) !important; }
         .btn-theme-save { background: var(--success) !important; width: 100%; justify-content: center; margin-top: 20px; font-size: 18px; }
-        .btn-theme-save:hover { background: #059669 !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important; }
 
-        /* الأقسام المضافة والكلمات المفتاحية والمحافظات */
         .items-container { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
         .item-row { 
             display: flex; 
@@ -168,9 +161,7 @@
             border: 1px solid var(--border); 
             border-radius: 12px; 
             font-size: 16px;
-            transition: var(--transition);
         }
-        .item-row:hover { background: #f1f5f9; border-color: var(--border-hover); }
         
         .btn-delete { 
             background: var(--danger-bg); 
@@ -184,9 +175,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: var(--transition);
         }
-        .btn-delete:hover { background: #fecdd3; transform: scale(1.05); }
 
         .keywords-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
         .keyword-chip { 
@@ -198,14 +187,9 @@
             display: inline-flex; 
             align-items: center; 
             gap: 10px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: var(--transition);
         }
-        .keyword-chip:hover { border-color: var(--border-hover); background: #f1f5f9; }
-        .keyword-chip i { cursor: pointer; color: var(--danger); transition: var(--transition); padding: 4px; border-radius: 50%; font-size: 14px; }
-        .keyword-chip i:hover { background: var(--danger-bg); transform: scale(1.2); }
+        .keyword-chip i { cursor: pointer; color: var(--danger); }
 
-        /* شبكة التصاميم الأربعة المخصصة */
         .themes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 15px; }
         .theme-option-card { 
             border: 2px solid var(--border); 
@@ -216,11 +200,7 @@
             background: #fafafa;
             transition: var(--transition); 
         }
-        .theme-option-card:hover { border-color: var(--border-hover); background: #f1f5f9; transform: translateY(-3px); }
-        .theme-option-card h4 { font-size: 16px; margin-bottom: 6px; }
-        .theme-option-card p { font-size: 14px; color: var(--text-muted); }
 
-        /* شبكة التنقل السريع */
         .main-title { font-size: 21px; font-weight: 700; margin-bottom: 18px; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .nav-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
         .nav-card { 
@@ -238,16 +218,9 @@
             align-items: center; 
             gap: 15px; 
         }
-        .nav-card:hover { border-color: var(--primary); transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1); }
-        .nav-card i { font-size: 32px; color: var(--primary); background: var(--primary-light); width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; border-radius: 20px; transition: var(--transition); }
-        .nav-card:hover i { background: var(--primary); color: white; transform: rotate(5deg) scale(1.1); }
+        .nav-card:hover { border-color: var(--primary); transform: translateY(-6px); }
+        .nav-card i { font-size: 32px; color: var(--primary); background: var(--primary-light); width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; border-radius: 20px; }
         .nav-card span { font-weight: 700; font-size: 18px; }
-
-        @media (max-width: 768px) {
-            body { padding: 15px; font-size: 15px; }
-            .header { padding: 18px; flex-direction: column; gap: 15px; text-align: center; }
-            .welcome-box { padding: 22px; text-align: center; justify-content: center; }
-        }
     </style>
 </head>
 <body>
@@ -256,7 +229,10 @@
         <!-- الهيدر العلوي -->
         <div class="header">
             <h2><i class="fa-solid fa-shapes"></i> لوحة التحكم الرئيسية للمتجر</h2>
-            <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</button>
+            <div class="header-left">
+                <span id="packageBadge" class="badge-package">جاري التحقق من الباقة...</span>
+                <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</button>
+            </div>
         </div>
 
         <!-- بوكس الترحيب -->
@@ -268,9 +244,9 @@
             <div id="storeLinkContainer"></div>
         </div>
 
-        <!-- إعدادات وتخصيص المتجر -->
-        <div class="section-box">
-            <h3><i class="fa-solid fa-store"></i> إعدادات وتخصيص المتجر الإلكتروني</h3>
+        <!-- إعدادات وتخصيص المتجر (تظهر فقط لباقة بريميوم) -->
+        <div class="section-box" id="premiumWebsiteSettingsSection" style="display: none;">
+            <h3><i class="fa-solid fa-store"></i> إعدادات وتخصيص المتجر الإلكتروني (ويب سايت)</h3>
             <p class="section-desc">قم بتعديل اسم محلك الظاهر للعملاء، رابط إنستجرام، ورقم الواتساب الخاص بك.</p>
             <div class="form-row">
                 <input type="text" id="storeNameInput" placeholder="أدخل اسم المحل الجديد...">
@@ -286,15 +262,27 @@
             </div>
         </div>
 
-        <!-- إدارة محافظات وأسعار الشحن -->
+        <!-- إدارة مكاتب التعامل (الموردين) -->
         <div class="section-box">
+            <h3><i class="fa-solid fa-building"></i> إدارة مكاتب التعامل (الموردين)</h3>
+            <p class="section-desc">أضف اسماء المكاتب التي تتعامل معها لكي يتم ربط المنتجات بها.</p>
+            <div class="form-row">
+                <input type="text" id="newOfficeNameInput" placeholder="اسم المكتب الجديد (مثلاً: مكتب النور)...">
+                <button class="btn-action" onclick="addNewOffice()"><i class="fa-solid fa-plus"></i> إضافة مكتب جديد</button>
+            </div>
+            <div id="officesListContainer" class="items-container">
+                <span style="color: var(--text-muted); font-size: 15px;">جاري تحميل المكاتب...</span>
+            </div>
+        </div>
+
+        <!-- إدارة محافظات وأسعار الشحن (تظهر فقط لباقة بريميوم) -->
+        <div class="section-box" id="shippingSection" style="display: none;">
             <h3><i class="fa-solid fa-truck-fast"></i> إدارة محافظات وأسعار الشحن</h3>
             <p class="section-desc">اختر المحافظة من القائمة وحدد سعر التوصيل الخاص بها.</p>
             
             <form id="shippingForm" onsubmit="addShippingZone(event)" class="form-row">
-                <select id="govNameSelect" required>
+                <select id="govNameSelect">
                     <option value="">اختر المحافظة...</option>
-                    <option value="القاهرة">شبرا الخيمه</option>
                     <option value="القاهرة">القاهرة</option>
                     <option value="الجيزة">الجيزة</option>
                     <option value="الإسكندرية">الإسكندرية</option>
@@ -303,37 +291,18 @@
                     <option value="الغربية">الغربية</option>
                     <option value="المنوفية">المنوفية</option>
                     <option value="القليوبية">القليوبية</option>
-                    <option value="البحيرة">البحيرة</option>
-                    <option value="كفر الشيخ">كفر الشيخ</option>
-                    <option value="الفيوم">الفيوم</option>
-                    <option value="بني سويف">بني سويف</option>
-                    <option value="المنيا">المنيا</option>
-                    <option value="أسيوط">أسيوط</option>
-                    <option value="سوهاج">سوهاج</option>
-                    <option value="قنا">قنا</option>
-                    <option value="أسوان">أسوان</option>
-                    <option value="الأقصر">الأقصر</option>
-                    <option value="البحر الأحمر">البحر الأحمر</option>
-                    <option value="الوادي الجديد">الوادي الجديد</option>
-                    <option value="مطروح">مطروح</option>
-                    <option value="شمال سيناء">شمال سيناء</option>
-                    <option value="جنوب سيناء">جنوب سيناء</option>
-                    <option value="بورسعيد">بورسعيد</option>
-                    <option value="السويس">السويس</option>
-                    <option value="الإسماعيلية">الإسماعيلية</option>
-                    <option value="دمياط">دمياط</option>
                 </select>
-                <input type="number" id="govPrice" placeholder="سعر الشحن (ج.م)" required step="0.01">
+                <input type="number" id="govPrice" placeholder="سعر الشحن (ج.م)" step="0.01">
                 <button type="submit" class="btn-action"><i class="fa-solid fa-plus"></i> حفظ سعر المحافظة</button>
             </form>
 
             <div id="shippingZonesList" class="items-container">
-                <span style="color: var(--text-muted); font-size: 15px;">جاري تحميل المحافظات المضافة...</span>
+                <span style="color: var(--text-muted); font-size: 15px;">جاري التحميل...</span>
             </div>
         </div>
 
-        <!-- اختيار وتصميم المتجر (الأربع تصاميم المخصصة) -->
-        <div class="section-box">
+        <!-- تصميم واجهة المتجر (يظهر فقط لباقة بريميوم) -->
+        <div class="section-box" id="themesSection" style="display: none;">
             <h3><i class="fa-solid fa-paintbrush"></i> تصميم واجهة المتجر</h3>
             <p class="section-desc">اختر الهوية البصرية المناسبة لنشاطك التجاري، ثم اضغط على زر الحفظ أدناه لتطبيقها.</p>
             
@@ -341,22 +310,22 @@
                 <div class="theme-option-card" id="theme-card-1" onclick="selectTheme('theme_1')">
                     <i class="fa-solid fa-crown" style="font-size: 28px; color: #d4af37; margin-bottom: 10px;"></i>
                     <h4>الأسود والذهبي</h4>
-                    <p>فخم ورسمي (ملابس وأزياء)</p>
+                    <p>فخم ورسمي</p>
                 </div>
                 <div class="theme-option-card" id="theme-card-2" onclick="selectTheme('theme_2')">
                     <i class="fa-solid fa-gem" style="font-size: 28px; color: #ff69b4; margin-bottom: 10px;"></i>
                     <h4>التصميم البناتي</h4>
-                    <p>عصري وناعم (تجميل وموضة)</p>
+                    <p>عصري وناعم</p>
                 </div>
                 <div class="theme-option-card" id="theme-card-3" onclick="selectTheme('theme_3')">
                     <i class="fa-solid fa-dumbbell" style="font-size: 28px; color: #00ff66; margin-bottom: 10px;"></i>
                     <h4>جيم رياضي</h4>
-                    <p>قوي وحماسي (معدات ومكملات)</p>
+                    <p>قوي وحماسي</p>
                 </div>
                 <div class="theme-option-card" id="theme-card-4" onclick="selectTheme('theme_4')">
                     <i class="fa-solid fa-shoe-prints" style="font-size: 28px; color: #ff5722; margin-bottom: 10px;"></i>
                     <h4>محل كوتشيات</h4>
-                    <p>شبابي كاجوال (أحذية)</p>
+                    <p>شبابي كاجوال</p>
                 </div>
             </div>
 
@@ -365,28 +334,28 @@
             </button>
         </div>
 
-        <!-- إدارة أقسام المتجر -->
-        <div class="section-box">
+        <!-- إدارة أقسام المتجر (تظهر للجميع Basic و Premium) -->
+        <div class="section-box" id="categoriesSection">
             <h3><i class="fa-solid fa-folder-tree"></i> إدارة أقسام المتجر</h3>
-            <p class="section-desc">أضف أقساماً جديدة للمحل بالاسم الذي تفضله (مثل: أحذية، إكسسوارات، بنطلونات...).</p>
+            <p class="section-desc">أضف أقساماً جديدة للمحل بالاسم الذي تفضله (لتنظيم المنتجات).</p>
             <div class="form-row">
                 <input type="text" id="newCategoryNameInput" placeholder="اسم القسم الجديد (مثلاً: أحذية)">
                 <button class="btn-action" onclick="addNewCategory()"><i class="fa-solid fa-plus"></i> إضافة قسم جديد</button>
             </div>
             <div id="categoriesListContainer" class="items-container">
-                <span style="color: var(--text-muted); font-size: 15px;">جاري تحميل الأقسام...</span>
+                <span style="color: var(--text-muted); font-size: 15px;">جاري التحميل...</span>
             </div>
         </div>
 
-        <!-- إدارة الكلمات المفتاحية للتصنيف التلقائي -->
-        <div class="section-box">
+        <!-- إدارة الكلمات المفتاحية (تظهر فقط لباقة بريميوم) -->
+        <div class="section-box" id="keywordsSection" style="display: none;">
             <h3><i class="fa-solid fa-tags"></i> الكلمات المفتاحية للتصنيف التلقائي</h3>
-            <p class="section-desc">اربط الكلمات المفتاحية بالأقسام لتصنيف المنتجات تلقائياً بمجرد كتابتها.</p>
+            <p class="section-desc">اربط الكلمات المفتاحية بالأقسام لتصنيف المنتجات تلقائياً.</p>
             <div class="form-row">
                 <select id="targetCategorySelect">
                     <option value="">اختر القسم...</option>
                 </select>
-                <input type="text" id="newKeywordInput" placeholder="أدخل كلمة مفتاحية (مثلاً: حذاء، بوت...)">
+                <input type="text" id="newKeywordInput" placeholder="أدخل كلمة مفتاحية...">
                 <button class="btn-action" onclick="saveKeyword()"><i class="fa-solid fa-plus"></i> إضافة الكلمة</button>
             </div>
             <div id="keywordsListContainer" class="keywords-grid">
@@ -394,7 +363,7 @@
             </div>
         </div>
 
-        <!-- أقسام النظام -->
+        <!-- أقسام النظام الأساسية -->
         <div class="main-title"><i class="fa-solid fa-compass" style="color: var(--primary);"></i> أقسام النظام الأساسية</div>
         <div class="nav-grid">
             <a href="inventory.html" class="nav-card">
@@ -411,7 +380,7 @@
             </a>
             <a href="customers-expenses.html" class="nav-card">
                 <i class="fa-solid fa-users-rectangle"></i>
-                <span>العملاء والمصروفات</span>
+                <span>العملاء والمصروفات والموظفين</span>
             </a>
         </div>
     </div>
@@ -424,6 +393,7 @@
         let currentUserId = '';
         let categoriesMap = {};
         let currentThemeSaved = 'theme_1';
+        let userPackage = 'basic';
 
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -448,14 +418,22 @@
                 return;
             }
 
+            if (storeSettings && storeSettings.package_type) {
+                userPackage = storeSettings.package_type.toLowerCase();
+            }
+
+            applyPackageVisuals();
+
             document.getElementById('userEmailText').innerText = `مرحباً بك: ${user.email}`;
 
-            const storeUrl = `store.html?uid=${user.id}`;
-            document.getElementById('storeLinkContainer').innerHTML = `
-                <a href="${storeUrl}" target="_blank" class="btn-store-visit">
-                    <i class="fa-solid fa-store"></i> زيارة متجرتك الإلكتروني
-                </a>
-            `;
+            if (userPackage === 'premium') {
+                const storeUrl = `store.html?uid=${user.id}`;
+                document.getElementById('storeLinkContainer').innerHTML = `
+                    <a href="${storeUrl}" target="_blank" class="btn-store-visit">
+                        <i class="fa-solid fa-store"></i> زيارة متجرتك الإلكتروني
+                    </a>
+                `;
+            }
 
             if (storeSettings) {
                 if (storeSettings.store_name) document.getElementById('storeNameInput').value = storeSettings.store_name;
@@ -472,10 +450,44 @@
                 highlightSelectedThemeCard('theme_1');
             }
 
-            loadCategories();
-            loadKeywords();
-            loadMerchantShippingZones(currentUserId);
+            loadOffices();
+            loadCategories(); // الأقسام تعمل الآن للجميع Basic و Premium
+            
+            if (userPackage === 'premium') {
+                loadKeywords();
+                loadMerchantShippingZones(currentUserId);
+            }
+            
             listenToAccountStatus(user.id);
+        }
+
+        function applyPackageVisuals() {
+            const badge = document.getElementById('packageBadge');
+            
+            if (userPackage === 'premium') {
+                badge.innerText = 'باقة بريميوم (Premium)';
+                badge.style.background = '#d1fae5';
+                badge.style.color = '#065f46';
+
+                // إظهار إعدادات الويب سايت والشحن والتصميم والكلمات المفتاحية
+                document.getElementById('premiumWebsiteSettingsSection').style.display = 'block';
+                document.getElementById('shippingSection').style.display = 'block';
+                document.getElementById('themesSection').style.display = 'block';
+                document.getElementById('keywordsSection').style.display = 'block';
+            } else {
+                badge.innerText = 'الباقة الأساسية (Basic)';
+                badge.style.background = '#e0e7ff';
+                badge.style.color = '#4338ca';
+
+                // إخفاء الويب سايت والشحن والتصميم والكلمات المفتاحية، مع إبقاء الأقسام والمخزن والكاشير
+                document.getElementById('premiumWebsiteSettingsSection').style.display = 'none';
+                document.getElementById('shippingSection').style.display = 'none';
+                document.getElementById('themesSection').style.display = 'none';
+                document.getElementById('keywordsSection').style.display = 'none';
+            }
+            
+            // قسم الأقسام دائم الظهور للجميع
+            document.getElementById('categoriesSection').style.display = 'block';
         }
 
         function highlightSelectedThemeCard(themeName) {
@@ -503,27 +515,59 @@
             const waValue = document.getElementById('whatsappInput').value.trim();
 
             const { error } = await supabaseClient.from('store_settings').upsert({ 
-                user_id: currentUserId, 
-                store_name: newName, 
-                instagram: igValue,
-                whatsapp: waValue,
-                active_theme: currentThemeSaved 
+                user_id: currentUserId, store_name: newName, instagram: igValue, whatsapp: waValue, active_theme: currentThemeSaved 
             }, { onConflict: 'user_id' });
 
-            if (error) {
-                alert('حدث خطأ أثناء حفظ التصميم: ' + error.message);
-            } else {
-                alert('تم حفظ وتطبيق التصميم الجديد بنجاح!');
+            if (error) alert('حدث خطأ أثناء حفظ التصميم: ' + error.message);
+            else alert('تم حفظ وتطبيق التصميم الجديد بنجاح!');
+        }
+
+        async function addNewOffice() {
+            const officeName = document.getElementById('newOfficeNameInput').value.trim();
+            if (!officeName) { alert('الرجاء كتابة اسم المكتب'); return; }
+
+            const { error } = await supabaseClient.from('offices').insert([{
+                user_id: currentUserId,
+                office_name: officeName
+            }]);
+
+            if (error) alert('حدث خطأ: ' + error.message);
+            else {
+                document.getElementById('newOfficeNameInput').value = '';
+                loadOffices();
             }
         }
 
-        // دوال إدارة محافظات وأسعار الشحن
+        async function loadOffices() {
+            const { data } = await supabaseClient.from('offices').select('*').eq('user_id', currentUserId);
+            const container = document.getElementById('officesListContainer');
+            if (!container) return;
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لا توجد مكاتب مسجلة بعد.</span>';
+                return;
+            }
+
+            container.innerHTML = data.map(office => `
+                <div class="item-row">
+                    <span style="font-weight: 700;"><i class="fa-solid fa-building" style="color: var(--primary); margin-left: 8px;"></i> ${office.office_name}</span>
+                    <button class="btn-delete" onclick="deleteOffice('${office.id}')"><i class="fa-solid fa-trash-can"></i> حذف</button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteOffice(id) {
+            if (confirm('هل أنت متأكد من حذف هذا المكتب؟')) {
+                await supabaseClient.from('offices').delete().eq('id', id);
+                loadOffices();
+            }
+        }
+
         async function addShippingZone(e) {
             e.preventDefault();
             const govName = document.getElementById('govNameSelect').value;
             const govPrice = parseFloat(document.getElementById('govPrice').value);
             
-            if (!currentUserId) return alert('يجب تسجيل الدخول أولاً');
             if (!govName) return alert('الرجاء اختيار المحافظة');
 
             const { error } = await supabaseClient.from('store_shipping').insert([{
@@ -533,11 +577,8 @@
             }]);
 
             if (error) {
-                if (error.code === '23505') {
-                    alert('هذه المحافظة مضافة مسبقاً، يمكنك تعديل سعرها أو حذفها.');
-                } else {
-                    alert('حدث خطأ: ' + error.message);
-                }
+                if (error.code === '23505') alert('هذه المحافظة مضافة مسبقاً.');
+                else alert('حدث خطأ: ' + error.message);
             } else {
                 alert('تمت إضافة سعر المحافظة بنجاح');
                 document.getElementById('shippingForm').reset();
@@ -546,11 +587,7 @@
         }
 
         async function loadMerchantShippingZones(userId) {
-            const { data, error } = await supabaseClient
-                .from('store_shipping')
-                .select('*')
-                .eq('user_id', userId);
-
+            const { data } = await supabaseClient.from('store_shipping').select('*').eq('user_id', userId);
             const listContainer = document.getElementById('shippingZonesList');
             if (!listContainer) return;
 
@@ -562,43 +599,30 @@
             listContainer.innerHTML = data.map(item => `
                 <div class="item-row">
                     <div>
-                        <span style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-map-pin" style="color: var(--primary); margin-left: 8px;"></i> ${item.governorate_name}</span>
-                        <span style="margin-right: 15px; color: var(--primary); font-weight: 700; font-size: 17px;">${item.shipping_price} ج.م</span>
+                        <span style="font-weight: 700;"><i class="fa-solid fa-map-pin" style="color: var(--primary); margin-left: 8px;"></i> ${item.governorate_name}</span>
+                        <span style="margin-right: 15px; color: var(--primary); font-weight: 700;">${item.shipping_price} ج.م</span>
                     </div>
-                    <button class="btn-delete" onclick="deleteShippingZone('${item.id}')">
-                        <i class="fa-solid fa-trash-can"></i> حذف
-                    </button>
+                    <button class="btn-delete" onclick="deleteShippingZone('${item.id}')"><i class="fa-solid fa-trash-can"></i> حذف</button>
                 </div>
             `).join('');
         }
 
         async function deleteShippingZone(id) {
-            if (confirm('هل أنت متأكد من حذف هذه المحافظة؟')) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
                 await supabaseClient.from('store_shipping').delete().eq('id', id);
                 loadMerchantShippingZones(currentUserId);
             }
         }
 
         function listenToAccountStatus(userId) {
-            supabaseClient
-                .channel('store_settings_status_changes')
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'UPDATE',
-                        schema: 'public',
-                        table: 'store_settings',
-                        filter: `user_id=eq.${userId}`
-                    },
-                    async (payload) => {
-                        if (payload.new && payload.new.is_active === false) {
-                            alert('تم تعطيل حسابك من قبل الإدارة.');
-                            await supabaseClient.auth.signOut();
-                            window.location.href = 'login.html';
-                        }
+            supabaseClient.channel('store_settings_status_changes')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'store_settings', filter: `user_id=eq.${userId}` }, async (payload) => {
+                    if (payload.new && payload.new.is_active === false) {
+                        alert('تم تعطيل حسابك من قبل الإدارة.');
+                        await supabaseClient.auth.signOut();
+                        window.location.href = 'login.html';
                     }
-                )
-                .subscribe();
+                }).subscribe();
         }
 
         async function updateStoreData() {
@@ -609,11 +633,7 @@
             if (!newName) { alert('الرجاء إدخال اسم صحيح للمحل!'); return; }
 
             const { error } = await supabaseClient.from('store_settings').upsert({ 
-                user_id: currentUserId, 
-                store_name: newName, 
-                instagram: igValue, 
-                whatsapp: waValue,
-                active_theme: currentThemeSaved 
+                user_id: currentUserId, store_name: newName, instagram: igValue, whatsapp: waValue, active_theme: currentThemeSaved 
             }, { onConflict: 'user_id' });
 
             if (error) alert('حدث خطأ: ' + error.message);
@@ -623,59 +643,47 @@
         async function addNewCategory() {
             const catName = document.getElementById('newCategoryNameInput').value.trim();
             if (!catName) { alert('الرجاء كتابة اسم القسم'); return; }
-
             const slug = catName.toLowerCase().replace(/\s+/g, '_');
 
-            const { error } = await supabaseClient.from('store_categories').insert([{
-                user_id: currentUserId,
-                category_name: catName,
-                category_slug: slug
-            }]);
+            const { error } = await supabaseClient.from('store_categories').insert([{ user_id: currentUserId, category_name: catName, category_slug: slug }]);
 
-            if (error) {
-                alert('حدث خطأ أثناء إضافة القسم (ربما القسم موجود مسبقاً): ' + error.message);
-            } else {
+            if (error) alert('حدث خطأ (القسم موجود مسبقاً): ' + error.message);
+            else {
                 document.getElementById('newCategoryNameInput').value = '';
                 loadCategories();
             }
         }
 
         async function loadCategories() {
-            const { data } = await supabaseClient
-                .from('store_categories')
-                .select('*')
-                .eq('user_id', currentUserId);
-
+            const { data } = await supabaseClient.from('store_categories').select('*').eq('user_id', currentUserId);
             const container = document.getElementById('categoriesListContainer');
             const select = document.getElementById('targetCategorySelect');
-            
-            select.innerHTML = '<option value="">اختر القسم...</option>';
+            if(select) select.innerHTML = '<option value="">اختر القسم...</option>';
             categoriesMap = {};
 
+            if (!container) return;
+
             if (!data || data.length === 0) {
-                container.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لا توجد أقسام مضافة بعد. أضف قسماً جديداً للبدء.</span>';
+                container.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لا توجد أقسام مضافة بعد.</span>';
                 return;
             }
 
             container.innerHTML = '';
             data.forEach(cat => {
                 categoriesMap[cat.category_slug] = cat.category_name;
-                select.innerHTML += `<option value="${cat.category_slug}">${cat.category_name}</option>`;
-
+                if(select) select.innerHTML += `<option value="${cat.category_slug}">${cat.category_name}</option>`;
                 container.innerHTML += `
                     <div class="item-row">
-                        <span style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-folder-open" style="color: var(--primary); margin-left: 8px;"></i> ${cat.category_name}</span>
-                        <button class="btn-delete" onclick="deleteCategory('${cat.id}')">
-                            <i class="fa-solid fa-trash-can"></i> حذف
-                        </button>
+                        <span style="font-weight: 700;"><i class="fa-solid fa-folder-open" style="color: var(--primary); margin-left: 8px;"></i> ${cat.category_name}</span>
+                        <button class="btn-delete" onclick="deleteCategory('${cat.id}')"><i class="fa-solid fa-trash-can"></i> حذف</button>
                     </div>
                 `;
             });
-            loadKeywords();
+            if(userPackage === 'premium') loadKeywords();
         }
 
         async function deleteCategory(id) {
-            if (confirm('هل أنت متأكد من حذف هذا القسم؟')) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
                 await supabaseClient.from('store_categories').delete().eq('id', id);
                 loadCategories();
             }
@@ -685,32 +693,22 @@
             const categorySlug = document.getElementById('targetCategorySelect').value;
             const keyword = document.getElementById('newKeywordInput').value.trim().toLowerCase();
 
-            if (!categorySlug || !keyword) {
-                alert('الرجاء اختيار القسم وكتابة الكلمة المفتاحية');
-                return;
-            }
+            if (!categorySlug || !keyword) return alert('الرجاء اختيار القسم وكتابة الكلمة المفتاحية');
 
-            const { error } = await supabaseClient.from('category_keywords').insert([{
-                user_id: currentUserId,
-                category_slug: categorySlug,
-                keyword: keyword
-            }]);
+            const { error } = await supabaseClient.from('category_keywords').insert([{ user_id: currentUserId, category_slug: categorySlug, keyword: keyword }]);
 
-            if (error) {
-                alert('حدث خطأ: ' + error.message);
-            } else {
+            if (error) alert('حدث خطأ: ' + error.message);
+            else {
                 document.getElementById('newKeywordInput').value = '';
                 loadKeywords();
             }
         }
 
         async function loadKeywords() {
-            const { data } = await supabaseClient
-                .from('category_keywords')
-                .select('*')
-                .eq('user_id', currentUserId);
-
+            const { data } = await supabaseClient.from('category_keywords').select('*').eq('user_id', currentUserId);
             const container = document.getElementById('keywordsListContainer');
+            if (!container) return;
+            
             if (!data || data.length === 0) {
                 container.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لا توجد كلمات مفتاحية مسجلة بعد.</span>';
                 return;

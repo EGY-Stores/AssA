@@ -45,7 +45,7 @@
             <button onclick="logoutAdmin()" style="background:#fee2e2; color:var(--danger); border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">خروج</button>
         </div>
 
-        <h3 style="margin-bottom: 15px; font-size: 18px;">إدارة المتاجر واشتراكات التجار</h3>
+        <h3 style="margin-bottom: 15px; font-size: 18px;">إدارة المتاجر واشتراكات التجار وتحديد الباقات</h3>
         <div class="table-container">
             <table>
                 <thead>
@@ -53,7 +53,7 @@
                         <th>معرف التاجر (UID)</th>
                         <th>البريد الإلكتروني</th>
                         <th>رقم الهاتف</th>
-                        <th>الباقة الحالية</th>
+                        <th>الباقة الحالية (تعديل مباشر)</th>
                         <th>حالة الاشتراك</th>
                         <th>التحكم</th>
                     </tr>
@@ -76,7 +76,7 @@
             const enteredPassword = prompt("الرجاء إدخال كلمة مرور لوحة التحكم:");
             if (enteredPassword !== ADMIN_PASSWORD) {
                 alert('كلمة المرور غير صحيحة!');
-                window.location.href = 'admin.html';
+                window.location.href = 'index.html';
                 return false;
             }
             return true;
@@ -106,10 +106,9 @@
                         <td>${sub.email || 'غير مسجل'}</td>
                         <td><b>${sub.phone || 'غير مسجل'}</b></td>
                         <td>
-                            <select id="plan_${sub.user_id}" onchange="updatePlan('${sub.user_id}')" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border);">
-                                <option value="basic" ${sub.plan_type === 'basic' ? 'selected' : ''}>Basic (300 ج.م)</option>
-                                <option value="business" ${sub.plan_type === 'business' ? 'selected' : ''}>Business (600 ج.م)</option>
-                                <option value="pro" ${sub.plan_type === 'pro' ? 'selected' : ''}>Pro (900 ج.م)</option>
+                            <select id="plan_${sub.user_id}" onchange="updatePlan('${sub.user_id}')" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border); font-weight: bold;">
+                                <option value="basic" ${sub.plan_type === 'basic' ? 'selected' : ''}>الباقة الأساسية (Basic)</option>
+                                <option value="premium" ${sub.plan_type === 'premium' ? 'selected' : ''}>باقة بريميوم (Premium)</option>
                             </select>
                         </td>
                         <td>${statusBadge}</td>
@@ -141,32 +140,48 @@
                 alert('خطأ أثناء الحذف: ' + error.message);
             } else {
                 alert('تم حذف التاجر بنجاح!');
-                loadSubscriptions(); // إعادة تحميل الجدول
+                loadSubscriptions();
             }
         }
 
+        // دالة تحديث باقة التاجر في قاعدة البيانات فور تغييرها من القائمة المنسدلة
         async function updatePlan(userId) {
             const selectedPlan = document.getElementById(`plan_${userId}`).value;
-            const { error } = await supabaseClient
+            
+            // تحديث جدول الاشتراكات وتحديث جدول store_settings أيضاً لضمان توافق الصلاحيات
+            const { error: subError } = await supabaseClient
                 .from('subscriptions')
                 .update({ plan_type: selectedPlan })
                 .eq('user_id', userId);
 
-            if (error) alert('خطأ أثناء تحديث الباقة: ' + error.message);
-            else alert('تم تحديث باقة التاجر بنجاح!');
+            const { error: storeError } = await supabaseClient
+                .from('store_settings')
+                .update({ package_type: selectedPlan })
+                .eq('user_id', userId);
+
+            if (subError || storeError) {
+                alert('خطأ أثناء تحديث الباقة: ' + (subError?.message || storeError?.message));
+            } else {
+                alert('تم تحديث وتغيير باقة التاجر بنجاح!');
+            }
         }
 
         async function toggleStatus(userId, currentStatus) {
             const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-            const { error } = await supabaseClient
+            
+            const { error: subError } = await supabaseClient
                 .from('subscriptions')
                 .update({ status: newStatus })
                 .eq('user_id', userId);
 
-            if (error) {
-                alert('خطأ أثناء تغيير الحالة: ' + error.message);
+            const { error: storeError } = await supabaseClient
+                .from('store_settings')
+                .update({ is_active: (newStatus === 'active') })
+                .eq('user_id', userId);
+
+            if (subError || storeError) {
+                alert('خطأ أثناء تغيير الحالة: ' + (subError?.message || storeError?.message));
             } else {
-                // إعادة رسم الجدول وتحديث الحالة فوراً تلقائياً بدون الحاجة لعمل Refresh للصفحة
                 await loadSubscriptions();
             }
         }
@@ -180,7 +195,6 @@
                 loadSubscriptions();
             }
         });
-        checkAuth();
     </script>
 </body>
 </html>

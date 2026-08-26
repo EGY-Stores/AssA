@@ -33,7 +33,7 @@
         body { background-color: var(--bg-color); color: var(--text-main); padding: 30px 20px; line-height: 1.7; }
         
         .container { 
-            max-width: 1350px; 
+            max-width: 1400px; 
             margin: 0 auto; 
             background: var(--card-bg); 
             padding: 35px; 
@@ -81,11 +81,11 @@
 
         .form-grid { 
             display: grid; 
-            grid-template-columns: 1.8fr 1.2fr 1fr 1fr 1fr 0.9fr 1.8fr 1.8fr auto; 
-            gap: 10px; 
+            grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr 1.2fr 1.5fr 1fr auto; 
+            gap: 8px; 
             align-items: center; 
         }
-        @media(max-width: 1300px) { .form-grid { grid-template-columns: 1fr; } }
+        @media(max-width: 1400px) { .form-grid { grid-template-columns: 1fr; } }
 
         input, select { 
             padding: 12px 14px; 
@@ -187,6 +187,9 @@
                 <select id="prodCategory" required>
                     <option value="">اختر القسم...</option>
                 </select>
+                <select id="prodOffice" required>
+                    <option value="">اختر المكتب...</option>
+                </select>
                 <input type="number" step="0.01" id="prodBuyPrice" placeholder="سعر الشراء" required>
                 <input type="number" step="0.01" id="prodSellPrice" placeholder="سعر البيع الأصلي" required>
                 <input type="text" id="prodDiscount" placeholder="الخصم (مثال: 20%)">
@@ -205,6 +208,7 @@
                         <th>الصورة</th>
                         <th>اسم المنتج</th>
                         <th>القسم</th>
+                        <th>المكتب</th>
                         <th>سعر الشراء</th>
                         <th>سعر البيع</th>
                         <th>الخصم</th>
@@ -214,7 +218,7 @@
                     </tr>
                 </thead>
                 <tbody id="productsTableBody">
-                    <tr><td colspan="9" style="color:var(--text-muted); padding:25px;">جاري تحميل المنتجات...</td></tr>
+                    <tr><td colspan="10" style="color:var(--text-muted); padding:25px;">جاري تحميل المنتجات...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -235,6 +239,7 @@
             currentUserId = session.user.id;
             
             await loadCategoriesAndKeywords();
+            await loadOfficesDropdown();
             loadProducts();
         }
 
@@ -254,6 +259,18 @@
             const { data: kwData } = await supabaseClient.from('category_keywords').select('*').eq('user_id', currentUserId);
             if (kwData) {
                 keywordsList = kwData;
+            }
+        }
+
+        async function loadOfficesDropdown() {
+            const { data } = await supabaseClient.from('offices').select('*').eq('user_id', currentUserId);
+            const select = document.getElementById('prodOffice');
+            select.innerHTML = '<option value="">اختر المكتب...</option>';
+            
+            if (data) {
+                data.forEach(office => {
+                    select.innerHTML += `<option value="${office.office_name}">${office.office_name}</option>`;
+                });
             }
         }
 
@@ -295,6 +312,7 @@
             const editId = document.getElementById('editProdId').value;
             const name = document.getElementById('prodName').value;
             const category = document.getElementById('prodCategory').value;
+            const officeName = document.getElementById('prodOffice').value;
             const buyPrice = document.getElementById('prodBuyPrice').value;
             const sellPrice = document.getElementById('prodSellPrice').value;
             const discount = document.getElementById('prodDiscount').value.trim();
@@ -322,6 +340,7 @@
                 product_name: name,
                 name: name,
                 category: category,
+                office_name: officeName,
                 buy_price: buyPrice,
                 price: sellPrice,
                 sell_price: sellPrice,
@@ -350,7 +369,7 @@
             tbody.innerHTML = '';
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="color:var(--text-muted); padding:25px;">لا توجد منتجات مسجلة في المخزن</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text-muted); padding:25px;">لا توجد منتجات مسجلة في المخزن</td></tr>';
                 return;
             }
 
@@ -358,6 +377,7 @@
                 const itemName = p.product_name || p.name || '';
                 const itemCategorySlug = p.category || '';
                 const itemCategoryName = categoriesMap[itemCategorySlug] || itemCategorySlug || 'غير مصنف';
+                const itemOffice = p.office_name || 'غير محدد';
                 const itemBuyPrice = p.buy_price !== undefined ? p.buy_price : 0;
                 const itemSellPrice = p.sell_price !== undefined ? p.sell_price : (p.price || 0);
                 const itemDiscount = p.discount || 'لا يوجد';
@@ -370,6 +390,7 @@
                         <td><img src="${itemImg || 'https://via.placeholder.com/50'}" style="width:40px; height:40px; object-fit:cover; border-radius:8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" onerror="this.src='https://via.placeholder.com/50'"></td>
                         <td><b style="color: var(--text-main);">${itemName}</b></td>
                         <td><span style="background: var(--primary-light); color: var(--primary-dark); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold;">${itemCategoryName}</span></td>
+                        <td><span style="background: #f1f5f9; color: var(--text-main); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold;">${itemOffice}</span></td>
                         <td style="color: var(--text-muted); font-weight: 600;">${itemBuyPrice} ج.م</td>
                         <td><span style="color:var(--success); font-weight:bold;">${itemSellPrice} ج.م</span></td>
                         <td><span style="background: var(--danger-bg); color: var(--danger); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold;">${itemDiscount}</span></td>
@@ -377,7 +398,7 @@
                         <td><span style="background: #f1f5f9; color: var(--text-main); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold;">${itemSizes}</span></td>
                         <td>
                             <div style="display:flex; justify-content:center; gap:6px;">
-                                <button onclick="editProduct('${p.id}', \`${itemName}\`, '${itemCategorySlug}', '${itemBuyPrice}', '${itemSellPrice}', \`${itemDiscount}\`, \`${itemSizes}\`, \`${itemImg}\`)" class="btn-warning"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
+                                <button onclick="editProduct('${p.id}', \`${itemName}\`, '${itemCategorySlug}', \`${itemOffice}\`, '${itemBuyPrice}', '${itemSellPrice}', \`${itemDiscount}\`, \`${itemSizes}\`, \`${itemImg}\`)" class="btn-warning"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
                                 <button onclick="deleteProduct('${p.id}')" class="btn-danger"><i class="fa-solid fa-trash-can"></i> حذف</button>
                             </div>
                         </td>
@@ -386,10 +407,11 @@
             });
         }
 
-        function editProduct(id, name, category, buyPrice, sellPrice, discount, sizes, image) {
+        function editProduct(id, name, category, office, buyPrice, sellPrice, discount, sizes, image) {
             document.getElementById('editProdId').value = id;
             document.getElementById('prodName').value = name;
             document.getElementById('prodCategory').value = category;
+            document.getElementById('prodOffice').value = office === 'غير محدد' ? '' : office;
             document.getElementById('prodBuyPrice').value = buyPrice;
             document.getElementById('prodSellPrice').value = sellPrice;
             document.getElementById('prodDiscount').value = discount === 'لا يوجد' ? '' : discount;
