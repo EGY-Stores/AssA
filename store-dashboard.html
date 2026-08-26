@@ -427,7 +427,7 @@
             document.getElementById('userEmailText').innerText = `مرحباً بك: ${user.email}`;
 
             if (userPackage === 'premium') {
-                const storeUrl = `store.html?uid=${user.id}`;
+                const storeUrl = `index.html?uid=${user.id}`;
                 document.getElementById('storeLinkContainer').innerHTML = `
                     <a href="${storeUrl}" target="_blank" class="btn-store-visit">
                         <i class="fa-solid fa-store"></i> زيارة متجرتك الإلكتروني
