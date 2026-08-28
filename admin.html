@@ -148,21 +148,23 @@
         async function updatePlan(userId) {
             const selectedPlan = document.getElementById(`plan_${userId}`).value;
             
-            // تحديث جدول الاشتراكات وتحديث جدول store_settings أيضاً لضمان توافق الصلاحيات
+            // تحديث جدول الاشتراكات باستخدام الحقل الصحيح plan_type
             const { error: subError } = await supabaseClient
                 .from('subscriptions')
                 .update({ plan_type: selectedPlan })
                 .eq('user_id', userId);
 
+            // تحديث جدول إعدادات المتجر باستخدام الحقل الصحيح plan_type
             const { error: storeError } = await supabaseClient
                 .from('store_settings')
-                .update({ package_type: selectedPlan })
+                .update({ plan_type: selectedPlan })
                 .eq('user_id', userId);
 
             if (subError || storeError) {
                 alert('خطأ أثناء تحديث الباقة: ' + (subError?.message || storeError?.message));
             } else {
                 alert('تم تحديث وتغيير باقة التاجر بنجاح!');
+                loadSubscriptions();
             }
         }
 
