@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">تفاصيل المنتج | متجرك الإلكتروني</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #D4AF37;
+            --primary-dark: #b89728;
+            --bg-color: #080808;
+            --card-bg: #121212;
+            --text-main: #FFFFFF;
+            --text-muted: #9ca3af;
+            --border: #222222;
+            --shadow: 0 10px 30px rgba(0,0,0,0.5);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .container { max-width: 900px; width: 100%; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 30px; box-shadow: var(--shadow); }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); text-decoration: none; font-weight: 700; margin-bottom: 25px; font-size: 14px; transition: var(--transition); }
+        .back-link:hover { opacity: 0.8; }
+        
+        .product-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 35px; }
+        @media(max-width: 768px) { .product-layout { grid-template-columns: 1fr; } }
+
+        .product-img-box { width: 100%; height: 380px; background: var(--bg-color); position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+        .slider-wrapper { width: 100%; height: 100%; position: relative; display: flex; overflow: hidden; }
+        .slide-img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; transition: transform 0.5s ease; }
+        
+        .slider-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 12px; transition: var(--transition); }
+        .slider-btn:hover { background: var(--primary); color: #000; }
+        .slider-prev { right: 12px; }
+        .slider-next { left: 12px; }
+
+        .slider-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 10; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 20px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: var(--transition); }
+        .dot.active { background: var(--primary); width: 16px; border-radius: 4px; }
+
+        .product-details { display: flex; flex-direction: column; gap: 15px; }
+        .product-title { font-size: 24px; font-weight: 900; color: var(--text-main); line-height: 1.4; }
+        .product-price { font-size: 22px; font-weight: 900; color: var(--primary); }
+        
+        .sizes-container, .colors-container { display: flex; flex-direction: column; gap: 8px; background: var(--bg-color); padding: 14px; border-radius: 12px; border: 1px solid var(--border); }
+        .sizes-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .size-chip { position: relative; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+        .size-chip input { position: absolute; opacity: 0; cursor: pointer; }
+        .size-chip.out-of-stock { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+        .size-chip.selected { border-color: var(--primary); color: var(--primary); background: rgba(212, 175, 55, 0.05); }
+
+        .color-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; display: inline-block; transition: var(--transition); }
+        .color-swatch.selected { border-color: var(--primary); transform: scale(1.15); }
+
+        .size-qty-wrapper { display: none; margin-top: 8px; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--primary); }
+        .size-qty-wrapper.active { display: flex; }
+        .size-qty-input { width: 60px; padding: 6px; background: var(--bg-color); border: 1px solid var(--border); border-radius: 6px; color: var(--text-main); text-align: center; font-weight: bold; outline: none; font-size: 13px; }
+
+        .btn-add-cart { margin-top: 10px; background: var(--primary); color: #000; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 900; width: 100%; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); }
+        .btn-add-cart:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        
+        .loading-box { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 15px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="productContainer">
+        <div class="loading-box">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 26px; color: var(--primary); margin-bottom: 12px;"></i><br>جاري تحميل تفاصيل المنتج...
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentProduct = null;
+        let currentSlideIdx = 0;
+        let autoPlayInterval = null;
+
+        async function fetchProductDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            const ownerId = urlParams.get('uid');
+
+            const container = document.getElementById('productContainer');
+            const backUrl = ownerId ? `index.html?uid=${ownerId}` : 'index.html';
+
+            if (!productId) {
+                container.innerHTML = `
+                    <a href="${backUrl}" class="back-link"><i class="fa-solid fa-arrow-right"></i> العودة للمتجر</a>
+                    <div style="text-align:center; color:#ef4444; padding: 40px; font-weight:700;">عذراً، لم يتم تحديد المنتج المطلوب.</div>
+                `;
+                return;
+            }
+
+            const { data: product, error } = await supabaseClient.from('products').select('*').eq('id', productId).single();
+
+            if (error || !product) {
+                container.innerHTML = `
+                    <a href="${backUrl}" class="back-link"><i class="fa-solid fa-arrow-right"></i> العودة للمتجر</a>
+                    <div style="text-align:center; color:#ef4444; padding: 40px; font-weight:700;">لم يتم العثور على هذا المنتج أو تم حذفه من المتجر.</div>
+                `;
+                return;
+            }
+
+            currentProduct = product;
+            let pName = product.product_name || product.name || 'منتج';
+            let pPrice = Number(product.sell_price || product.price || 0);
+
+            document.getElementById('pageTitle').innerText = `${pName} | تفاصيل المنتج`;
+
+            let rawImages = product.images || product.image_url || product.image || 'https://via.placeholder.com/300';
+            let imagesArray = rawImages.split(',').map(img => img.trim()).filter(img => img !== '');
+            if (imagesArray.length === 0) imagesArray = ['https://via.placeholder.com/300'];
+
+            let slidesItems = imagesArray.map(imgUrl => `<img src="${imgUrl}" class="slide-img" onerror="this.src='https://via.placeholder.com/300'">`).join('');
+            
+            let sliderBtnsHtml = imagesArray.length > 1 ? `
+                <button class="slider-btn slider-prev" onclick="manualMoveSlide(1, ${imagesArray.length})"><i class="fa-solid fa-chevron-right"></i></button>
+                <button class="slider-btn slider-next" onclick="manualMoveSlide(-1, ${imagesArray.length})"><i class="fa-solid fa-chevron-left"></i></button>
+            ` : '';
+
+            let dotsHtml = imagesArray.length > 1 ? `
+                <div class="slider-dots" id="sliderDots">
+                    ${imagesArray.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" onclick="manualCurrentSlide(${i})"></span>`).join('')}
+                </div>
+            ` : '';
+
+            let pColors = product.colors || product.color || '';
+            let colorsHtml = '';
+            if (pColors && pColors.trim() !== '') {
+                const colorsArray = pColors.split(',').map(c => c.trim());
+                let swatchesHtml = colorsArray.map((colorItem, cIdx) => {
+                    let parts = colorItem.split(':');
+                    let colorName = parts[0] ? parts[0].trim() : '';
+                    let colorVal = parts[1] ? parts[1].trim() : colorName;
+                    return `<span class="color-swatch ${cIdx === 0 ? 'selected' : ''}" style="background-color: ${colorVal};" title="${colorName}" onclick="selectColor(this, '${colorName}')"></span>`;
+                }).join('');
+
+                colorsHtml = `
+                    <div class="colors-container">
+                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;">اللون: <span id="selectedColorText" style="color:var(--primary);">${colorsArray[0].split(':')[0]}</span></span>
+                        <div style="display: flex; gap: 8px;" id="colorsGroup">${swatchesHtml}</div>
+                    </div>
+                `;
+            }
+
+            let pSizes = product.sizes || '';
+            let sizesHtml = '';
+            let qtyRowsHtml = '';
+            if (pSizes && pSizes.trim() !== '') {
+                const sizesArray = pSizes.split(',').map(s => s.trim());
+                let chipsHtml = sizesArray.map((sizeItem, idx) => {
+                    let parts = sizeItem.split(':');
+                    let sizeName = parts[0] ? parts[0].trim() : '';
+                    let sizeStock = parts[1] ? parseInt(parts[1].trim()) : 0;
+                    let isOut = sizeStock <= 0;
+                    return `
+                        <label class="size-chip ${isOut ? 'out-of-stock' : ''} ${idx === 0 && !isOut ? 'selected' : ''}" id="sizeChip_${idx}" ${isOut ? '' : `onclick="selectSize(${idx})"-`}>
+                            <input type="radio" name="productSize" value="${sizeName}" ${idx === 0 && !isOut ? 'checked' : ''} ${isOut ? 'disabled' : ''}>
+                            ${sizeName}
+                        </label>
+                    `;
+                }).join('');
+
+                qtyRowsHtml = sizesArray.map((sizeItem, idx) => {
+                    let parts = sizeItem.split(':');
+                    let sizeName = parts[0] ? parts[0].trim() : '';
+                    let maxStock = parts[1] ? parseInt(parts[1].trim()) : 0;
+                    if (maxStock <= 0) return '';
+                    return `
+                        <div class="size-qty-wrapper ${idx === 0 ? 'active' : ''}" id="qtyWrapper_${idx}">
+                            <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">الكمية للمقاس (<strong style="color:var(--primary);">${sizeName}</strong>):</span>
+                            <input type="number" min="1" max="${maxStock}" value="1" class="size-qty-input" id="sizeQty_${idx}">
+                        </div>
+                    `;
+                }).join('');
+
+                sizesHtml = `
+                    <div class="sizes-container">
+                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;"><i class="fa-solid fa-ruler-combined" style="color:var(--primary);"></i> المقاس:</span>
+                        <div class="sizes-grid">${chipsHtml}</div>
+                        ${qtyRowsHtml}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <a href="${backUrl}" class="back-link"><i class="fa-solid fa-arrow-right"></i> العودة للمتجر</a>
+                <div class="product-layout">
+                    <div class="product-img-box" onmouseenter="pauseAutoPlay()" onmouseleave="startAutoPlay(${imagesArray.length})">
+                        <div class="slider-wrapper" id="mainSlider">${slidesItems}</div>
+                        ${sliderBtnsHtml}
+                        ${dotsHtml}
+                    </div>
+                    <div class="product-details">
+                        <div class="product-title">${pName}</div>
+                        <div class="product-price">${pPrice.toFixed(2)} ج.م</div>
+                        ${colorsHtml}
+                        ${sizesHtml}
+                        <button onclick="addToCart()" class="btn-add-cart">
+                            <i class="fa-solid fa-cart-plus"></i> إضافة إلى السلة
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            if (imagesArray.length > 1) {
+                startAutoPlay(imagesArray.length);
+            }
+        }
+
+        function startAutoPlay(total) {
+            if (autoPlayInterval) clearInterval(autoPlayInterval);
+            autoPlayInterval = setInterval(() => {
+                currentSlideIdx = (currentSlideIdx + 1) % total;
+                updateSlider(total);
+            }, 3500);
+        }
+
+        function pauseAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            }
+        }
+
+        function manualMoveSlide(direction, total) {
+            pauseAutoPlay();
+            currentSlideIdx = (currentSlideIdx + direction + total) % total;
+            updateSlider(total);
+            startAutoPlay(total);
+        }
+
+        function manualCurrentSlide(index) {
+            pauseAutoPlay();
+            currentSlideIdx = index;
+            const slider = document.getElementById('mainSlider');
+            const dots = document.querySelectorAll('.dot');
+            if (slider) slider.style.transform = `translateX(${currentSlideIdx * 100}%)`;
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentSlideIdx));
+        }
+
+        function updateSlider(total) {
+            const slider = document.getElementById('mainSlider');
+            const dots = document.querySelectorAll('.dot');
+            if (slider) slider.style.transform = `translateX(${currentSlideIdx * 100}%)`;
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentSlideIdx));
+        }
+
+        function selectColor(element, colorName) {
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('selectedColorText').innerText = colorName;
+        }
+
+        function selectSize(idx) {
+            document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.size-qty-wrapper').forEach(w => w.classList.remove('active'));
+
+            const chip = document.getElementById(`sizeChip_${idx}`);
+            const qtyWrapper = document.getElementById(`qtyWrapper_${idx}`);
+            if (chip) {
+                chip.classList.add('selected');
+                const radio = chip.querySelector('input');
+                if (radio) radio.checked = true;
+            }
+            if (qtyWrapper) {
+                qtyWrapper.classList.add('active');
+            }
+        }
+
+        function addToCart() {
+            if (!currentProduct) return;
+
+            let selectedColor = '';
+            const colorEl = document.getElementById('selectedColorText');
+            if (colorEl) selectedColor = colorEl.innerText;
+
+            let selectedSize = '';
+            let quantity = 1;
+
+            const sizeInput = document.querySelector('input[name="productSize"]:checked');
+            if (sizeInput && !sizeInput.disabled) {
+                selectedSize = sizeInput.value;
+                // إيجاد الـ Index الخاص بالمقاس لجلب كمية الحقل المخصص له
+                const allRadios = document.querySelectorAll('input[name="productSize"]');
+                allRadios.forEach((r, idx) => {
+                    if (r === sizeInput) {
+                        const qtyInput = document.getElementById(`sizeQty_${idx}`);
+                        if (qtyInput) quantity = parseInt(qtyInput.value) || 1;
+                    }
+                });
+            }
+
+            let cart = JSON.parse(localStorage.getItem('myStoreCart')) || [];
+            let itemName = (currentProduct.product_name || currentProduct.name);
+            if (selectedColor) itemName += ` (${selectedColor})`;
+            if (selectedSize) itemName += ` [مقاس: ${selectedSize}]`;
+
+            let itemPrice = Number(currentProduct.sell_price || currentProduct.price || 0);
+
+            const existingItem = cart.find(item => item.id == currentProduct.id && item.size === selectedSize && item.color === selectedColor);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    id: currentProduct.id,
+                    name: itemName,
+                    price: itemPrice,
+                    quantity: quantity,
+                    size: selectedSize,
+                    color: selectedColor
+                });
+            }
+
+            localStorage.setItem('myStoreCart', JSON.stringify(cart));
+            alert('تمت إضافة المنتج إلى السلة بنجاح! 🛒');
+        }
+
+        fetchProductDetails();
+    </script>
+</body>
+</html>

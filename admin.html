@@ -145,20 +145,22 @@
         }
 
         // دالة تحديث باقة التاجر في قاعدة البيانات فور تغييرها من القائمة المنسدلة
-        async function updatePlan(userId) {
+       async function updatePlan(userId) {
             const selectedPlan = document.getElementById(`plan_${userId}`).value;
             
-            // تحديث جدول الاشتراكات باستخدام الحقل الصحيح plan_type
+            // تحديث جدول الاشتراكات باستخدام upsert أو update مع التحقق
             const { error: subError } = await supabaseClient
                 .from('subscriptions')
                 .update({ plan_type: selectedPlan })
                 .eq('user_id', userId);
 
-            // تحديث جدول إعدادات المتجر باستخدام الحقل الصحيح plan_type
+            // تحديث جدول store_settings مع إدراج السجل إن لم يكن موجوداً لتجنب فشل التحديث
             const { error: storeError } = await supabaseClient
                 .from('store_settings')
-                .update({ plan_type: selectedPlan })
-                .eq('user_id', userId);
+                .upsert({ 
+                    user_id: userId, 
+                    package_type: selectedPlan 
+                }, { onConflict: 'user_id' });
 
             if (subError || storeError) {
                 alert('خطأ أثناء تحديث الباقة: ' + (subError?.message || storeError?.message));

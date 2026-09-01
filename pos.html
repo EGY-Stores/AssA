@@ -12,11 +12,15 @@
             --primary-light: #e0e7ff;
             --success: #059669;
             --danger: #ef4444;
+            --danger-bg: #ffe4e6;
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -25,7 +29,7 @@
         .pos-layout { display: grid; grid-template-columns: 420px 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; height: calc(100vh - 40px); }
         @media(max-width: 900px) { .pos-layout { grid-template-columns: 1fr; height: auto; } }
 
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; box-shadow: var(--shadow); }
         
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .btn-back { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; }
@@ -74,12 +78,18 @@
         .btn-checkout { background: var(--success); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; margin-bottom: 10px; }
         .btn-checkout:hover { background: #047857; }
 
-        .btn-print { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-print { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 10px; }
         .btn-print:hover { background: #4338ca; }
 
-        .size-select-box { margin-top: 8px; width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; background: #fff; outline: none; }
+        .btn-return-modal { background: var(--danger-bg); color: var(--danger); border: 1px solid #fecdd3; padding: 10px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: var(--transition); }
+        .btn-return-modal:hover { background: #fecdd3; }
 
-        /* تنسيق نموذج الفاتورة الحرارية والطباعة */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: var(--radius); width: 100%; max-width: 500px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1); position: relative; }
+        .modal-close { position: absolute; top: 20px; left: 20px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+
+        .size-select-box { margin-top: 8px; width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; background: #fff; outline: none; cursor: pointer; }
+
         #thermalReceipt { display: none; }
 
         @media print {
@@ -132,6 +142,7 @@
 
             <button onclick="checkout()" class="btn-checkout">إتمام البيع وخصم المخزون</button>
             <button onclick="printLastInvoice()" class="btn-print"><i class="fa-solid fa-print"></i> طباعة آخر فاتورة</button>
+            <button onclick="openReturnModal()" class="btn-return-modal"><i class="fa-solid fa-rotate-left"></i> إدارة المرتجعات</button>
         </div>
 
         <div class="card">
@@ -144,13 +155,11 @@
                 <input type="text" id="searchBox" onkeyup="filterProducts()" placeholder="ابحث باسم المنتج..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; outline:none;">
             </div>
 
-            <!-- تصفية حسب الأقسام -->
             <div class="filter-section-title">الأقسام:</div>
             <div class="categories-scroll" id="categoriesBar">
                 <button class="category-btn active" onclick="filterByCategory('all', this)">الكل</button>
             </div>
 
-            <!-- تصفية حسب المكاتب -->
             <div class="filter-section-title">المكاتب:</div>
             <div class="categories-scroll" id="officesBar">
                 <button class="category-btn office-btn active" onclick="filterByOffice('all', this)">كل المكاتب</button>
@@ -162,7 +171,44 @@
         </div>
     </div>
 
-    <!-- نموذج الفاتورة الحرارية المخفي الذي يظهر فقط عند الطباعة -->
+    <!-- نافذة المرتجعات المحدثة -->
+    <div class="modal-overlay" id="returnModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeReturnModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="margin-bottom: 10px; color: var(--danger);"><i class="fa-solid fa-rotate-left"></i> تسجيل منتج مرتجع</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سيتم إرجاع الكمية للمقاس المحدد في المخزن وخصم المبلغ المردود تلقائياً.</p>
+            
+            <form id="returnForm" onsubmit="submitReturn(event)">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">اختر المنتج:</label>
+                    <select id="returnProductSelect" onchange="onReturnProductChange()" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; outline: none;" required>
+                        <option value="">جاري التحميل...</option>
+                    </select>
+                </div>
+                
+                <!-- قائمة اختيار المقاس للمرتجع -->
+                <div style="margin-bottom: 15px;" id="returnSizeContainer" style="display: none;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">اختر المقاس المرتجع:</label>
+                    <select id="returnSizeSelect" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; outline: none;">
+                        <option value="افتراضي">افتراضي (بدون مقاسات)</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">الكمية المرتجعة:</label>
+                    <input type="number" id="returnQtyInput" min="1" value="1" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; outline: none;" required>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">المبلغ المردود للعميل (ج.م):</label>
+                    <input type="number" id="refundAmountInput" step="0.01" placeholder="أدخل المبلغ المراد خصمه..." style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; outline: none;" required>
+                </div>
+                <button type="submit" class="btn-checkout" style="background: var(--danger); margin-bottom: 0;">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> تأكيد وإتمام المرتجع
+                </button>
+            </form>
+        </div>
+    </div>
+
     <div id="thermalReceipt" class="thermal-receipt">
         <div class="receipt-header">
             <h3>إدارة المحلات SaaS</h3>
@@ -180,7 +226,6 @@
                 </tr>
             </thead>
             <tbody id="receiptItemsBody">
-                <!-- سيتم تعبئتها ديناميكياً -->
             </tbody>
         </table>
         <div class="receipt-divider">--------------------------------</div>
@@ -307,6 +352,7 @@
             }
             productsList = data || [];
             displayProducts(productsList);
+            populateReturnDropdown(productsList);
         }
 
         function displayProducts(items) {
@@ -338,7 +384,7 @@
                         return `<option value="${sName}">مقاس: ${sName} (متبقي: ${sQty})</option>`;
                     }).join('');
 
-                    sizeSelectHtml = `<select class="size-select-box" id="size_select_${p.id}" onclick="event.stopPropagation()">${options}</select>`;
+                    sizeSelectHtml = `<select class="size-select-box" id="size_select_${p.id}" onclick="event.stopPropagation()" onchange="event.stopPropagation()">${options}</select>`;
                 }
 
                 container.innerHTML += `
@@ -535,6 +581,159 @@
                 return;
             }
             printInvoice(lastProcessedOrder);
+        }
+
+        function openReturnModal() {
+            document.getElementById('returnModal').style.display = 'flex';
+        }
+
+        function closeReturnModal() {
+            document.getElementById('returnModal').style.display = 'none';
+        }
+
+        function populateReturnDropdown(products) {
+            const select = document.getElementById('returnProductSelect');
+            if (!select) return;
+
+            if (products.length === 0) {
+                select.innerHTML = '<option value="">لا توجد منتجات مسجلة</option>';
+                return;
+            }
+
+            select.innerHTML = '<option value="">اختر المنتج المرتجع...</option>' + products.map(prod => {
+                const pName = prod.product_name || prod.name;
+                const pStock = calculateTotalStock(prod.sizes) > 0 ? calculateTotalStock(prod.sizes) : (prod.stock !== undefined ? prod.stock : 0);
+                return `<option value="${prod.id}">
+                    ${pName} (المخزن الحالي: ${pStock})
+                </option>`;
+            }).join('');
+        }
+
+        // تحديث قائمة المقاسات بناءً على المنتج المختار في المرتجعات
+        function onReturnProductChange() {
+            const select = document.getElementById('returnProductSelect');
+            const productId = select.value;
+            const sizeSelect = document.getElementById('returnSizeSelect');
+            
+            if (!productId) {
+                sizeSelect.innerHTML = '<option value="افتراضي">افتراضي (بدون مقاسات)</option>';
+                return;
+            }
+
+            const product = productsList.find(p => String(p.id) === String(productId));
+            if (!product || !product.sizes || !product.sizes.includes(':')) {
+                sizeSelect.innerHTML = '<option value="افتراضي">افتراضي (بدون مقاسات)</option>';
+                return;
+            }
+
+            let sizesArr = product.sizes.split(',').map(s => s.trim());
+            sizeSelect.innerHTML = sizesArr.map(s => {
+                let parts = s.split(':');
+                let sName = parts[0].trim();
+                let sQty = parts[1] ? parts[1].trim() : '0';
+                return `<option value="${sName}">مقاس: ${sName} (المتفرغ بالمخزن: ${sQty})</option>`;
+            }).join('');
+        }
+
+        async function submitReturn(e) {
+            e.preventDefault();
+            const select = document.getElementById('returnProductSelect');
+            const productId = select.value;
+            const sizeSelect = document.getElementById('returnSizeSelect');
+            const selectedSize = sizeSelect ? sizeSelect.value : 'افتراضي';
+
+            const returnQty = parseInt(document.getElementById('returnQtyInput').value);
+            const refundAmount = parseFloat(document.getElementById('refundAmountInput').value);
+
+            if (!productId || isNaN(returnQty) || isNaN(refundAmount)) {
+                alert('الرجاء التأكد من اختيار المنتج وصحة البيانات المدخلة.');
+                return;
+            }
+
+            const product = productsList.find(p => String(p.id) === String(productId));
+            if (!product) return;
+
+            const productName = (product.product_name || product.name) + (selectedSize !== 'افتراضي' ? ` (مقاس: ${selectedSize})` : '');
+
+            // تسجيل المرتجع في جدول returns
+            const { error: returnError } = await supabaseClient.from('returns').insert([{
+                user_id: currentUserId,
+                product_id: productId,
+                product_name: productName,
+                quantity: returnQty,
+                refund_amount: refundAmount
+            }]);
+
+            if (returnError) {
+                alert('خطأ أثناء تسجيل المرتجع: ' + returnError.message);
+                return;
+            }
+
+            // تحديث المقاسات والمخزن بشكل دقيق بناءً على المقاس المختار
+            let updatedSizes = product.sizes || '';
+            if (updatedSizes.includes(':') && selectedSize !== 'افتراضي') {
+                let sizesArr = updatedSizes.split(',').map(s => s.trim());
+                sizesArr = sizesArr.map(s => {
+                    let parts = s.split(':');
+                    let sName = parts[0].trim();
+                    let sQty = parseInt(parts[1]) || 0;
+                    if (sName === selectedSize) {
+                        sQty += returnQty; // إضافة الكمية المرتجعة للمقاس المحدد
+                    }
+                    return `${sName}:${sQty}`;
+                });
+                updatedSizes = sizesArr.join(', ');
+            }
+
+            let newStock = 0;
+            if (updatedSizes.includes(':')) {
+                updatedSizes.split(',').forEach(part => {
+                    let sub = part.trim().split(':');
+                    if (sub.length === 2) {
+                        newStock += parseInt(sub[1]) || 0;
+                    }
+                });
+            } else {
+                let generalStock = parseInt(product.stock || product.quantity || 0);
+                newStock = generalStock + returnQty;
+            }
+
+            const { error: stockError } = await supabaseClient
+                .from('products')
+                .update({ 
+                    sizes: updatedSizes,
+                    stock: newStock, 
+                    quantity: newStock 
+                })
+                .eq('id', productId);
+
+            if (stockError) {
+                alert('خطأ أثناء تحديث كمية المخزن والمقاسات: ' + stockError.message);
+                return;
+            }
+
+            try {
+                const { data: profitData } = await supabaseClient
+                    .from('store_profits')
+                    .select('*')
+                    .eq('user_id', currentUserId)
+                    .maybeSingle();
+
+                if (profitData) {
+                    const updatedNetProfit = (parseFloat(profitData.net_profit) || 0) - refundAmount;
+                    await supabaseClient
+                        .from('store_profits')
+                        .update({ net_profit: updatedNetProfit })
+                        .eq('user_id', currentUserId);
+                }
+            } catch (err) {
+                console.log('ملاحظة أرباح المتجر: ' + err.message);
+            }
+
+            alert('تم تسجيل المرتجع بنجاح، وإرجاع الكمية للمقاس المحدد في المخزن، وخصم المبلغ من الأرباح!');
+            document.getElementById('returnForm').reset();
+            closeReturnModal();
+            loadPOSProducts();
         }
 
         async function checkout() {
