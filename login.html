@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - نظام إدارة المحلات</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4f46e5;
@@ -38,6 +39,32 @@
         .forgot-password { text-align: left; margin-top: -10px; margin-bottom: 20px; }
         .forgot-password a { font-size: 13px; color: var(--text-muted); text-decoration: none; }
         .forgot-password a:hover { color: var(--primary); text-decoration: underline; }
+
+        /* تنسيق قسم تواصل واتساب */
+        .whatsapp-support {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #25d366;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .whatsapp-btn:hover {
+            background-color: #22bf5b;
+        }
     </style>
 </head>
 <body>
@@ -63,6 +90,13 @@
         </form>
         <div class="links">
             ليس لديك حساب؟ <a href="signup.html">إنشاء حساب جديد</a>
+        </div>
+
+        <!-- زر تواصل مع الأدمن عبر واتساب -->
+        <div class="whatsapp-support">
+            <a href="https://wa.me/201004585453?text=مرحباً أدمن، أواجه مشكلة في تسجيل الدخول أو أحتاج إلى مساعدة." target="_blank" class="whatsapp-btn">
+                <i class="fa-brands fa-whatsapp" style="font-size: 18px;"></i> تواصل مع الأدمن عبر واتساب
+            </a>
         </div>
     </div>
 
@@ -103,14 +137,14 @@
                 return;
             }
 
-            // 3. فحص هل الحساب مفعل أم لا[cite: 5]
+            // 3. فحص هل الحساب مفعل أم لا
             if (subData.status !== 'active') {
-                alert('حسابك غير مفعل حالياً. يجب انتظار تفعيل المشرف (الأدمن) لتتمكن من الدخول[cite: 5].');
-                await supabaseClient.auth.signOut(); // تسجيل الخروج مباشرة لمنعه من الدخول[cite: 5]
+                alert('حسابك غير مفعل حالياً. يجب انتظار تفعيل المشرف (الأدمن) لتتمكن من الدخول.');
+                await supabaseClient.auth.signOut(); // تسجيل الخروج مباشرة لمنعه من الدخول
                 return;
             }
 
-            // 4. إذا كان مفعل بنجاح، يتم توجيهه للوحة تحكم المتجر[cite: 5]
+            // 4. إذا كان مفعل بنجاح، يتم توجيهه للوحة تحكم المتجر
             alert('مرحباً بك! تم تسجيل الدخول بنجاح.');
             window.location.href = 'store-dashboard.html';
         }

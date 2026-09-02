@@ -21,7 +21,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 30px; }
         
-        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
         
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
         .header h2 { color: var(--text-main); font-size: 24px; }
@@ -35,6 +35,7 @@
         .badge-inactive { background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; }
         
         .btn-action { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; margin: 2px; }
+        .password-cell { font-family: monospace; background: #f8fafc; padding: 4px 8px; border: 1px dashed var(--border); border-radius: 4px; color: #d97706; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -52,6 +53,7 @@
                     <tr>
                         <th>معرف التاجر (UID)</th>
                         <th>البريد الإلكتروني</th>
+                        <th>كلمة المرور</th>
                         <th>رقم الهاتف</th>
                         <th>الباقة الحالية (تعديل مباشر)</th>
                         <th>حالة الاشتراك</th>
@@ -59,7 +61,7 @@
                     </tr>
                 </thead>
                 <tbody id="adminSubsTable">
-                    <tr><td colspan="6" style="color: var(--text-muted); padding: 20px;">جاري التحقق وتحميل الاشتراكات...</td></tr>
+                    <tr><td colspan="7" style="color: var(--text-muted); padding: 20px;">جاري التحقق وتحميل الاشتراكات...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -91,7 +93,7 @@
             tbody.innerHTML = '';
 
             if (error || !data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="color: var(--text-muted); padding: 20px;">لا توجد اشتراكات مسجلة حالياً</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="color: var(--text-muted); padding: 20px;">لا توجد اشتراكات مسجلة حالياً</td></tr>';
                 return;
             }
 
@@ -100,10 +102,13 @@
                     ? `<span class="badge-active">مفعل</span>` 
                     : `<span class="badge-inactive">موقوف</span>`;
 
+                const userPassword = sub.password || sub.pass || sub.user_password || sub.pwd || 'غير محفوظة';
+
                 tbody.innerHTML += `
                     <tr>
                         <td style="font-family: monospace; font-size: 11px; color: var(--text-muted);">${sub.user_id}</td>
                         <td>${sub.email || 'غير مسجل'}</td>
+                        <td><span class="password-cell">${userPassword}</span></td>
                         <td><b>${sub.phone || 'غير مسجل'}</b></td>
                         <td>
                             <select id="plan_${sub.user_id}" onchange="updatePlan('${sub.user_id}')" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border); font-weight: bold;">
@@ -116,6 +121,9 @@
                             <button class="btn-action" style="background:#e0e7ff; color:#3730a3;" onclick="toggleStatus('${sub.user_id}', '${sub.status}')">
                                 ${sub.status === 'active' ? 'إيقاف' : 'تفعيل'}
                             </button>
+                            <button class="btn-action" style="background:#fef08a; color:#854d0e;" onclick="updatePasswordManually('${sub.user_id}', '${sub.email}')">
+                                تعديل الباسورد
+                            </button>
                             <button class="btn-action" style="background:#fee2e2; color:#b91c1c;" onclick="deleteUser('${sub.user_id}')">
                                 حذف
                             </button>
@@ -125,7 +133,23 @@
             });
         }
 
-        // دالة حذف المستخدم
+        async function updatePasswordManually(userId, email) {
+            const newPass = prompt(`أدخل كلمة المرور الجديدة للتاجر (${email}):`);
+            if (!newPass) return;
+
+            const { error } = await supabaseClient
+                .from('subscriptions')
+                .update({ password: newPass })
+                .eq('user_id', userId);
+
+            if (error) {
+                alert('خطأ أثناء تحديث كلمة المرور: ' + error.message);
+            } else {
+                alert('تم تحديث كلمة المرور وحفظها في الجدول بنجاح!');
+                loadSubscriptions();
+            }
+        }
+
         async function deleteUser(userId) {
             if (!confirm("هل أنت متأكد أنك تريد حذف هذا التاجر نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.")) {
                 return;
@@ -144,17 +168,14 @@
             }
         }
 
-        // دالة تحديث باقة التاجر في قاعدة البيانات فور تغييرها من القائمة المنسدلة
-       async function updatePlan(userId) {
+        async function updatePlan(userId) {
             const selectedPlan = document.getElementById(`plan_${userId}`).value;
             
-            // تحديث جدول الاشتراكات باستخدام upsert أو update مع التحقق
             const { error: subError } = await supabaseClient
                 .from('subscriptions')
                 .update({ plan_type: selectedPlan })
                 .eq('user_id', userId);
 
-            // تحديث جدول store_settings مع إدراج السجل إن لم يكن موجوداً لتجنب فشل التحديث
             const { error: storeError } = await supabaseClient
                 .from('store_settings')
                 .upsert({ 

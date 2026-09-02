@@ -74,6 +74,9 @@
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // رقم الواتساب الخاص بك (مكتوب بالصيغة الدولية لضمان فتح الرابط بشكل صحيح)
+        const ADMIN_WHATSAPP = "201141360644"; 
+
         async function handleSignup(event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
@@ -81,7 +84,7 @@
             const password = document.getElementById('password').value;
             const planType = document.getElementById('planType').value;
 
-            // 1. إنشاء الحساب في نظام المصادقة[cite: 6]
+            // 1. إنشاء الحساب في نظام المصادقة
             const { data: authData, error: authError } = await supabaseClient.auth.signUp({
                 email: email,
                 password: password
@@ -95,11 +98,12 @@
             const userId = authData.user ? authData.user.id : null;
 
             if (userId) {
-                // 2. إدراج بيانات الاشتراك في جدول subscriptions بحالة inactive[cite: 6]
+                // 2. إدراج بيانات الاشتراك وكلمة المرور في جدول subscriptions
                 const { error: subError } = await supabaseClient.from('subscriptions').insert([{
                     user_id: userId,
                     email: email,
                     phone: phone,
+                    password: password,
                     plan_type: planType,
                     status: 'inactive'
                 }]);
@@ -107,8 +111,14 @@
                 if (subError) {
                     alert('تم إنشاء الحساب ولكن حدث خطأ في ربط الاشتراك: ' + subError.message);
                 } else {
-                    alert('تم إنشاء الحساب بنجاح! بانتظار تفعيل الأدمن لحسابك.');
-                    window.location.href = 'login.html';
+                    // رسالة توجيه للتاجر للتواصل معك عبر واتساب لتفعيل الحساب
+                    const confirmWhatsApp = confirm('تم إنشاء الحساب بنجاح! حسابك غير مفعل حالياً. يرجى التواصل مع الدعم الفني (الأدمن) عبر الواتساب لتفعيل حسابك وإتمام الاشتراك.\n\nهل تريد الانتقال إلى محادثة واتساب الآن؟');
+                    
+                    if (confirmWhatsApp) {
+                        window.location.href = `https://wa.me/${ADMIN_WHATSAPP}?text=مرحباً أدمن، لقد قمت بإنشاء حساب جديد بريد: ${encodeURIComponent(email)} وأريد تفعيل حسابي.`;
+                    } else {
+                        window.location.href = 'login.html';
+                    }
                 }
             }
         }
