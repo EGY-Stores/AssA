@@ -94,7 +94,7 @@
 
         <!-- زر تواصل مع الأدمن عبر واتساب -->
         <div class="whatsapp-support">
-            <a href="https://wa.me/201004585453?text=مرحباً أدمن، أواجه مشكلة في تسجيل الدخول أو أحتاج إلى مساعدة." target="_blank" class="whatsapp-btn">
+            <a href="https://wa.me/201141360644?text=مرحباً أدمن، أواجه مشكلة في تسجيل الدخول أو أحتاج إلى مساعدة." target="_blank" class="whatsapp-btn">
                 <i class="fa-brands fa-whatsapp" style="font-size: 18px;"></i> تواصل مع الأدمن عبر واتساب
             </a>
         </div>
@@ -156,6 +156,7 @@
             
             if (!email) return;
 
+            // استخدام window.location.origin ليحدد الرابط الحالي تلقائياً سواء كان localhost أو github.io
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
                 redirectTo: window.location.origin + '/reset-password.html',
             });
