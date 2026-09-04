@@ -87,7 +87,7 @@
         .logo { font-size:21px; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:9px; letter-spacing:-.5px; white-space:nowrap; }
         .logo i { color:var(--primary); font-size:17px; }
         .store-social-btns { display:flex; align-items:center; gap:7px; }
-        .store-social-btn { display:none; align-items:center; gap:6px; background:transparent; border:1px solid var(--border); color:var(--text-main); padding:7px 12px; border-radius:50px; font-size:11px; font-weight:700; text-decoration:none; transition:var(--transition); }
+        .store-social-btn { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--border); color:var(--text-main); padding:7px 12px; border-radius:50px; font-size:11px; font-weight:700; text-decoration:none; transition:var(--transition); }
         .store-social-btn:hover { border-color:var(--primary); color:var(--primary); transform:translateY(-1px); }
         .cart-btn { background:var(--text-main); border:1px solid var(--text-main); color:#fff; padding:11px 18px; border-radius:50px; cursor:pointer; font-weight:800; display:flex; align-items:center; gap:9px; transition:var(--transition); position:relative; font-size:12px; }
         .cart-btn:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(0,0,0,.14); }
@@ -214,8 +214,9 @@
         @media (max-width:720px) {
             header { height:68px; padding:0 5%; }
             .logo { font-size:17px; }
-            .store-social-btn { padding:7px 9px; font-size:10px; }
+            .store-social-btn { display:inline-flex; width:36px; height:36px; padding:0; justify-content:center; align-items:center; border-radius:50%; font-size:14px; }
             .store-social-btn span { display:none; }
+            .store-social-btns { display:flex; align-items:center; gap:5px; }
             .cart-btn { width:42px; height:42px; padding:0; justify-content:center; border-radius:50%; }
             .cart-btn { font-size:0; }
             .cart-btn i { font-size:14px; }
@@ -238,6 +239,15 @@
             .btn-add-cart { padding:11px 8px; font-size:10px; }
             .colors-container,.sizes-container { padding-top:7px; }
         }
+
+        @media (max-width:380px) {
+            header { padding:0 3%; }
+            .logo-area { gap:6px; }
+            .logo { font-size:15px; }
+            .store-social-btn { width:32px; height:32px; font-size:13px; }
+            .cart-btn { width:38px; height:38px; }
+        }
+
         @media (max-width:430px) {
             .products-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
             .product-img-box { height:205px; }
@@ -283,7 +293,7 @@ body.theme-royal{--bg-color:#faf5f7}.theme-royal header{background:rgba(250,245,
 /* CRIMSON — fashion house */
 body.theme-crimson{--bg-color:#f7f4f3}.theme-crimson header{background:rgba(247,244,243,.94)}.theme-crimson .hero{border-radius:0;min-height:520px;background:linear-gradient(105deg,#160b0c,#441013 62%,#9c2028);padding-right:9%}.theme-crimson .hero h1{font-family:Georgia,'Times New Roman',serif;font-weight:500;font-size:clamp(46px,6vw,84px);letter-spacing:-3px}.theme-crimson .hero h1 span{color:#f3b4b4;font-style:italic}.theme-crimson .hero-kicker{color:#f2b6b6}.theme-crimson .hero-kicker:before{background:#f2b6b6}.theme-crimson .search-box input{border-radius:2px}.theme-crimson .trust-strip{margin-top:-28px}.theme-crimson .trust-item{border-radius:0;background:#fff}.theme-crimson .product-card{border-radius:2px}.theme-crimson .product-img-box{height:400px;background:#ece7e5}.theme-crimson .btn-add-cart{border-radius:2px;background:#8f1d24}.theme-crimson .cat-btn{border-radius:2px}.theme-crimson .cat-btn.active{background:#8f1d24;border-color:#8f1d24}
 @media(max-width:900px){.products-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.product-img-box{height:320px}.hero{min-height:450px}.trust-strip{grid-template-columns:1fr}.trust-item,.trust-item:first-child,.trust-item:last-child{border-left:1px solid var(--line);border-radius:0}.trust-item:first-child{border-radius:18px 18px 0 0}.trust-item:last-child{border-radius:0 0 18px 18px}.footer-inner{align-items:flex-start;flex-direction:column}}
-@media(max-width:720px){header{height:70px;padding:0 4%}.logo{font-size:16px}.store-social-btns{display:none}.cart-btn{width:44px;height:44px;padding:0;justify-content:center;border-radius:13px;font-size:0}.cart-btn i{font-size:14px}.hero{width:94%;margin-top:18px;margin-bottom:30px;padding:45px 7%;min-height:460px;border-radius:25px}.hero h1{font-size:38px;letter-spacing:-2px}.hero p{font-size:11px}.hero-search-row{margin-top:25px}.search-box input{height:54px}.categories-wrap,.container,.trust-strip{width:94%}.categories-wrap{display:block}.section-label{margin-bottom:13px}.products-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.product-img-box{height:245px}.product-info{padding:13px}.product-title{font-size:10px}.product-price{font-size:16px}.btn-add-cart{height:42px;font-size:9px}.footer-brand{font-size:24px}.brand-footer{padding-top:50px}.theme-royal .hero,.theme-gym .hero,.theme-crimson .hero{min-height:470px}}
+@media(max-width:720px){header{height:70px;padding:0 4%}.logo{font-size:16px}.store-social-btns{display:flex;gap:5px;align-items:center}.store-social-btn{width:36px;height:36px;padding:0;justify-content:center;border-radius:10px}.store-social-btn span{display:none}.store-social-btn i{font-size:14px}.cart-btn{width:44px;height:44px;padding:0;justify-content:center;border-radius:13px;font-size:0}.cart-btn i{font-size:14px}.hero{width:94%;margin-top:18px;margin-bottom:30px;padding:45px 7%;min-height:460px;border-radius:25px}.hero h1{font-size:38px;letter-spacing:-2px}.hero p{font-size:11px}.hero-search-row{margin-top:25px}.search-box input{height:54px}.categories-wrap,.container,.trust-strip{width:94%}.categories-wrap{display:block}.section-label{margin-bottom:13px}.products-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.product-img-box{height:245px}.product-info{padding:13px}.product-title{font-size:10px}.product-price{font-size:16px}.btn-add-cart{height:42px;font-size:9px}.footer-brand{font-size:24px}.brand-footer{padding-top:50px}.theme-royal .hero,.theme-gym .hero,.theme-crimson .hero{min-height:470px}}
 @media(max-width:430px){.product-img-box{height:215px}.hero h1{font-size:33px}.trust-item{padding:16px}.footer-links{gap:6px}}
 
     
