@@ -286,6 +286,228 @@ body.theme-crimson{--bg-color:#f7f4f3}.theme-crimson header{background:rgba(247,
 @media(max-width:720px){header{height:70px;padding:0 4%}.logo{font-size:16px}.store-social-btns{display:none}.cart-btn{width:44px;height:44px;padding:0;justify-content:center;border-radius:13px;font-size:0}.cart-btn i{font-size:14px}.hero{width:94%;margin-top:18px;margin-bottom:30px;padding:45px 7%;min-height:460px;border-radius:25px}.hero h1{font-size:38px;letter-spacing:-2px}.hero p{font-size:11px}.hero-search-row{margin-top:25px}.search-box input{height:54px}.categories-wrap,.container,.trust-strip{width:94%}.categories-wrap{display:block}.section-label{margin-bottom:13px}.products-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.product-img-box{height:245px}.product-info{padding:13px}.product-title{font-size:10px}.product-price{font-size:16px}.btn-add-cart{height:42px;font-size:9px}.footer-brand{font-size:24px}.brand-footer{padding-top:50px}.theme-royal .hero,.theme-gym .hero,.theme-crimson .hero{min-height:470px}}
 @media(max-width:430px){.product-img-box{height:215px}.hero h1{font-size:33px}.trust-item{padding:16px}.footer-links{gap:6px}}
 
+    
+        /* NIKE-STYLE FULL BLEED CINEMATIC HERO */
+        /* Small premium framed showcase */
+        .cinematic-showcase{
+            width:min(1120px,88%);
+            height:clamp(300px,42vh,430px);
+            min-height:300px;
+            margin:24px auto 34px;
+            position:relative;
+            overflow:hidden;
+            background:#111;
+            color:#fff;
+            border:1px solid rgba(17,17,17,.12);
+            border-radius:20px;
+            box-shadow:0 18px 55px rgba(15,12,8,.13);
+            isolation:isolate;
+        }
+        .cinematic-slides{position:absolute;inset:0;}
+        .cinematic-slide{
+            position:absolute;
+            inset:0;
+            display:grid;
+            grid-template-columns:minmax(0,1fr) 31%;
+            opacity:0;
+            visibility:hidden;
+            transform:translateX(12px) scale(.99);
+            transition:opacity .8s ease,transform 1s cubic-bezier(.2,.75,.2,1),visibility .8s;
+            pointer-events:none;
+        }
+        .cinematic-slide.active{
+            opacity:1;
+            visibility:visible;
+            transform:translateX(0) scale(1);
+            z-index:2;
+            pointer-events:auto;
+        }
+        .cinematic-media{
+            position:relative;
+            grid-column:1;
+            width:100%;
+            height:100%;
+            overflow:hidden;
+            background:#171717;
+        }
+        .cinematic-media img{
+            position:absolute;
+            inset:0;
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            opacity:.96;
+            filter:saturate(.96) contrast(1.03);
+            transform:scale(1.025);
+            transition:transform 6.5s cubic-bezier(.2,.6,.2,1);
+        }
+        .cinematic-slide.active .cinematic-media img{transform:scale(1.07);}
+        .cinematic-gradient{
+            position:absolute;
+            inset:0;
+            background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.16));
+            pointer-events:none;
+        }
+        .cinematic-copy{
+            grid-column:2;
+            grid-row:1;
+            position:relative;
+            z-index:3;
+            width:100%;
+            height:100%;
+            padding:28px 26px;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:flex-start;
+            text-align:right;
+            background:linear-gradient(145deg,#111 0%,#171717 62%,#2d2418 100%);
+            overflow:hidden;
+        }
+        .cinematic-copy::before{
+            content:'';
+            position:absolute;
+            width:180px;
+            height:180px;
+            border-radius:50%;
+            top:-90px;
+            right:-75px;
+            background:radial-gradient(circle,rgba(216,184,109,.17),transparent 68%);
+            border:1px solid rgba(255,255,255,.06);
+        }
+        .cinematic-copy::after{
+            content:'';
+            position:absolute;
+            width:120px;
+            height:120px;
+            border-radius:50%;
+            bottom:-75px;
+            left:-55px;
+            background:rgba(255,255,255,.035);
+        }
+        .cinematic-copy>*{position:relative;z-index:2;}
+        .cinematic-brand-label{
+            font-size:7px;
+            letter-spacing:2.5px;
+            color:rgba(255,255,255,.45);
+            margin-bottom:9px;
+            text-transform:uppercase;
+        }
+        .cinematic-index{
+            font-size:8px;
+            letter-spacing:2px;
+            opacity:.55;
+            display:block;
+            margin-bottom:7px;
+            direction:ltr;
+            text-align:right;
+        }
+        .cinematic-eyebrow{
+            font-size:8px;
+            letter-spacing:2px;
+            font-weight:700;
+            color:#d7b86a;
+            display:block;
+            margin-bottom:8px;
+        }
+        .cinematic-copy h2{
+            font-size:clamp(22px,2.8vw,38px);
+            line-height:1.08;
+            letter-spacing:-1.3px;
+            font-weight:900;
+            margin:0 0 9px;
+            max-width:300px;
+        }
+        .cinematic-copy p{
+            font-size:9px;
+            color:rgba(255,255,255,.58);
+            line-height:1.8;
+            max-width:260px;
+            margin-bottom:13px;
+        }
+        .cinematic-copy button{
+            border:1px solid rgba(255,255,255,.22);
+            background:rgba(255,255,255,.06);
+            backdrop-filter:blur(8px);
+            color:#fff;
+            padding:8px 12px;
+            border-radius:8px;
+            font-weight:800;
+            font-size:8px;
+            cursor:pointer;
+            transition:.3s;
+        }
+        .cinematic-copy button:hover{background:#fff;color:#111;transform:translateY(-2px);}
+        .cinematic-copy button i{margin-right:6px;}
+        .cinematic-progress{
+            position:absolute;
+            z-index:10;
+            bottom:15px;
+            right:calc(31% + 18px);
+            display:flex;
+            align-items:center;
+            gap:6px;
+        }
+        .cinematic-dot{
+            width:5px;
+            height:5px;
+            border-radius:50%;
+            background:rgba(255,255,255,.42);
+            transition:.4s;
+            cursor:pointer;
+        }
+        .cinematic-dot.active{background:#fff;width:16px;border-radius:4px;}
+        .cinematic-line{
+            width:55px;
+            height:1px;
+            background:rgba(255,255,255,.22);
+            overflow:hidden;
+            margin-right:4px;
+        }
+        .cinematic-line i{
+            display:block;
+            width:100%;
+            height:100%;
+            background:#d7b86a;
+            transform:scaleX(0);
+            transform-origin:right;
+            animation:cinematicProgress 6.5s linear infinite;
+        }
+        @keyframes cinematicProgress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+        @media(max-width:900px){
+            .cinematic-showcase{width:92%;height:340px;min-height:0;}
+            .cinematic-slide{grid-template-columns:minmax(0,1fr) 34%;}
+            .cinematic-copy{padding:22px 20px;}
+            .cinematic-copy h2{font-size:clamp(20px,4vw,30px);}
+            .cinematic-progress{right:calc(34% + 14px);bottom:12px;}
+        }
+        @media(max-width:720px){
+            .cinematic-showcase{
+                width:92%;
+                height:420px;
+                margin:16px auto 25px;
+                border-radius:18px;
+            }
+            .cinematic-slide{
+                grid-template-columns:1fr;
+                grid-template-rows:60% 40%;
+            }
+            .cinematic-media{grid-column:1;grid-row:1;}
+            .cinematic-copy{
+                grid-column:1;
+                grid-row:2;
+                padding:18px 20px 38px;
+                justify-content:center;
+            }
+            .cinematic-copy h2{font-size:25px;letter-spacing:-1px;margin-bottom:6px;}
+            .cinematic-copy p{font-size:8px;line-height:1.7;margin-bottom:9px;max-width:95%;}
+            .cinematic-brand-label{font-size:7px;margin-bottom:5px;}
+            .cinematic-index,.cinematic-eyebrow{margin-bottom:4px;font-size:7px;}
+            .cinematic-copy button{padding:7px 11px;font-size:8px;}
+            .cinematic-progress{right:auto;left:18px;bottom:12px;}
+            .cinematic-line{width:45px;}
+        }
     </style>
 </head>
 <body class="theme-gold">
@@ -325,6 +547,15 @@ body.theme-crimson{--bg-color:#f7f4f3}.theme-crimson header{background:rgba(247,
             <span class="cart-badge" id="cartBadge">0</span>
         </button>
     </header>
+
+    <section class="cinematic-showcase" id="cinematicShowcase">
+        <div class="cinematic-slides" id="cinematicSlides">
+            <div class="cinematic-slide active"><div class="cinematic-media"><img id="cinematicImg0" alt="Featured product 1"><div class="cinematic-gradient"></div></div><div class="cinematic-copy"><span class="cinematic-brand-label" id="cinematicBrand0">YOUR BRAND</span><span class="cinematic-index">01 / 03</span><span class="cinematic-eyebrow">FEATURED PRODUCT</span><h2 id="cinematicTitle0">اكتشف التشكيلة الجديدة</h2><p id="cinematicDesc0">قطعة مختارة من منتجات متجرك.</p><div class="cinematic-price" id="cinematicPrice0"></div><button onclick="document.getElementById('storeProductsGrid').scrollIntoView({behavior:'smooth'})">شاهد المنتج <i class="fa-solid fa-arrow-left"></i></button><button onclick="document.getElementById('storeProductsGrid').scrollIntoView({behavior:'smooth'})">اكتشف المجموعة <i class="fa-solid fa-arrow-left"></i></button></div></div>
+            <div class="cinematic-slide"><div class="cinematic-media"><img id="cinematicImg1" alt="Featured product 2"><div class="cinematic-gradient"></div></div><div class="cinematic-copy"><span class="cinematic-brand-label" id="cinematicBrand1">YOUR BRAND</span><span class="cinematic-index">02 / 03</span><span class="cinematic-eyebrow">SIGNATURE PRODUCT</span><h2 id="cinematicTitle1">تفاصيل تصنع الفرق</h2><p id="cinematicDesc1">اختيار مميز من أحدث المنتجات.</p><div class="cinematic-price" id="cinematicPrice1"></div><button onclick="document.getElementById('storeProductsGrid').scrollIntoView({behavior:'smooth'})">شاهد المنتج <i class="fa-solid fa-arrow-left"></i></button><button onclick="document.getElementById('storeProductsGrid').scrollIntoView({behavior:'smooth'})">تسوق الآن <i class="fa-solid fa-arrow-left"></i></button></div></div>
+            <div class="cinematic-slide"><div class="cinematic-media"><img id="cinematicImg2" alt="Featured product 3"><div class="cinematic-gradient"></div></div><div class="cinematic-copy"><span class="cinematic-brand-label" id="cinematicBrand2">YOUR BRAND</span><span class="cinematic-index">03 / 03</span><span class="cinematic-eyebrow">THE ESSENTIALS</span><h2 id="cinematicTitle2">اختياراتك تبدأ من هنا</h2><p id="cinematicDesc2">أبرز منتجات المتجر في واجهة واحدة.</p><div class="cinematic-price" id="cinematicPrice2"></div><button onclick="document.getElementById('storeProductsGrid').scrollIntoView({behavior:'smooth'})">شاهد المنتج <i class="fa-solid fa-arrow-left"></i></button><button onclick="document.getElementById('storeProductsGrid').scrollIntoView({behavior:'smooth'})">شاهد المنتجات <i class="fa-solid fa-arrow-left"></i></button></div></div>
+        </div>
+        <div class="cinematic-progress"><span class="cinematic-dot active"></span><span class="cinematic-dot"></span><span class="cinematic-dot"></span><div class="cinematic-line"><i></i></div></div>
+    </section>
 
     <section class="hero">
         <div class="hero-kicker"><i class="fa-solid fa-sparkles"></i> تجربة تسوق راقية</div>
@@ -524,6 +755,7 @@ body.theme-crimson{--bg-color:#f7f4f3}.theme-crimson header{background:rgba(247,
 
             productsData = data;
             applyFilters();
+            setupCinematicShowcase();
         }
 
         async function loadStoreSettings(userId) {
@@ -564,6 +796,7 @@ body.theme-crimson{--bg-color:#f7f4f3}.theme-crimson header{background:rgba(247,
                 document.getElementById('dynamicStoreTitle').innerHTML = `<i class="fa-solid fa-crown"></i> ${sName}`;
                 document.getElementById('heroStoreName').innerHTML = `اكتشف تشكيلة <span>${sName}</span>`;
                 document.getElementById('storeBannerName').innerText = sName;
+                 document.querySelectorAll('.cinematic-brand-label').forEach(el => el.textContent = sName);
                 const footerName = document.getElementById('footerStoreName'); if (footerName) footerName.innerText = sName;
                 document.getElementById('welcomeText').innerText = `أهلاً بك في متجر ${sName}`;
 
@@ -1165,6 +1398,139 @@ body.theme-crimson{--bg-color:#f7f4f3}.theme-crimson header{background:rgba(247,
         }
 
         initStore();
-    </script>
+    
+        // Cinematic showcase — uses the real first 3 products from Supabase
+        let cinematicIndex = 0;
+        let cinematicTimer;
+
+        function getProductImages(product){
+            let raw = product?.images ?? product?.image_url ?? product?.image ?? '';
+            if (Array.isArray(raw)) return raw.map(v => String(v).trim()).filter(Boolean);
+            if (typeof raw === 'string') {
+                return raw.split(',').map(v => v.trim()).filter(Boolean);
+            }
+            return [];
+        }
+
+        function getProductName(product){
+            return product?.product_name || product?.name || 'منتج مميز';
+        }
+
+        function setupCinematicShowcase(){
+            const showcase = document.getElementById('cinematicShowcase');
+            const slides = [...document.querySelectorAll('.cinematic-slide')];
+            const imgs = [0,1,2].map(i => document.getElementById(`cinematicImg${i}`));
+            const titles = [0,1,2].map(i => document.getElementById(`cinematicTitle${i}`));
+            const descs = [0,1,2].map(i => document.getElementById(`cinematicDesc${i}`));
+            const prices = [0,1,2].map(i => document.getElementById(`cinematicPrice${i}`));
+            const brands = [0,1,2].map(i => document.getElementById(`cinematicBrand${i}`));
+
+            if (!showcase || !productsData || productsData.length === 0) {
+                if (showcase) showcase.style.display = 'none';
+                return;
+            }
+
+            const featured = productsData.slice(0, 3);
+            const brandName =
+                document.getElementById('storeBannerName')?.innerText ||
+                document.getElementById('dynamicStoreTitle')?.innerText ||
+                'YOUR BRAND';
+
+            slides.forEach((slide, i) => {
+                const product = featured[i];
+                if (!product) {
+                    slide.style.display = 'none';
+                    return;
+                }
+
+                slide.style.display = '';
+                const imageList = getProductImages(product);
+                const image = imageList[0] || 'https://via.placeholder.com/1400x900?text=Product';
+
+                if (imgs[i]) {
+                    imgs[i].src = image;
+                    imgs[i].alt = getProductName(product);
+                    imgs[i].onerror = () => {
+                        imgs[i].src = 'https://via.placeholder.com/1400x900?text=Product';
+                    };
+                }
+
+                if (titles[i]) titles[i].textContent = getProductName(product);
+                if (brands[i]) brands[i].textContent = brandName;
+
+                const price = Number(product.sell_price ?? product.price ?? 0);
+                const discount = Number(product.discount ?? 0);
+
+                if (prices[i]) {
+                    prices[i].textContent = price > 0
+                        ? `${price.toFixed(2)} ج.م${discount > 0 ? `  ·  خصم ${discount}%` : ''}`
+                        : '';
+                }
+
+                if (descs[i]) {
+                    const category = product.category || product.category_name || '';
+                    descs[i].textContent = category
+                        ? `${category} — قطعة مختارة بعناية من ${brandName}.`
+                        : `قطعة مختارة بعناية من أحدث منتجات ${brandName}.`;
+                }
+            });
+
+            // Reset the active state and progress to the first real product.
+            cinematicIndex = 0;
+            slides.forEach((slide, i) => slide.classList.toggle('active', i === 0 && !!featured[0]));
+
+            const dots = [...document.querySelectorAll('.cinematic-dot')];
+            dots.forEach((dot, i) => {
+                dot.style.display = featured[i] ? '' : 'none';
+                dot.classList.toggle('active', i === 0);
+            });
+
+            if (featured.length === 1) {
+                clearInterval(cinematicTimer);
+                const line = document.querySelector('.cinematic-line');
+                if (line) line.style.display = 'none';
+            } else {
+                startCinematic(featured.length);
+            }
+        }
+
+        function startCinematic(count = 3){
+            clearInterval(cinematicTimer);
+            cinematicTimer = setInterval(() => {
+                goCinematic((cinematicIndex + 1) % count);
+            }, 6500);
+        }
+
+        function goCinematic(i){
+            const slides = [...document.querySelectorAll('.cinematic-slide')];
+            const dots = [...document.querySelectorAll('.cinematic-dot')];
+            if (!slides.length || !productsData?.length) return;
+
+            const count = Math.min(3, productsData.length);
+            if (i >= count) i = 0;
+
+            slides[cinematicIndex]?.classList.remove('active');
+            dots[cinematicIndex]?.classList.remove('active');
+
+            cinematicIndex = i;
+            slides[cinematicIndex]?.classList.add('active');
+            dots[cinematicIndex]?.classList.add('active');
+
+            const progress = document.querySelector('.cinematic-line i');
+            if (progress) {
+                progress.style.animation = 'none';
+                void progress.offsetWidth;
+                progress.style.animation = 'cinematicProgress 6.5s linear infinite';
+            }
+        }
+
+        // Initialize only AFTER products have been loaded.
+        document.addEventListener('DOMContentLoaded', () => {
+            // Safety fallback in case the async store load finishes very quickly.
+            setTimeout(() => {
+                if (productsData?.length) setupCinematicShowcase();
+            }, 500);
+        });
+</script>
 </body>
 </html>
