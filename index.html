@@ -21,12 +21,11 @@
 
 <style>
 /* =========================================================
-   EDITORIAL ATELIER — Design System v1.0
-   Single source of truth. No !important wars.
+   EDITORIAL ATELIER — Design System v1.1
+   Hero image fixed (contain) + Gallery from real products
    ========================================================= */
 
 :root{
-  /* Palette */
   --ink:#0a0a0a;
   --ink-soft:#1a1a1a;
   --paper:#f4f1ea;
@@ -38,16 +37,13 @@
   --muted-2:#a39e94;
   --white:#ffffff;
 
-  /* Type */
   --ff-serif:'Cormorant Garamond', Georgia, serif;
   --ff-sans:'Inter', -apple-system, sans-serif;
   --ff-ar:'Cairo', sans-serif;
 
-  /* Layout */
   --max:1400px;
   --gutter:clamp(20px, 4vw, 56px);
 
-  /* Motion */
   --ease:cubic-bezier(.22,.61,.36,1);
   --ease-out:cubic-bezier(.16,1,.3,1);
 }
@@ -65,7 +61,6 @@ body{
 button,input,textarea,select{font-family:inherit;font-size:inherit}
 ::selection{background:var(--burgundy);color:#fff}
 
-/* Fine grain overlay for editorial feel */
 body::after{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.028;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -159,11 +154,13 @@ body::after{
   border-radius:10px;display:grid;place-items:center;padding:0 6px;
 }
 
-/* ============ HERO — Full bleed editorial ============ */
+/* ============ HERO — الصورة كاملة بدون zoom ============ */
 .hero{
   position:relative;height:calc(100vh - 114px);min-height:640px;
-  margin:0 var(--gutter);overflow:hidden;background:var(--ink);
+  margin:0 var(--gutter);overflow:hidden;
+  background:#0a0a0a;                     /* خلفية سودة عشان الصورة تبان كاملة */
   border-radius:2px;
+  display:grid;place-items:center;
 }
 .hero-slides{position:absolute;inset:0}
 .hero-slide{
@@ -171,17 +168,34 @@ body::after{
   transition:opacity 1.2s var(--ease-out),visibility 1.2s;
 }
 .hero-slide.active{opacity:1;visibility:visible}
-.hero-media{position:absolute;inset:0;overflow:hidden}
-.hero-media img{
-  width:100%;height:100%;object-fit:cover;
-  transform:scale(1.08);transition:transform 8s var(--ease-out);
-  filter:saturate(.85) contrast(1.03);
+
+.hero-media{
+  position:absolute;inset:0;overflow:hidden;
+  background:#0a0a0a;
+  display:grid;place-items:center;
 }
-.hero-slide.active .hero-media img{transform:scale(1)}
+.hero-media img{
+  width:100%;
+  height:100%;
+  object-fit:contain;                     /* ← الصورة كاملة بدون قص */
+  object-position:center;
+  transform:none;                         /* ← شيلنا الـzoom */
+  transition:none;
+  filter:saturate(.98) contrast(1.02);
+  padding:20px;                           /* مساحة تنفس حوالين الصورة */
+}
+.hero-slide.active .hero-media img{
+  transform:none;                         /* ← شيلنا animation الـzoom */
+}
 .hero-media::after{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.05) 40%,rgba(0,0,0,.75) 100%);
+  background:linear-gradient(180deg,
+    rgba(0,0,0,.4) 0%,
+    rgba(0,0,0,.15) 40%,
+    rgba(0,0,0,.75) 100%);
+  pointer-events:none;
 }
+
 .hero-content{
   position:absolute;inset:0;z-index:2;
   display:flex;flex-direction:column;justify-content:flex-end;
@@ -258,7 +272,7 @@ body::after{
 }
 @keyframes scrollLine{0%{transform:scaleX(0)}50%{transform:scaleX(1)}100%{transform:scaleX(0);transform-origin:left}}
 
-/* ============ MANIFESTO STRIP ============ */
+/* ============ MANIFESTO ============ */
 .manifesto{
   padding:clamp(60px,8vw,120px) var(--gutter);
   display:grid;grid-template-columns:1fr 1.4fr;gap:clamp(30px,5vw,80px);
@@ -269,8 +283,8 @@ body::after{
   font-weight:300;line-height:.85;letter-spacing:-6px;color:var(--ink);
 }
 .manifesto-num small{display:block;font-family:var(--ff-sans);font-size:10px;
-  letter-spacing:4px;color:var(--muted);font-weight:400;margin-top:20px;
-  text-transform:uppercase;letter-spacing:5px;}
+  letter-spacing:5px;color:var(--muted);font-weight:400;margin-top:20px;
+  text-transform:uppercase;}
 .manifesto-text{
   font-family:var(--ff-serif);font-size:clamp(28px,3.8vw,54px);
   font-weight:400;line-height:1.15;letter-spacing:-1.5px;color:var(--ink);
@@ -332,7 +346,7 @@ body::after{
 .cat-pill:hover{border-color:var(--ink)}
 .cat-pill.active{background:var(--ink);color:#fff;border-color:var(--ink)}
 
-/* ============ PRODUCTS — EDITORIAL GRID ============ */
+/* ============ PRODUCTS GRID ============ */
 .container{padding:0 var(--gutter);max-width:var(--max);margin:0 auto}
 .products-grid{
   display:grid;grid-template-columns:repeat(4,1fr);
@@ -340,7 +354,6 @@ body::after{
   padding-bottom:60px;
 }
 
-/* Featured — first product gets 2x size */
 .product-card.featured{
   grid-column:span 2;
   grid-row:span 2;
@@ -440,7 +453,6 @@ body::after{
 .rating-row .stars{color:#c9a227}
 .rating-row u{text-decoration:underline;text-underline-offset:3px}
 
-/* Options */
 .opt-block{
   padding-top:12px;margin-top:12px;border-top:1px solid var(--line);
 }
@@ -494,7 +506,6 @@ body::after{
 .add-btn:hover{background:var(--burgundy);letter-spacing:4px}
 .add-btn i{font-size:12px}
 
-/* ============ EMPTY STATE ============ */
 .empty-state{
   grid-column:1/-1;text-align:center;padding:100px 20px;
   font-family:var(--ff-serif);font-size:24px;
@@ -556,7 +567,7 @@ body::after{
   max-width:420px;
 }
 
-/* ============ GALLERY STRIP ============ */
+/* ============ GALLERY — صور من المنتجات الحقيقية ============ */
 .gallery{
   padding:clamp(60px,8vw,120px) var(--gutter);
 }
@@ -574,6 +585,7 @@ body::after{
 .gallery-card::after{
   content:"";position:absolute;inset:0;
   background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.35));
+  pointer-events:none;
 }
 .gallery-cap{
   position:absolute;bottom:22px;right:24px;left:24px;
@@ -643,7 +655,7 @@ body::after{
   flex-wrap:wrap;gap:12px;
 }
 
-/* ============ CART DRAWER ============ */
+/* ============ CART ============ */
 .overlay{
   display:none;position:fixed;inset:0;
   background:rgba(10,10,10,.5);
@@ -844,6 +856,7 @@ body::after{
   .hero-dots{bottom:26px;left:22px}
   .hero-dot{width:24px}
   .hero-scroll{display:none}
+  .hero-media img{padding:12px}
   .btn-primary,.btn-ghost{padding:13px 22px;font-size:10px;letter-spacing:2px}
   .manifesto{padding:50px 20px}
   .manifesto-num{font-size:70px;letter-spacing:-4px}
@@ -925,9 +938,7 @@ body::after{
 
 <!-- HERO -->
 <section class="hero" id="hero">
-  <div class="hero-slides" id="heroSlides">
-    <!-- JS fills 3 slides -->
-  </div>
+  <div class="hero-slides" id="heroSlides"></div>
   <div class="hero-index" id="heroIndex"><b>01</b> / 03</div>
   <div class="hero-dots" id="heroDots"></div>
   <div class="hero-scroll">
@@ -1008,15 +1019,13 @@ body::after{
   </div>
 </section>
 
-<!-- GALLERY -->
+<!-- GALLERY — filled by JS with real product images -->
 <section class="gallery" id="gallery">
   <div class="section-head" style="padding:0 0 0;margin-bottom:0">
     <h2>The <em>World</em></h2>
     <span class="count">Editorial · 2026</span>
   </div>
-  <div class="gallery-grid" id="galleryGrid">
-    <!-- JS fills -->
-  </div>
+  <div class="gallery-grid" id="galleryGrid"></div>
 </section>
 
 <!-- NEWSLETTER -->
@@ -1140,8 +1149,9 @@ body::after{
 
 <script>
 /* =========================================================
-   EDITORIAL ATELIER — Storefront Logic
-   Same Supabase schema. Same order flow. New presentation.
+   EDITORIAL ATELIER — Storefront Logic v1.1
+   - Hero: object-fit contain (full product visible)
+   - Gallery: real product images only
    ========================================================= */
 
 const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
@@ -1334,8 +1344,6 @@ function filterByCategory(category, btn){
   applyFilters();
 }
 
-function filterProducts(){ /* legacy compat */ }
-
 function applyFilters(){
   filteredProductsData = productsData.filter(p => {
     const cat = (p.category || '').toLowerCase();
@@ -1417,7 +1425,6 @@ function renderCurrentPage(){
          </div>`
       : '';
 
-    // Colors
     const pColors = product.colors || product.color || '';
     let colorsHtml = '';
     if (pColors && pColors.trim()){
@@ -1435,7 +1442,6 @@ function renderCurrentPage(){
         </div>`;
     }
 
-    // Sizes
     const pSizes = product.sizes || '';
     let sizesHtml = '';
     if (pSizes && pSizes.trim()){
@@ -1838,10 +1844,7 @@ async function submitOrder(e){
   initStore();
 }
 
-/* ------------ HERO ------------ */
-let heroIndex = 0;
-let heroTimer;
-
+/* ------------ HELPERS ------------ */
 function getProductImages(p){
   const raw = p?.images ?? p?.image_url ?? p?.image ?? '';
   if (Array.isArray(raw)) return raw.map(v => String(v).trim()).filter(Boolean);
@@ -1851,6 +1854,10 @@ function getProductImages(p){
 function getProductName(p){
   return p?.product_name || p?.name || 'Featured Piece';
 }
+
+/* ------------ HERO ------------ */
+let heroIndex = 0;
+let heroTimer;
 
 function setupHero(){
   const wrap = document.getElementById('heroSlides');
@@ -1873,7 +1880,9 @@ function setupHero(){
     const slide = document.createElement('div');
     slide.className = 'hero-slide' + (i === 0 ? ' active' : '');
     slide.innerHTML = `
-      <div class="hero-media"><img src="${img}" alt="${name}"></div>
+      <div class="hero-media">
+        <img src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/1600x1000?text=Featured'">
+      </div>
       <div class="hero-content">
         <div class="hero-eyebrow">${cat} — The New Season</div>
         <h1 class="hero-title">${name.split(' ').slice(0,2).join(' ')} <em>${name.split(' ').slice(2).join(' ') || ''}</em></h1>
@@ -1916,26 +1925,44 @@ function goHero(i){
   if (idx) idx.innerHTML = `<b>0${heroIndex+1}</b> / 0${slides.length}`;
 }
 
-/* ------------ GALLERY ------------ */
+/* ------------ GALLERY — صور المنتجات الحقيقية فقط ------------ */
 function buildGallery(){
   const grid = document.getElementById('galleryGrid');
+  const section = document.getElementById('gallery');
   if (!grid) return;
 
-  // Use product images from various products
-  const imgs = [];
+  // لو مفيش منتجات → اخفي القسم بالكامل
+  if (!productsData || productsData.length === 0){
+    section.style.display = 'none';
+    return;
+  }
+
+  // اجمع صور المنتجات الحقيقية فقط
+  const realImages = [];
   productsData.forEach(p => {
     const arr = getProductImages(p);
-    arr.forEach(u => imgs.push(u));
+    if (arr.length){
+      realImages.push({
+        url: arr[0],
+        name: getProductName(p)
+      });
+    }
   });
 
-  const fallback = [
-    'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200',
-    'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800',
-    'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=800',
-    'https://images.unsplash.com/photo-1445205170230-053b83016050?w=800'
-  ];
+  // لو مفيش ولا صورة واحدة → اخفي القسم
+  if (realImages.length === 0){
+    section.style.display = 'none';
+    return;
+  }
 
-  const pick = (i) => imgs[i] || fallback[i] || fallback[0];
+  // خد أول 4 صور (أو أقل لو المنتجات قليلة)
+  const picks = realImages.slice(0, 4);
+
+  // لو أقل من 4، كررهم لتعبئة الـ grid
+  while (picks.length < 4){
+    picks.push(picks[picks.length % realImages.length]);
+  }
+
   const captions = [
     { t:'The Editorial', s:'Collection 2026' },
     { t:'Details', s:'Textures & Form' },
@@ -1943,10 +1970,14 @@ function buildGallery(){
     { t:'Studio', s:'Behind the Scenes' }
   ];
 
-  grid.innerHTML = captions.map((c, i) => `
+  grid.innerHTML = picks.map((pick, i) => `
     <div class="gallery-card">
-      <img src="${pick(i)}" alt="${c.t}" onerror="this.src='${fallback[i] || fallback[0]}'">
-      <div class="gallery-cap">${c.t}<small>${c.s}</small></div>
+      <img src="${pick.url}" alt="${pick.name}"
+           onerror="this.parentElement.style.display='none'">
+      <div class="gallery-cap">
+        ${captions[i].t}
+        <small>${captions[i].s}</small>
+      </div>
     </div>`).join('');
 }
 
