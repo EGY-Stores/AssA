@@ -1,741 +1,1461 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم التاجر - نظام إدارة المحلات</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --primary-light: #e0e7ff;
-            --success: #10b981;
-            --danger: #f43f5e;
-            --danger-bg: #ffe4e6;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #f1f5f9;
-            --border-hover: #cbd5e1;
-            --radius: 16px;
-            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 5px 15px -5px rgba(0, 0, 0, 0.02);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم التاجر — Editorial Atelier</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 40px 20px; line-height: 1.8; font-size: 16px; }
-        
-        .container { max-width: 1150px; margin: 0 auto; }
-        
-        .header { 
-            background: var(--card-bg); 
-            padding: 24px 30px; 
-            border-radius: var(--radius); 
-            box-shadow: var(--shadow); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border: 1px solid var(--border);
-            margin-bottom: 25px; 
-        }
-        .header h2 { color: var(--text-main); font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
-        .header h2 i { color: var(--primary); background: var(--primary-light); padding: 12px; border-radius: 12px; font-size: 20px; }
-        
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .badge-package { background: var(--primary-light); color: var(--primary-dark); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; }
+<style>
+/* =========================================================
+   EDITORIAL ATELIER — Merchant Dashboard
+   ========================================================= */
 
-        .btn-logout { 
-            background: var(--danger-bg); 
-            color: var(--danger); 
-            border: none; 
-            padding: 12px 22px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-weight: 700; 
-            font-size: 15px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-logout:hover { background: #fecdd3; transform: translateY(-2px); }
+:root{
+  --ink:#0a0a0a;
+  --ink-soft:#1a1a1a;
+  --paper:#f4f1ea;
+  --paper-2:#ebe7de;
+  --white:#ffffff;
+  --burgundy:#6b1f2a;
+  --burgundy-soft:#8a2a37;
+  --gold:#b89655;
+  --line:#d9d4c8;
+  --muted:#78736a;
+  --muted-2:#a39e94;
+  --success:#1a7a4a;
+  --success-bg:#e6f3ec;
+  --danger:#b3262d;
+  --danger-bg:#fbeaea;
+  --warning:#b8862d;
+  --warning-bg:#fbf3e2;
 
-        .welcome-box { 
-            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); 
-            color: white;
-            padding: 32px; 
-            border-radius: var(--radius); 
-            margin-bottom: 30px; 
-            box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.15);
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap; 
-            gap: 20px; 
-        }
-        .welcome-box h3 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-        .welcome-box p { color: rgba(255, 255, 255, 0.9); font-size: 16px; }
-        
-        .btn-store-visit {
-            background: white;
-            color: var(--primary-dark);
-            padding: 14px 26px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 16px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: var(--transition);
-        }
-        .btn-store-visit:hover { background: #f8fafc; transform: translateY(-3px); }
+  --ff-serif:'Cormorant Garamond', Georgia, serif;
+  --ff-sans:'Inter', -apple-system, sans-serif;
+  --ff-ar:'Cairo', sans-serif;
 
-        .section-box { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            padding: 32px; 
-            border-radius: var(--radius); 
-            margin-bottom: 25px; 
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-        .section-box h3 { 
-            color: var(--text-main); 
-            font-size: 20px; 
-            font-weight: 700;
-            margin-bottom: 10px; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-        }
-        .section-box h3 i { color: var(--primary); background: var(--primary-light); padding: 12px; border-radius: 12px; font-size: 18px; }
-        .section-desc { color: var(--text-muted); font-size: 15px; margin-bottom: 24px; }
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+}
 
-        .form-row { display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap; }
-        .form-row input, .form-row select { 
-            flex-grow: 1; 
-            padding: 14px 18px; 
-            border: 2px solid var(--border); 
-            border-radius: 12px; 
-            outline: none; 
-            font-size: 16px; 
-            background: #fafafa; 
-            color: var(--text-main);
-            transition: var(--transition);
-        }
-        .form-row input:focus, .form-row select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px var(--primary-light); }
-        
-        .btn-action { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 14px 26px; 
-            border-radius: 12px; 
-            font-weight: 700; 
-            font-size: 16px;
-            cursor: pointer; 
-            transition: var(--transition); 
-            white-space: nowrap; 
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-action:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        .btn-ig { background: #e1306c !important; }
-        .btn-wa { background: #25d366 !important; }
-        .btn-theme-save { background: var(--success) !important; width: 100%; justify-content: center; margin-top: 20px; font-size: 18px; }
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--ff-ar);
+  padding:0;
+  line-height:1.7;
+  font-size:15px;
+  min-height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 
-        .items-container { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-        .item-row { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: #fafafa; 
-            padding: 16px 20px; 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            font-size: 16px;
-        }
-        
-        .btn-delete { 
-            background: var(--danger-bg); 
-            color: var(--danger); 
-            border: none; 
-            padding: 10px 16px; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-size: 14px; 
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
+button,input,textarea,select{font-family:inherit;font-size:inherit}
+::selection{background:var(--burgundy);color:#fff}
 
-        .keywords-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
-        .keyword-chip { 
-            background: #fafafa; 
-            border: 1px solid var(--border); 
-            padding: 10px 18px; 
-            border-radius: 30px; 
-            font-size: 15px; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 10px; 
-        }
-        .keyword-chip i { cursor: pointer; color: var(--danger); }
+/* ============ ANIMATIONS ============ */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.5}
+}
+@keyframes spin{
+  from{transform:rotate(0)}
+  to{transform:rotate(360deg)}
+}
 
-        .themes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 15px; }
-        .theme-option-card { 
-            border: 2px solid var(--border); 
-            padding: 22px 15px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            text-align: center; 
-            background: #fafafa;
-            transition: var(--transition); 
-        }
+.reveal{
+  opacity:0;
+  transform:translateY(24px);
+  transition:opacity .8s var(--ease-out), transform .8s var(--ease-out);
+}
+.reveal.in{opacity:1;transform:none}
 
-        .main-title { font-size: 21px; font-weight: 700; margin-bottom: 18px; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
-        .nav-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .nav-card { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            padding: 32px 20px; 
-            border-radius: var(--radius); 
-            text-align: center; 
-            text-decoration: none; 
-            color: var(--text-main); 
-            box-shadow: var(--shadow);
-            transition: var(--transition); 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 15px; 
-        }
-        .nav-card:hover { border-color: var(--primary); transform: translateY(-6px); }
-        .nav-card i { font-size: 32px; color: var(--primary); background: var(--primary-light); width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; border-radius: 20px; }
-        .nav-card span { font-weight: 700; font-size: 18px; }
-    </style>
+/* ============ TOP BAR ============ */
+.topbar{
+  background:var(--ink);
+  color:#fff;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--ff-sans);
+  font-size:9px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+}
+.topbar span{color:var(--gold);margin:0 6px}
+
+/* ============ CONTAINER ============ */
+.container{
+  max-width:1280px;
+  margin:0 auto;
+  padding:0 clamp(16px, 3vw, 40px);
+}
+
+/* ============ HEADER ============ */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:28px 0;
+  border-bottom:1px solid var(--line);
+  margin-bottom:36px;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.header-brand{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.header-brand-mark{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:var(--ink);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:16px;
+  flex:none;
+}
+.header-brand h2{
+  font-family:var(--ff-serif);
+  font-size:26px;
+  font-weight:500;
+  letter-spacing:-.5px;
+  line-height:1.1;
+}
+.header-brand h2 small{
+  display:block;
+  font-family:var(--ff-sans);
+  font-size:9px;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  font-weight:400;
+  margin-top:4px;
+}
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.badge-package{
+  padding:8px 16px;
+  border-radius:999px;
+  font-family:var(--ff-sans);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  background:var(--paper-2);
+  color:var(--ink);
+  border:1px solid var(--line);
+  transition:all .3s var(--ease);
+}
+.badge-package.premium{
+  background:var(--ink);
+  color:#fff;
+  border-color:var(--ink);
+}
+.badge-package.premium::before{
+  content:"★ ";
+  color:var(--gold);
+}
+
+.btn-logout{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  border:1px solid var(--line);
+  background:transparent;
+  color:var(--ink);
+  border-radius:999px;
+  font-family:var(--ff-sans);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .3s var(--ease);
+}
+.btn-logout:hover{
+  background:var(--ink);
+  color:#fff;
+  border-color:var(--ink);
+  transform:translateY(-2px);
+}
+
+/* ============ WELCOME BOX ============ */
+.welcome-box{
+  display:grid;
+  grid-template-columns:1.5fr 1fr;
+  gap:40px;
+  align-items:center;
+  padding:clamp(36px, 5vw, 64px);
+  background:var(--ink);
+  color:#fff;
+  border-radius:2px;
+  margin-bottom:44px;
+  position:relative;
+  overflow:hidden;
+}
+.welcome-box::before{
+  content:"";
+  position:absolute;
+  width:400px;
+  height:400px;
+  border-radius:50%;
+  top:-200px;
+  right:-150px;
+  background:radial-gradient(circle, rgba(139,42,55,.25) 0%, transparent 65%);
+  pointer-events:none;
+}
+.welcome-box::after{
+  content:"";
+  position:absolute;
+  width:300px;
+  height:300px;
+  border-radius:50%;
+  bottom:-160px;
+  left:-100px;
+  background:radial-gradient(circle, rgba(201,162,39,.12) 0%, transparent 65%);
+  pointer-events:none;
+}
+.welcome-box > *{position:relative;z-index:1}
+.welcome-eyebrow{
+  font-family:var(--ff-sans);
+  font-size:10px;
+  letter-spacing:5px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.welcome-eyebrow::before{
+  content:"";
+  width:30px;
+  height:1px;
+  background:var(--gold);
+}
+.welcome-box h3{
+  font-family:var(--ff-serif);
+  font-size:clamp(28px, 3.5vw, 44px);
+  font-weight:400;
+  line-height:1.15;
+  letter-spacing:-1.5px;
+  margin-bottom:14px;
+}
+.welcome-box h3 em{
+  font-style:italic;
+  color:var(--gold);
+}
+.welcome-box p{
+  color:rgba(255,255,255,.6);
+  font-size:13px;
+  line-height:1.9;
+  max-width:440px;
+}
+
+.btn-store-visit{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding:16px 28px;
+  background:#fff;
+  color:var(--ink);
+  border-radius:999px;
+  font-family:var(--ff-sans);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  text-decoration:none;
+  transition:all .4s var(--ease);
+  border:none;
+  cursor:pointer;
+}
+.btn-store-visit:hover{
+  background:var(--burgundy);
+  color:#fff;
+  padding-inline:36px;
+  transform:translateY(-2px);
+}
+.btn-store-visit i{font-size:13px}
+
+/* ============ SECTION BOX ============ */
+.section-box{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:2px;
+  padding:clamp(26px, 3vw, 40px);
+  margin-bottom:20px;
+  transition:all .3s var(--ease);
+}
+.section-box:hover{
+  border-color:color-mix(in srgb, var(--ink) 25%, var(--line));
+}
+.section-head{
+  display:flex;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom:24px;
+}
+.section-icon{
+  width:44px;
+  height:44px;
+  flex:none;
+  display:grid;
+  place-items:center;
+  background:var(--paper-2);
+  color:var(--ink);
+  font-size:15px;
+}
+.section-title{
+  flex:1;
+  min-width:0;
+}
+.section-title h3{
+  font-family:var(--ff-serif);
+  font-size:22px;
+  font-weight:500;
+  letter-spacing:-.5px;
+  line-height:1.2;
+  margin-bottom:4px;
+}
+.section-title h3 span{
+  font-family:var(--ff-sans);
+  font-size:9px;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  font-weight:400;
+  margin-right:8px;
+}
+.section-desc{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.8;
+}
+
+/* ============ FORM ============ */
+.form-row{
+  display:flex;
+  gap:10px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+.form-row input,
+.form-row select{
+  flex:1;
+  min-width:200px;
+  padding:14px 18px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  font-size:13px;
+  outline:none;
+  transition:all .3s var(--ease);
+  border-radius:0;
+}
+.form-row input:focus,
+.form-row select:focus{
+  border-color:var(--ink);
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(10,10,10,.06);
+}
+.form-row input::placeholder{color:var(--muted-2)}
+
+.btn-action{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:14px 24px;
+  background:var(--ink);
+  color:#fff;
+  border:none;
+  border-radius:0;
+  font-family:var(--ff-sans);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .35s var(--ease);
+  white-space:nowrap;
+  position:relative;
+  overflow:hidden;
+}
+.btn-action::before{
+  content:"";
+  position:absolute;
+  top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+  transition:left .6s ease;
+}
+.btn-action:hover::before{left:100%}
+.btn-action:hover{
+  background:var(--burgundy);
+  transform:translateY(-2px);
+  box-shadow:0 10px 24px rgba(107,31,42,.25);
+}
+.btn-action i{font-size:11px}
+
+.btn-ig{background:#6b1f2a !important}
+.btn-ig:hover{background:#8a2a37 !important}
+
+.btn-wa{background:#1a7a4a !important}
+.btn-wa:hover{background:#155e39 !important}
+
+.btn-theme-save{
+  width:100%;
+  margin-top:24px;
+  padding:16px;
+  font-size:11px;
+  letter-spacing:3px;
+  background:var(--ink) !important;
+}
+.btn-theme-save:hover{
+  background:var(--burgundy) !important;
+}
+
+/* ============ ITEM ROW ============ */
+.items-container{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:16px;
+}
+.item-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 20px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  font-size:13px;
+  transition:all .3s var(--ease);
+  gap:12px;
+}
+.item-row:hover{
+  border-color:var(--ink);
+  background:#fff;
+  transform:translateX(-3px);
+}
+.item-row strong{
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.item-row strong i{
+  color:var(--burgundy);
+  font-size:12px;
+}
+
+.btn-delete{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 14px;
+  background:transparent;
+  color:var(--danger);
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-family:var(--ff-sans);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .3s var(--ease);
+  white-space:nowrap;
+}
+.btn-delete:hover{
+  background:var(--danger);
+  color:#fff;
+  border-color:var(--danger);
+  transform:translateY(-1px);
+}
+
+.empty-hint{
+  color:var(--muted);
+  font-size:12px;
+  padding:14px 0;
+  font-style:italic;
+}
+
+/* ============ KEYWORDS ============ */
+.keywords-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:16px;
+}
+.keyword-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 16px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:12px;
+  transition:all .3s var(--ease);
+}
+.keyword-chip:hover{
+  border-color:var(--ink);
+  background:#fff;
+}
+.keyword-chip strong{
+  color:var(--burgundy);
+  font-weight:600;
+}
+.keyword-chip i{
+  cursor:pointer;
+  color:var(--danger);
+  font-size:11px;
+  transition:transform .2s;
+}
+.keyword-chip i:hover{transform:scale(1.2)}
+
+/* ============ THEMES ============ */
+.themes-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:14px;
+  margin-top:16px;
+}
+.theme-option-card{
+  padding:28px 18px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  cursor:pointer;
+  text-align:center;
+  transition:all .35s var(--ease);
+  position:relative;
+  overflow:hidden;
+}
+.theme-option-card::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:var(--burgundy);
+  transform:scaleX(0);
+  transform-origin:right;
+  transition:transform .4s var(--ease-out);
+}
+.theme-option-card:hover{
+  border-color:var(--ink);
+  background:#fff;
+  transform:translateY(-4px);
+  box-shadow:0 12px 30px rgba(10,10,10,.06);
+}
+.theme-option-card:hover::before{transform:scaleX(1)}
+.theme-option-card.selected{
+  border-color:var(--ink);
+  background:#fff;
+  box-shadow:0 0 0 2px var(--ink);
+}
+.theme-option-card.selected::before{transform:scaleX(1)}
+.theme-option-card i{
+  font-size:26px;
+  margin-bottom:14px;
+  display:block;
+}
+.theme-option-card h4{
+  font-family:var(--ff-serif);
+  font-size:17px;
+  font-weight:500;
+  letter-spacing:-.3px;
+  margin-bottom:6px;
+}
+.theme-option-card p{
+  font-family:var(--ff-sans);
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+/* ============ MAIN TITLE ============ */
+.main-title{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:52px 0 24px;
+  padding-bottom:20px;
+  border-bottom:1px solid var(--line);
+}
+.main-title i{
+  color:var(--burgundy);
+  font-size:14px;
+}
+.main-title h3{
+  font-family:var(--ff-serif);
+  font-size:clamp(28px, 3vw, 40px);
+  font-weight:400;
+  letter-spacing:-1.5px;
+  line-height:1;
+}
+.main-title h3 em{
+  font-style:italic;
+  color:var(--burgundy);
+}
+.main-title span{
+  font-family:var(--ff-sans);
+  font-size:10px;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-inline-start:auto;
+}
+
+/* ============ NAV GRID ============ */
+.nav-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:16px;
+  margin-bottom:60px;
+}
+.nav-card{
+  display:flex;
+  flex-direction:column;
+  padding:36px 26px;
+  background:#fff;
+  border:1px solid var(--line);
+  text-decoration:none;
+  color:var(--ink);
+  transition:all .4s var(--ease);
+  position:relative;
+  overflow:hidden;
+  gap:20px;
+  min-height:200px;
+}
+.nav-card::after{
+  content:"→";
+  position:absolute;
+  bottom:26px;
+  left:26px;
+  font-family:var(--ff-sans);
+  font-size:20px;
+  color:var(--muted-2);
+  transition:all .4s var(--ease);
+  opacity:.4;
+}
+.nav-card:hover::after{
+  color:var(--burgundy);
+  transform:translateX(-6px);
+  opacity:1;
+}
+.nav-card:hover{
+  border-color:var(--ink);
+  transform:translateY(-6px);
+  box-shadow:0 20px 45px rgba(10,10,10,.08);
+}
+.nav-card-icon{
+  width:52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  background:var(--paper-2);
+  color:var(--ink);
+  font-size:18px;
+  transition:all .4s var(--ease);
+}
+.nav-card:hover .nav-card-icon{
+  background:var(--ink);
+  color:#fff;
+  transform:scale(1.08);
+}
+.nav-card-info{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+}
+.nav-card-info h4{
+  font-family:var(--ff-serif);
+  font-size:20px;
+  font-weight:500;
+  letter-spacing:-.4px;
+  line-height:1.2;
+  margin-bottom:6px;
+}
+.nav-card-info p{
+  font-family:var(--ff-sans);
+  font-size:9px;
+  letter-spacing:2.5px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+/* ============ STATUS MESSAGES ============ */
+.loading{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  color:var(--muted);
+  font-size:12px;
+  font-style:italic;
+}
+.loading i{
+  animation:spin 1s linear infinite;
+}
+
+/* ============ TOAST ============ */
+.toast{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  background:var(--ink);
+  color:#fff;
+  padding:16px 26px;
+  font-family:var(--ff-sans);
+  font-size:12px;
+  letter-spacing:1px;
+  transform:translateY(120%);
+  transition:transform .5s var(--ease-out);
+  border-right:3px solid var(--burgundy);
+  z-index:9999;
+  max-width:400px;
+}
+.toast.show{transform:none}
+.toast.error{border-right-color:var(--danger)}
+.toast.success{border-right-color:var(--success)}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:900px){
+  .welcome-box{grid-template-columns:1fr;gap:26px}
+}
+@media(max-width:720px){
+  .header{padding:20px 0;margin-bottom:24px}
+  .header-brand h2{font-size:20px}
+  .header-brand-mark{width:38px;height:38px;font-size:14px}
+  .header-actions{width:100%;justify-content:space-between}
+  .badge-package{font-size:9px;padding:6px 12px}
+  .btn-logout{padding:8px 14px;font-size:9px}
+  .welcome-box{padding:28px 22px;margin-bottom:26px}
+  .welcome-box h3{font-size:26px}
+  .section-box{padding:22px 18px;margin-bottom:14px}
+  .section-head{gap:12px;margin-bottom:20px}
+  .section-icon{width:38px;height:38px;font-size:13px}
+  .section-title h3{font-size:17px}
+  .form-row input,.form-row select{min-width:100%;padding:12px 14px;font-size:12px}
+  .btn-action{width:100%;padding:13px;font-size:10px}
+  .item-row{padding:12px 14px;font-size:12px;flex-wrap:wrap}
+  .btn-delete{padding:6px 12px;font-size:9px}
+  .themes-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .theme-option-card{padding:20px 12px}
+  .theme-option-card h4{font-size:14px}
+  .main-title{margin:36px 0 18px}
+  .main-title h3{font-size:26px}
+  .main-title span{display:none}
+  .nav-grid{grid-template-columns:1fr;gap:12px}
+  .nav-card{padding:26px 22px;min-height:auto;flex-direction:row;align-items:center;gap:16px}
+  .nav-card-icon{width:44px;height:44px;font-size:15px}
+  .nav-card-info h4{font-size:16px}
+  .nav-card::after{display:none}
+  .toast{right:14px;left:14px;bottom:14px;text-align:center}
+}
+</style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- الهيدر العلوي -->
-        <div class="header">
-            <h2><i class="fa-solid fa-shapes"></i> لوحة التحكم الرئيسية للمتجر</h2>
-            <div class="header-left">
-                <span id="packageBadge" class="badge-package">جاري التحقق من الباقة...</span>
-                <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</button>
-            </div>
-        </div>
+<!-- TOP BAR -->
+<div class="topbar">
+  <span>✦</span> MERCHANT DASHBOARD <span>·</span> EDITORIAL ATELIER <span>·</span> 2026 <span>✦</span>
+</div>
 
-        <!-- بوكس الترحيب -->
-        <div class="welcome-box">
-            <div>
-                <h3 id="userEmailText">مرحباً بك، جاري التحميل...</h3>
-                <p>إليك كافة أقسام النظام للتحكم الكامل في نشاطك التجاري وإدارته باحترافية وسهولة</p>
-            </div>
-            <div id="storeLinkContainer"></div>
-        </div>
+<div class="container">
 
-        <!-- إعدادات وتخصيص المتجر (تظهر فقط لباقة بريميوم) -->
-        <div class="section-box" id="premiumWebsiteSettingsSection" style="display: none;">
-            <h3><i class="fa-solid fa-store"></i> إعدادات وتخصيص المتجر الإلكتروني (ويب سايت)</h3>
-            <p class="section-desc">قم بتعديل اسم محلك الظاهر للعملاء، رابط إنستجرام، ورقم الواتساب الخاص بك.</p>
-            <div class="form-row">
-                <input type="text" id="storeNameInput" placeholder="أدخل اسم المحل الجديد...">
-                <button class="btn-action" onclick="updateStoreData()"><i class="fa-solid fa-check"></i> حفظ اسم المحل</button>
-            </div>
-            <div class="form-row">
-                <input type="text" id="instagramInput" placeholder="رابط إنستجرام أو اسم المستخدم...">
-                <button class="btn-action btn-ig" onclick="updateStoreData()"><i class="fa-brands fa-instagram"></i> حفظ إنستجرام</button>
-            </div>
-            <div class="form-row">
-                <input type="text" id="whatsappInput" placeholder="رقم الواتساب (مثلاً: 2010xxxxxxxx)...">
-                <button class="btn-action btn-wa" onclick="updateStoreData()"><i class="fa-brands fa-whatsapp"></i> حفظ الواتساب</button>
-            </div>
-        </div>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="header-brand-mark">
+        <i class="fa-solid fa-shapes"></i>
+      </div>
+      <h2>
+        لوحة التحكم
+        <small>Merchant · Store Manager</small>
+      </h2>
+    </div>
+    <div class="header-actions">
+      <span id="packageBadge" class="badge-package">جاري التحقق…</span>
+      <button class="btn-logout" onclick="logout()">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        خروج
+      </button>
+    </div>
+  </header>
 
-        <!-- إدارة مكاتب التعامل (الموردين) -->
-        <div class="section-box">
-            <h3><i class="fa-solid fa-building"></i> إدارة مكاتب التعامل (الموردين)</h3>
-            <p class="section-desc">أضف اسماء المكاتب التي تتعامل معها لكي يتم ربط المنتجات بها.</p>
-            <div class="form-row">
-                <input type="text" id="newOfficeNameInput" placeholder="اسم المكتب الجديد (مثلاً: مكتب النور)...">
-                <button class="btn-action" onclick="addNewOffice()"><i class="fa-solid fa-plus"></i> إضافة مكتب جديد</button>
-            </div>
-            <div id="officesListContainer" class="items-container">
-                <span style="color: var(--text-muted); font-size: 15px;">جاري تحميل المكاتب...</span>
-            </div>
-        </div>
+  <!-- WELCOME -->
+  <section class="welcome-box">
+    <div>
+      <div class="welcome-eyebrow">Welcome back</div>
+      <h3 id="userEmailText">
+        مرحباً <em>بك</em>.
+      </h3>
+      <p>إليك كافة أقسام النظام للتحكم الكامل في نشاطك التجاري وإدارته باحترافية وسهولة.</p>
+    </div>
+    <div id="storeLinkContainer" style="text-align:left;"></div>
+  </section>
 
-        <!-- إدارة محافظات وأسعار الشحن (تظهر فقط لباقة بريميوم) -->
-        <div class="section-box" id="shippingSection" style="display: none;">
-            <h3><i class="fa-solid fa-truck-fast"></i> إدارة محافظات وأسعار الشحن</h3>
-            <p class="section-desc">اختر المحافظة من القائمة وحدد سعر التوصيل الخاص بها.</p>
-            
-            <form id="shippingForm" onsubmit="addShippingZone(event)" class="form-row">
-                <select id="govNameSelect">
-                    <option value="">اختر المحافظة...</option>
-                    <option value="القاهرة">القاهرة</option>
-                    <option value="الجيزة">الجيزة</option>
-                    <option value="الإسكندرية">الإسكندرية</option>
-                    <option value="الدقهلية">الدقهلية</option>
-                    <option value="الشرقية">الشرقية</option>
-                    <option value="الغربية">الغربية</option>
-                    <option value="المنوفية">المنوفية</option>
-                    <option value="القليوبية">القليوبية</option>
-                </select>
-                <input type="number" id="govPrice" placeholder="سعر الشحن (ج.م)" step="0.01">
-                <button type="submit" class="btn-action"><i class="fa-solid fa-plus"></i> حفظ سعر المحافظة</button>
-            </form>
-
-            <div id="shippingZonesList" class="items-container">
-                <span style="color: var(--text-muted); font-size: 15px;">جاري التحميل...</span>
-            </div>
-        </div>
-
-        <!-- تصميم واجهة المتجر (يظهر فقط لباقة بريميوم) -->
-        <div class="section-box" id="themesSection" style="display: none;">
-            <h3><i class="fa-solid fa-paintbrush"></i> تصميم واجهة المتجر</h3>
-            <p class="section-desc">اختر الهوية البصرية المناسبة لنشاطك التجاري، ثم اضغط على زر الحفظ أدناه لتطبيقها.</p>
-            
-            <div class="themes-grid">
-                <div class="theme-option-card" id="theme-card-1" onclick="selectTheme('theme_1')">
-                    <i class="fa-solid fa-crown" style="font-size: 28px; color: #d4af37; margin-bottom: 10px;"></i>
-                    <h4>الأسود والذهبي</h4>
-                    <p>فخم ورسمي</p>
-                </div>
-                <div class="theme-option-card" id="theme-card-2" onclick="selectTheme('theme_2')">
-                    <i class="fa-solid fa-gem" style="font-size: 28px; color: #ff69b4; margin-bottom: 10px;"></i>
-                    <h4>التصميم البناتي</h4>
-                    <p>عصري وناعم</p>
-                </div>
-                <div class="theme-option-card" id="theme-card-3" onclick="selectTheme('theme_3')">
-                    <i class="fa-solid fa-dumbbell" style="font-size: 28px; color: #00ff66; margin-bottom: 10px;"></i>
-                    <h4>جيم رياضي</h4>
-                    <p>قوي وحماسي</p>
-                </div>
-                <div class="theme-option-card" id="theme-card-4" onclick="selectTheme('theme_4')">
-                    <i class="fa-solid fa-shoe-prints" style="font-size: 28px; color: #ff5722; margin-bottom: 10px;"></i>
-                    <h4>محل كوتشيات</h4>
-                    <p>شبابي كاجوال</p>
-                </div>
-            </div>
-
-            <button class="btn-action btn-theme-save" onclick="saveSelectedTheme()">
-                <i class="fa-solid fa-floppy-disk"></i> حفظ التصميم المختار
-            </button>
-        </div>
-
-        <!-- إدارة أقسام المتجر (تظهر للجميع Basic و Premium) -->
-        <div class="section-box" id="categoriesSection">
-            <h3><i class="fa-solid fa-folder-tree"></i> إدارة أقسام المتجر</h3>
-            <p class="section-desc">أضف أقساماً جديدة للمحل بالاسم الذي تفضله (لتنظيم المنتجات).</p>
-            <div class="form-row">
-                <input type="text" id="newCategoryNameInput" placeholder="اسم القسم الجديد (مثلاً: أحذية)">
-                <button class="btn-action" onclick="addNewCategory()"><i class="fa-solid fa-plus"></i> إضافة قسم جديد</button>
-            </div>
-            <div id="categoriesListContainer" class="items-container">
-                <span style="color: var(--text-muted); font-size: 15px;">جاري التحميل...</span>
-            </div>
-        </div>
-
-        <!-- إدارة الكلمات المفتاحية (تظهر فقط لباقة بريميوم) -->
-        <div class="section-box" id="keywordsSection" style="display: none;">
-            <h3><i class="fa-solid fa-tags"></i> الكلمات المفتاحية للتصنيف التلقائي</h3>
-            <p class="section-desc">اربط الكلمات المفتاحية بالأقسام لتصنيف المنتجات تلقائياً.</p>
-            <div class="form-row">
-                <select id="targetCategorySelect">
-                    <option value="">اختر القسم...</option>
-                </select>
-                <input type="text" id="newKeywordInput" placeholder="أدخل كلمة مفتاحية...">
-                <button class="btn-action" onclick="saveKeyword()"><i class="fa-solid fa-plus"></i> إضافة الكلمة</button>
-            </div>
-            <div id="keywordsListContainer" class="keywords-grid">
-                <span style="color: var(--text-muted); font-size: 15px;">لا توجد كلمات مفتاحية مسجلة بعد.</span>
-            </div>
-        </div>
-
-        <!-- أقسام النظام الأساسية -->
-        <div class="main-title"><i class="fa-solid fa-compass" style="color: var(--primary);"></i> أقسام النظام الأساسية</div>
-        <div class="nav-grid">
-            <a href="inventory.html" class="nav-card">
-                <i class="fa-solid fa-boxes-stacked"></i>
-                <span>إدارة المخزن والمنتجات</span>
-            </a>
-            <a href="pos.html" class="nav-card">
-                <i class="fa-solid fa-cash-register"></i>
-                <span>شاشة الكاشير (POS)</span>
-            </a>
-            <a href="reports.html" class="nav-card">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>التقارير والمبيعات</span>
-            </a>
-            <a href="customers-expenses.html" class="nav-card">
-                <i class="fa-solid fa-users-rectangle"></i>
-                <span>العملاء والمصروفات والموظفين</span>
-            </a>
-        </div>
+  <!-- PREMIUM WEBSITE SETTINGS -->
+  <section class="section-box" id="premiumWebsiteSettingsSection" style="display:none;">
+    <div class="section-head">
+      <div class="section-icon"><i class="fa-solid fa-store"></i></div>
+      <div class="section-title">
+        <h3><span>01</span> إعدادات المتجر الإلكتروني</h3>
+        <p class="section-desc">عدّل اسم محلك الظاهر للعملاء، رابط إنستجرام، ورقم الواتساب.</p>
+      </div>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
+    <div class="form-row">
+      <input type="text" id="storeNameInput" placeholder="اسم المحل الجديد…">
+      <button class="btn-action" onclick="updateStoreData()">
+        <i class="fa-solid fa-check"></i> حفظ الاسم
+      </button>
+    </div>
+    <div class="form-row">
+      <input type="text" id="instagramInput" placeholder="رابط إنستجرام أو @username…">
+      <button class="btn-action btn-ig" onclick="updateStoreData()">
+        <i class="fa-brands fa-instagram"></i> حفظ إنستجرام
+      </button>
+    </div>
+    <div class="form-row">
+      <input type="text" id="whatsappInput" placeholder="رقم الواتساب (مثلاً: 2010xxxxxxxx)…">
+      <button class="btn-action btn-wa" onclick="updateStoreData()">
+        <i class="fa-brands fa-whatsapp"></i> حفظ واتساب
+      </button>
+    </div>
+  </section>
 
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let currentUserId = '';
-        let categoriesMap = {};
-        let currentThemeSaved = 'theme_1';
-        let userPackage = 'basic';
+  <!-- OFFICES -->
+  <section class="section-box">
+    <div class="section-head">
+      <div class="section-icon"><i class="fa-solid fa-building"></i></div>
+      <div class="section-title">
+        <h3><span>02</span> مكاتب التعامل (الموردين)</h3>
+        <p class="section-desc">أضف أسماء المكاتب التي تتعامل معها لكي يتم ربط المنتجات بها.</p>
+      </div>
+    </div>
 
-        async function checkAuth() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) {
-                window.location.href = 'login.html';
-                return;
-            }
+    <div class="form-row">
+      <input type="text" id="newOfficeNameInput" placeholder="اسم المكتب الجديد…">
+      <button class="btn-action" onclick="addNewOffice()">
+        <i class="fa-solid fa-plus"></i> إضافة
+      </button>
+    </div>
+    <div id="officesListContainer" class="items-container">
+      <span class="loading"><i class="fa-solid fa-spinner"></i> جاري التحميل…</span>
+    </div>
+  </section>
 
-            const user = session.user;
-            currentUserId = user.id;
+  <!-- SHIPPING -->
+  <section class="section-box" id="shippingSection" style="display:none;">
+    <div class="section-head">
+      <div class="section-icon"><i class="fa-solid fa-truck-fast"></i></div>
+      <div class="section-title">
+        <h3><span>03</span> محافظات وأسعار الشحن</h3>
+        <p class="section-desc">اختر المحافظة من القائمة وحدد سعر التوصيل الخاص بها.</p>
+      </div>
+    </div>
 
-            const { data: storeSettings, error } = await supabaseClient
-                .from('store_settings')
-                .select('*')
-                .eq('user_id', currentUserId)
-                .maybeSingle();
+    <form id="shippingForm" onsubmit="addShippingZone(event)" class="form-row">
+      <select id="govNameSelect">
+        <option value="">اختر المحافظة…</option>
+        <option value="القاهرة">القاهرة</option>
+        <option value="الجيزة">الجيزة</option>
+        <option value="الإسكندرية">الإسكندرية</option>
+        <option value="الدقهلية">الدقهلية</option>
+        <option value="الشرقية">الشرقية</option>
+        <option value="الغربية">الغربية</option>
+        <option value="المنوفية">المنوفية</option>
+        <option value="القليوبية">القليوبية</option>
+      </select>
+      <input type="number" id="govPrice" placeholder="سعر الشحن (ج.م)" step="0.01">
+      <button type="submit" class="btn-action">
+        <i class="fa-solid fa-plus"></i> حفظ
+      </button>
+    </form>
 
-            if (storeSettings && storeSettings.is_active === false) {
-                alert('تم تعطيل حسابك من قبل الإدارة.');
-                await supabaseClient.auth.signOut();
-                window.location.href = 'login.html';
-                return;
-            }
+    <div id="shippingZonesList" class="items-container">
+      <span class="loading"><i class="fa-solid fa-spinner"></i> جاري التحميل…</span>
+    </div>
+  </section>
 
-            if (storeSettings && storeSettings.package_type) {
-                userPackage = storeSettings.package_type.toLowerCase();
-            }
+  <!-- THEMES -->
+  <section class="section-box" id="themesSection" style="display:none;">
+    <div class="section-head">
+      <div class="section-icon"><i class="fa-solid fa-paintbrush"></i></div>
+      <div class="section-title">
+        <h3><span>04</span> تصميم واجهة المتجر</h3>
+        <p class="section-desc">اختر الهوية البصرية المناسبة، ثم اضغط على زر الحفظ أدناه.</p>
+      </div>
+    </div>
 
-            applyPackageVisuals();
+    <div class="themes-grid">
+      <div class="theme-option-card" id="theme-card-1" onclick="selectTheme('theme_1')">
+        <i class="fa-solid fa-crown" style="color:#b89655"></i>
+        <h4>الأسود والذهبي</h4>
+        <p>فخم ورسمي</p>
+      </div>
+      <div class="theme-option-card" id="theme-card-2" onclick="selectTheme('theme_2')">
+        <i class="fa-solid fa-gem" style="color:#8b3158"></i>
+        <h4>التصميم البناتي</h4>
+        <p>عصري وناعم</p>
+      </div>
+      <div class="theme-option-card" id="theme-card-3" onclick="selectTheme('theme_3')">
+        <i class="fa-solid fa-dumbbell" style="color:#0f172a"></i>
+        <h4>جيم رياضي</h4>
+        <p>قوي وحماسي</p>
+      </div>
+      <div class="theme-option-card" id="theme-card-4" onclick="selectTheme('theme_4')">
+        <i class="fa-solid fa-shoe-prints" style="color:#b3262d"></i>
+        <h4>محل كوتشيات</h4>
+        <p>شبابي كاجوال</p>
+      </div>
+    </div>
 
-            document.getElementById('userEmailText').innerText = `مرحباً بك: ${user.email}`;
+    <button class="btn-action btn-theme-save" onclick="saveSelectedTheme()">
+      <i class="fa-solid fa-floppy-disk"></i> حفظ التصميم المختار
+    </button>
+  </section>
 
-            if (userPackage === 'premium') {
-                const storeUrl = `index.html?uid=${user.id}`;
-                document.getElementById('storeLinkContainer').innerHTML = `
-                    <a href="${storeUrl}" target="_blank" class="btn-store-visit">
-                        <i class="fa-solid fa-store"></i> زيارة متجرتك الإلكتروني
-                    </a>
-                `;
-            }
+  <!-- CATEGORIES -->
+  <section class="section-box" id="categoriesSection">
+    <div class="section-head">
+      <div class="section-icon"><i class="fa-solid fa-folder-tree"></i></div>
+      <div class="section-title">
+        <h3><span>05</span> أقسام المتجر</h3>
+        <p class="section-desc">أضف أقساماً جديدة لتنظيم المنتجات.</p>
+      </div>
+    </div>
 
-            if (storeSettings) {
-                if (storeSettings.store_name) document.getElementById('storeNameInput').value = storeSettings.store_name;
-                if (storeSettings.instagram) document.getElementById('instagramInput').value = storeSettings.instagram;
-                if (storeSettings.whatsapp) document.getElementById('whatsappInput').value = storeSettings.whatsapp;
-                
-                if (storeSettings.active_theme) {
-                    currentThemeSaved = storeSettings.active_theme;
-                    highlightSelectedThemeCard(currentThemeSaved);
-                } else {
-                    highlightSelectedThemeCard('theme_1');
-                }
-            } else {
-                highlightSelectedThemeCard('theme_1');
-            }
+    <div class="form-row">
+      <input type="text" id="newCategoryNameInput" placeholder="اسم القسم الجديد (مثلاً: أحذية)…">
+      <button class="btn-action" onclick="addNewCategory()">
+        <i class="fa-solid fa-plus"></i> إضافة قسم
+      </button>
+    </div>
+    <div id="categoriesListContainer" class="items-container">
+      <span class="loading"><i class="fa-solid fa-spinner"></i> جاري التحميل…</span>
+    </div>
+  </section>
 
-            loadOffices();
-            loadCategories(); // الأقسام تعمل الآن للجميع Basic و Premium
-            
-            if (userPackage === 'premium') {
-                loadKeywords();
-                loadMerchantShippingZones(currentUserId);
-            }
-            
-            listenToAccountStatus(user.id);
+  <!-- KEYWORDS -->
+  <section class="section-box" id="keywordsSection" style="display:none;">
+    <div class="section-head">
+      <div class="section-icon"><i class="fa-solid fa-tags"></i></div>
+      <div class="section-title">
+        <h3><span>06</span> الكلمات المفتاحية</h3>
+        <p class="section-desc">اربط الكلمات بالأقسام لتصنيف المنتجات تلقائياً.</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <select id="targetCategorySelect">
+        <option value="">اختر القسم…</option>
+      </select>
+      <input type="text" id="newKeywordInput" placeholder="كلمة مفتاحية…">
+      <button class="btn-action" onclick="saveKeyword()">
+        <i class="fa-solid fa-plus"></i> إضافة
+      </button>
+    </div>
+    <div id="keywordsListContainer" class="keywords-grid">
+      <span class="empty-hint">لا توجد كلمات مفتاحية مسجلة بعد.</span>
+    </div>
+  </section>
+
+  <!-- MAIN NAV -->
+  <div class="main-title">
+    <i class="fa-solid fa-compass"></i>
+    <h3>أقسام <em>النظام</em></h3>
+    <span>Core Modules</span>
+  </div>
+
+  <div class="nav-grid">
+    <a href="inventory.html" class="nav-card">
+      <div class="nav-card-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+      <div class="nav-card-info">
+        <h4>إدارة المخزن والمنتجات</h4>
+        <p>Inventory Management</p>
+      </div>
+    </a>
+    <a href="pos.html" class="nav-card">
+      <div class="nav-card-icon"><i class="fa-solid fa-cash-register"></i></div>
+      <div class="nav-card-info">
+        <h4>شاشة الكاشير</h4>
+        <p>Point of Sale</p>
+      </div>
+    </a>
+    <a href="reports.html" class="nav-card">
+      <div class="nav-card-icon"><i class="fa-solid fa-chart-line"></i></div>
+      <div class="nav-card-info">
+        <h4>التقارير والمبيعات</h4>
+        <p>Reports & Analytics</p>
+      </div>
+    </a>
+    <a href="customers-expenses.html" class="nav-card">
+      <div class="nav-card-icon"><i class="fa-solid fa-users-rectangle"></i></div>
+      <div class="nav-card-info">
+        <h4>العملاء والمصروفات</h4>
+        <p>Customers & Expenses</p>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   EDITORIAL ATELIER — Merchant Dashboard Logic
+   (كل الوظائف زي ما هي — التغيير في الشكل فقط)
+   ========================================================= */
+
+const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmFucnp5bHBud2lkZGV2Zmd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDY1OTcsImV4cCI6MjEwMjAyMjU5N30.81yaUfV3lXGMMlQQg__-HLtbMv-RKGALy8RW-83eDVw';
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUserId = '';
+let categoriesMap = {};
+let currentThemeSaved = 'theme_1';
+let userPackage = 'basic';
+
+/* ------------ TOAST ------------ */
+function showToast(msg, type){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+/* ------------ REVEAL ON SCROLL ------------ */
+function initReveal(){
+  const targets = document.querySelectorAll('.section-box, .welcome-box, .nav-card, .main-title');
+  if (!('IntersectionObserver' in window)){
+    targets.forEach(t => t.classList.add('reveal','in'));
+    return;
+  }
+  targets.forEach((t, i) => {
+    t.classList.add('reveal');
+    t.style.transitionDelay = `${Math.min(i * 40, 300)}ms`;
+  });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  targets.forEach(t => io.observe(t));
+}
+
+/* ------------ AUTH ------------ */
+async function checkAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const user = session.user;
+  currentUserId = user.id;
+
+  const { data: storeSettings, error } = await supabaseClient
+    .from('store_settings')
+    .select('*')
+    .eq('user_id', currentUserId)
+    .maybeSingle();
+
+  if (storeSettings && storeSettings.is_active === false) {
+    alert('تم تعطيل حسابك من قبل الإدارة.');
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html';
+    return;
+  }
+
+  if (storeSettings && storeSettings.package_type) {
+    userPackage = storeSettings.package_type.toLowerCase();
+  }
+
+  applyPackageVisuals();
+
+  document.getElementById('userEmailText').innerHTML = `مرحباً <em>بك</em>، ${user.email}`;
+
+  if (userPackage === 'premium') {
+    const storeUrl = `index.html?uid=${user.id}`;
+    document.getElementById('storeLinkContainer').innerHTML = `
+      <a href="${storeUrl}" target="_blank" class="btn-store-visit">
+        <i class="fa-solid fa-store"></i> زيارة متجرك
+      </a>
+    `;
+  }
+
+  if (storeSettings) {
+    if (storeSettings.store_name) document.getElementById('storeNameInput').value = storeSettings.store_name;
+    if (storeSettings.instagram) document.getElementById('instagramInput').value = storeSettings.instagram;
+    if (storeSettings.whatsapp) document.getElementById('whatsappInput').value = storeSettings.whatsapp;
+
+    if (storeSettings.active_theme) {
+      currentThemeSaved = storeSettings.active_theme;
+      highlightSelectedThemeCard(currentThemeSaved);
+    } else {
+      highlightSelectedThemeCard('theme_1');
+    }
+  } else {
+    highlightSelectedThemeCard('theme_1');
+  }
+
+  loadOffices();
+  loadCategories();
+
+  if (userPackage === 'premium') {
+    loadKeywords();
+    loadMerchantShippingZones(currentUserId);
+  }
+
+  listenToAccountStatus(user.id);
+}
+
+/* ------------ PACKAGE VISUALS ------------ */
+function applyPackageVisuals() {
+  const badge = document.getElementById('packageBadge');
+
+  if (userPackage === 'premium') {
+    badge.innerText = 'باقة بريميوم';
+    badge.classList.add('premium');
+
+    document.getElementById('premiumWebsiteSettingsSection').style.display = 'block';
+    document.getElementById('shippingSection').style.display = 'block';
+    document.getElementById('themesSection').style.display = 'block';
+    document.getElementById('keywordsSection').style.display = 'block';
+  } else {
+    badge.innerText = 'الباقة الأساسية';
+
+    document.getElementById('premiumWebsiteSettingsSection').style.display = 'none';
+    document.getElementById('shippingSection').style.display = 'none';
+    document.getElementById('themesSection').style.display = 'none';
+    document.getElementById('keywordsSection').style.display = 'none';
+  }
+
+  document.getElementById('categoriesSection').style.display = 'block';
+}
+
+/* ------------ THEMES ------------ */
+function highlightSelectedThemeCard(themeName) {
+  document.querySelectorAll('.theme-option-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+
+  const themeNum = themeName.replace('theme_', '');
+  const activeCard = document.getElementById(`theme-card-${themeNum}`);
+  if (activeCard) activeCard.classList.add('selected');
+}
+
+function selectTheme(themeName) {
+  currentThemeSaved = themeName;
+  highlightSelectedThemeCard(themeName);
+}
+
+async function saveSelectedTheme() {
+  const newName = document.getElementById('storeNameInput').value.trim() || 'متجري الإلكتروني';
+  const igValue = document.getElementById('instagramInput').value.trim();
+  const waValue = document.getElementById('whatsappInput').value.trim();
+
+  const { error } = await supabaseClient.from('store_settings').upsert({
+    user_id: currentUserId,
+    store_name: newName,
+    instagram: igValue,
+    whatsapp: waValue,
+    active_theme: currentThemeSaved
+  }, { onConflict: 'user_id' });
+
+  if (error) showToast('حدث خطأ: ' + error.message, 'error');
+  else showToast('تم حفظ التصميم بنجاح', 'success');
+}
+
+/* ------------ OFFICES ------------ */
+async function addNewOffice() {
+  const officeName = document.getElementById('newOfficeNameInput').value.trim();
+  if (!officeName) { showToast('الرجاء كتابة اسم المكتب', 'error'); return; }
+
+  const { error } = await supabaseClient.from('offices').insert([{
+    user_id: currentUserId,
+    office_name: officeName
+  }]);
+
+  if (error) showToast('حدث خطأ: ' + error.message, 'error');
+  else {
+    document.getElementById('newOfficeNameInput').value = '';
+    loadOffices();
+    showToast('تمت إضافة المكتب', 'success');
+  }
+}
+
+async function loadOffices() {
+  const { data } = await supabaseClient.from('offices').select('*').eq('user_id', currentUserId);
+  const container = document.getElementById('officesListContainer');
+  if (!container) return;
+
+  if (!data || data.length === 0) {
+    container.innerHTML = '<span class="empty-hint">لا توجد مكاتب مسجلة بعد.</span>';
+    return;
+  }
+
+  container.innerHTML = data.map(office => `
+    <div class="item-row">
+      <strong><i class="fa-solid fa-building"></i> ${office.office_name}</strong>
+      <button class="btn-delete" onclick="deleteOffice('${office.id}')">
+        <i class="fa-solid fa-trash-can"></i> حذف
+      </button>
+    </div>
+  `).join('');
+}
+
+async function deleteOffice(id) {
+  if (confirm('هل أنت متأكد من حذف هذا المكتب؟')) {
+    await supabaseClient.from('offices').delete().eq('id', id);
+    loadOffices();
+    showToast('تم الحذف', 'success');
+  }
+}
+
+/* ------------ SHIPPING ------------ */
+async function addShippingZone(e) {
+  e.preventDefault();
+  const govName = document.getElementById('govNameSelect').value;
+  const govPrice = parseFloat(document.getElementById('govPrice').value);
+
+  if (!govName) return showToast('الرجاء اختيار المحافظة', 'error');
+
+  const { error } = await supabaseClient.from('store_shipping').insert([{
+    user_id: currentUserId,
+    governorate_name: govName,
+    shipping_price: govPrice
+  }]);
+
+  if (error) {
+    if (error.code === '23505') showToast('هذه المحافظة مضافة مسبقاً', 'error');
+    else showToast('حدث خطأ: ' + error.message, 'error');
+  } else {
+    showToast('تمت الإضافة بنجاح', 'success');
+    document.getElementById('shippingForm').reset();
+    loadMerchantShippingZones(currentUserId);
+  }
+}
+
+async function loadMerchantShippingZones(userId) {
+  const { data } = await supabaseClient.from('store_shipping').select('*').eq('user_id', userId);
+  const listContainer = document.getElementById('shippingZonesList');
+  if (!listContainer) return;
+
+  if (!data || data.length === 0) {
+    listContainer.innerHTML = '<span class="empty-hint">لم تقم بإضافة أي محافظات للشحن بعد.</span>';
+    return;
+  }
+
+  listContainer.innerHTML = data.map(item => `
+    <div class="item-row">
+      <div>
+        <strong><i class="fa-solid fa-map-pin"></i> ${item.governorate_name}</strong>
+        <span style="margin-right:14px; color:var(--burgundy); font-weight:700;">${item.shipping_price} ج.م</span>
+      </div>
+      <button class="btn-delete" onclick="deleteShippingZone('${item.id}')">
+        <i class="fa-solid fa-trash-can"></i> حذف
+      </button>
+    </div>
+  `).join('');
+}
+
+async function deleteShippingZone(id) {
+  if (confirm('هل أنت متأكد من الحذف؟')) {
+    await supabaseClient.from('store_shipping').delete().eq('id', id);
+    loadMerchantShippingZones(currentUserId);
+    showToast('تم الحذف', 'success');
+  }
+}
+
+/* ------------ ACCOUNT STATUS ------------ */
+function listenToAccountStatus(userId) {
+  supabaseClient.channel('store_settings_status_changes')
+    .on('postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'store_settings', filter: `user_id=eq.${userId}` },
+      async (payload) => {
+        if (payload.new && payload.new.is_active === false) {
+          alert('تم تعطيل حسابك من قبل الإدارة.');
+          await supabaseClient.auth.signOut();
+          window.location.href = 'login.html';
         }
+      }
+    ).subscribe();
+}
 
-        function applyPackageVisuals() {
-            const badge = document.getElementById('packageBadge');
-            
-            if (userPackage === 'premium') {
-                badge.innerText = 'باقة بريميوم (Premium)';
-                badge.style.background = '#d1fae5';
-                badge.style.color = '#065f46';
+/* ------------ STORE DATA ------------ */
+async function updateStoreData() {
+  const newName = document.getElementById('storeNameInput').value.trim();
+  const igValue = document.getElementById('instagramInput').value.trim();
+  const waValue = document.getElementById('whatsappInput').value.trim();
 
-                // إظهار إعدادات الويب سايت والشحن والتصميم والكلمات المفتاحية
-                document.getElementById('premiumWebsiteSettingsSection').style.display = 'block';
-                document.getElementById('shippingSection').style.display = 'block';
-                document.getElementById('themesSection').style.display = 'block';
-                document.getElementById('keywordsSection').style.display = 'block';
-            } else {
-                badge.innerText = 'الباقة الأساسية (Basic)';
-                badge.style.background = '#e0e7ff';
-                badge.style.color = '#4338ca';
+  if (!newName) { showToast('الرجاء إدخال اسم صحيح للمحل', 'error'); return; }
 
-                // إخفاء الويب سايت والشحن والتصميم والكلمات المفتاحية، مع إبقاء الأقسام والمخزن والكاشير
-                document.getElementById('premiumWebsiteSettingsSection').style.display = 'none';
-                document.getElementById('shippingSection').style.display = 'none';
-                document.getElementById('themesSection').style.display = 'none';
-                document.getElementById('keywordsSection').style.display = 'none';
-            }
-            
-            // قسم الأقسام دائم الظهور للجميع
-            document.getElementById('categoriesSection').style.display = 'block';
-        }
+  const { error } = await supabaseClient.from('store_settings').upsert({
+    user_id: currentUserId,
+    store_name: newName,
+    instagram: igValue,
+    whatsapp: waValue,
+    active_theme: currentThemeSaved
+  }, { onConflict: 'user_id' });
 
-        function highlightSelectedThemeCard(themeName) {
-            document.querySelectorAll('.theme-option-card').forEach(card => {
-                card.style.borderColor = 'var(--border)';
-                card.style.background = '#fafafa';
-            });
-            
-            const themeNum = themeName.replace('theme_', '');
-            const activeCard = document.getElementById(`theme-card-${themeNum}`);
-            if(activeCard) {
-                activeCard.style.borderColor = 'var(--primary)';
-                activeCard.style.background = 'var(--primary-light)';
-            }
-        }
+  if (error) showToast('حدث خطأ: ' + error.message, 'error');
+  else showToast('تم تحديث إعدادات المتجر', 'success');
+}
 
-        function selectTheme(themeName) {
-            currentThemeSaved = themeName;
-            highlightSelectedThemeCard(themeName);
-        }
+/* ------------ CATEGORIES ------------ */
+async function addNewCategory() {
+  const catName = document.getElementById('newCategoryNameInput').value.trim();
+  if (!catName) { showToast('الرجاء كتابة اسم القسم', 'error'); return; }
+  const slug = catName.toLowerCase().replace(/\s+/g, '_');
 
-        async function saveSelectedTheme() {
-            const newName = document.getElementById('storeNameInput').value.trim() || 'متجري الإلكتروني';
-            const igValue = document.getElementById('instagramInput').value.trim();
-            const waValue = document.getElementById('whatsappInput').value.trim();
+  const { error } = await supabaseClient.from('store_categories').insert([{
+    user_id: currentUserId,
+    category_name: catName,
+    category_slug: slug
+  }]);
 
-            const { error } = await supabaseClient.from('store_settings').upsert({ 
-                user_id: currentUserId, store_name: newName, instagram: igValue, whatsapp: waValue, active_theme: currentThemeSaved 
-            }, { onConflict: 'user_id' });
+  if (error) showToast('القسم موجود مسبقاً أو حدث خطأ', 'error');
+  else {
+    document.getElementById('newCategoryNameInput').value = '';
+    loadCategories();
+    showToast('تمت إضافة القسم', 'success');
+  }
+}
 
-            if (error) alert('حدث خطأ أثناء حفظ التصميم: ' + error.message);
-            else alert('تم حفظ وتطبيق التصميم الجديد بنجاح!');
-        }
+async function loadCategories() {
+  const { data } = await supabaseClient.from('store_categories').select('*').eq('user_id', currentUserId);
+  const container = document.getElementById('categoriesListContainer');
+  const select = document.getElementById('targetCategorySelect');
+  if (select) select.innerHTML = '<option value="">اختر القسم…</option>';
+  categoriesMap = {};
 
-        async function addNewOffice() {
-            const officeName = document.getElementById('newOfficeNameInput').value.trim();
-            if (!officeName) { alert('الرجاء كتابة اسم المكتب'); return; }
+  if (!container) return;
 
-            const { error } = await supabaseClient.from('offices').insert([{
-                user_id: currentUserId,
-                office_name: officeName
-            }]);
+  if (!data || data.length === 0) {
+    container.innerHTML = '<span class="empty-hint">لا توجد أقسام مضافة بعد.</span>';
+    return;
+  }
 
-            if (error) alert('حدث خطأ: ' + error.message);
-            else {
-                document.getElementById('newOfficeNameInput').value = '';
-                loadOffices();
-            }
-        }
+  container.innerHTML = '';
+  data.forEach(cat => {
+    categoriesMap[cat.category_slug] = cat.category_name;
+    if (select) select.innerHTML += `<option value="${cat.category_slug}">${cat.category_name}</option>`;
+    container.innerHTML += `
+      <div class="item-row">
+        <strong><i class="fa-solid fa-folder-open"></i> ${cat.category_name}</strong>
+        <button class="btn-delete" onclick="deleteCategory('${cat.id}')">
+          <i class="fa-solid fa-trash-can"></i> حذف
+        </button>
+      </div>
+    `;
+  });
+  if (userPackage === 'premium') loadKeywords();
+}
 
-        async function loadOffices() {
-            const { data } = await supabaseClient.from('offices').select('*').eq('user_id', currentUserId);
-            const container = document.getElementById('officesListContainer');
-            if (!container) return;
+async function deleteCategory(id) {
+  if (confirm('هل أنت متأكد من الحذف؟')) {
+    await supabaseClient.from('store_categories').delete().eq('id', id);
+    loadCategories();
+    showToast('تم الحذف', 'success');
+  }
+}
 
-            if (!data || data.length === 0) {
-                container.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لا توجد مكاتب مسجلة بعد.</span>';
-                return;
-            }
+/* ------------ KEYWORDS ------------ */
+async function saveKeyword() {
+  const categorySlug = document.getElementById('targetCategorySelect').value;
+  const keyword = document.getElementById('newKeywordInput').value.trim().toLowerCase();
 
-            container.innerHTML = data.map(office => `
-                <div class="item-row">
-                    <span style="font-weight: 700;"><i class="fa-solid fa-building" style="color: var(--primary); margin-left: 8px;"></i> ${office.office_name}</span>
-                    <button class="btn-delete" onclick="deleteOffice('${office.id}')"><i class="fa-solid fa-trash-can"></i> حذف</button>
-                </div>
-            `).join('');
-        }
+  if (!categorySlug || !keyword) return showToast('اختر القسم واكتب الكلمة', 'error');
 
-        async function deleteOffice(id) {
-            if (confirm('هل أنت متأكد من حذف هذا المكتب؟')) {
-                await supabaseClient.from('offices').delete().eq('id', id);
-                loadOffices();
-            }
-        }
+  const { error } = await supabaseClient.from('category_keywords').insert([{
+    user_id: currentUserId,
+    category_slug: categorySlug,
+    keyword: keyword
+  }]);
 
-        async function addShippingZone(e) {
-            e.preventDefault();
-            const govName = document.getElementById('govNameSelect').value;
-            const govPrice = parseFloat(document.getElementById('govPrice').value);
-            
-            if (!govName) return alert('الرجاء اختيار المحافظة');
+  if (error) showToast('حدث خطأ: ' + error.message, 'error');
+  else {
+    document.getElementById('newKeywordInput').value = '';
+    loadKeywords();
+    showToast('تمت الإضافة', 'success');
+  }
+}
 
-            const { error } = await supabaseClient.from('store_shipping').insert([{
-                user_id: currentUserId,
-                governorate_name: govName,
-                shipping_price: govPrice
-            }]);
+async function loadKeywords() {
+  const { data } = await supabaseClient.from('category_keywords').select('*').eq('user_id', currentUserId);
+  const container = document.getElementById('keywordsListContainer');
+  if (!container) return;
 
-            if (error) {
-                if (error.code === '23505') alert('هذه المحافظة مضافة مسبقاً.');
-                else alert('حدث خطأ: ' + error.message);
-            } else {
-                alert('تمت إضافة سعر المحافظة بنجاح');
-                document.getElementById('shippingForm').reset();
-                loadMerchantShippingZones(currentUserId);
-            }
-        }
+  if (!data || data.length === 0) {
+    container.innerHTML = '<span class="empty-hint">لا توجد كلمات مفتاحية مسجلة بعد.</span>';
+    return;
+  }
 
-        async function loadMerchantShippingZones(userId) {
-            const { data } = await supabaseClient.from('store_shipping').select('*').eq('user_id', userId);
-            const listContainer = document.getElementById('shippingZonesList');
-            if (!listContainer) return;
+  container.innerHTML = data.map(k => {
+    const catDisplayName = categoriesMap[k.category_slug] || k.category_slug;
+    return `
+      <span class="keyword-chip">
+        <strong>${catDisplayName}:</strong> ${k.keyword}
+        <i class="fa-solid fa-xmark" onclick="deleteKeyword('${k.id}')" title="حذف"></i>
+      </span>
+    `;
+  }).join('');
+}
 
-            if (!data || data.length === 0) {
-                listContainer.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لم تقم بإضافة أي محافظات للشحن بعد.</span>';
-                return;
-            }
+async function deleteKeyword(id) {
+  await supabaseClient.from('category_keywords').delete().eq('id', id);
+  loadKeywords();
+}
 
-            listContainer.innerHTML = data.map(item => `
-                <div class="item-row">
-                    <div>
-                        <span style="font-weight: 700;"><i class="fa-solid fa-map-pin" style="color: var(--primary); margin-left: 8px;"></i> ${item.governorate_name}</span>
-                        <span style="margin-right: 15px; color: var(--primary); font-weight: 700;">${item.shipping_price} ج.م</span>
-                    </div>
-                    <button class="btn-delete" onclick="deleteShippingZone('${item.id}')"><i class="fa-solid fa-trash-can"></i> حذف</button>
-                </div>
-            `).join('');
-        }
+/* ------------ LOGOUT ------------ */
+async function logout() {
+  await supabaseClient.auth.signOut();
+  window.location.href = 'login.html';
+}
 
-        async function deleteShippingZone(id) {
-            if (confirm('هل أنت متأكد من الحذف؟')) {
-                await supabaseClient.from('store_shipping').delete().eq('id', id);
-                loadMerchantShippingZones(currentUserId);
-            }
-        }
+/* ------------ BOOT ------------ */
+initReveal();
+checkAuth();
+</script>
 
-        function listenToAccountStatus(userId) {
-            supabaseClient.channel('store_settings_status_changes')
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'store_settings', filter: `user_id=eq.${userId}` }, async (payload) => {
-                    if (payload.new && payload.new.is_active === false) {
-                        alert('تم تعطيل حسابك من قبل الإدارة.');
-                        await supabaseClient.auth.signOut();
-                        window.location.href = 'login.html';
-                    }
-                }).subscribe();
-        }
-
-        async function updateStoreData() {
-            const newName = document.getElementById('storeNameInput').value.trim();
-            const igValue = document.getElementById('instagramInput').value.trim();
-            const waValue = document.getElementById('whatsappInput').value.trim();
-
-            if (!newName) { alert('الرجاء إدخال اسم صحيح للمحل!'); return; }
-
-            const { error } = await supabaseClient.from('store_settings').upsert({ 
-                user_id: currentUserId, store_name: newName, instagram: igValue, whatsapp: waValue, active_theme: currentThemeSaved 
-            }, { onConflict: 'user_id' });
-
-            if (error) alert('حدث خطأ: ' + error.message);
-            else alert('تم تحديث إعدادات المتجر بنجاح!');
-        }
-
-        async function addNewCategory() {
-            const catName = document.getElementById('newCategoryNameInput').value.trim();
-            if (!catName) { alert('الرجاء كتابة اسم القسم'); return; }
-            const slug = catName.toLowerCase().replace(/\s+/g, '_');
-
-            const { error } = await supabaseClient.from('store_categories').insert([{ user_id: currentUserId, category_name: catName, category_slug: slug }]);
-
-            if (error) alert('حدث خطأ (القسم موجود مسبقاً): ' + error.message);
-            else {
-                document.getElementById('newCategoryNameInput').value = '';
-                loadCategories();
-            }
-        }
-
-        async function loadCategories() {
-            const { data } = await supabaseClient.from('store_categories').select('*').eq('user_id', currentUserId);
-            const container = document.getElementById('categoriesListContainer');
-            const select = document.getElementById('targetCategorySelect');
-            if(select) select.innerHTML = '<option value="">اختر القسم...</option>';
-            categoriesMap = {};
-
-            if (!container) return;
-
-            if (!data || data.length === 0) {
-                container.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لا توجد أقسام مضافة بعد.</span>';
-                return;
-            }
-
-            container.innerHTML = '';
-            data.forEach(cat => {
-                categoriesMap[cat.category_slug] = cat.category_name;
-                if(select) select.innerHTML += `<option value="${cat.category_slug}">${cat.category_name}</option>`;
-                container.innerHTML += `
-                    <div class="item-row">
-                        <span style="font-weight: 700;"><i class="fa-solid fa-folder-open" style="color: var(--primary); margin-left: 8px;"></i> ${cat.category_name}</span>
-                        <button class="btn-delete" onclick="deleteCategory('${cat.id}')"><i class="fa-solid fa-trash-can"></i> حذف</button>
-                    </div>
-                `;
-            });
-            if(userPackage === 'premium') loadKeywords();
-        }
-
-        async function deleteCategory(id) {
-            if (confirm('هل أنت متأكد من الحذف؟')) {
-                await supabaseClient.from('store_categories').delete().eq('id', id);
-                loadCategories();
-            }
-        }
-
-        async function saveKeyword() {
-            const categorySlug = document.getElementById('targetCategorySelect').value;
-            const keyword = document.getElementById('newKeywordInput').value.trim().toLowerCase();
-
-            if (!categorySlug || !keyword) return alert('الرجاء اختيار القسم وكتابة الكلمة المفتاحية');
-
-            const { error } = await supabaseClient.from('category_keywords').insert([{ user_id: currentUserId, category_slug: categorySlug, keyword: keyword }]);
-
-            if (error) alert('حدث خطأ: ' + error.message);
-            else {
-                document.getElementById('newKeywordInput').value = '';
-                loadKeywords();
-            }
-        }
-
-        async function loadKeywords() {
-            const { data } = await supabaseClient.from('category_keywords').select('*').eq('user_id', currentUserId);
-            const container = document.getElementById('keywordsListContainer');
-            if (!container) return;
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">لا توجد كلمات مفتاحية مسجلة بعد.</span>';
-                return;
-            }
-
-            container.innerHTML = data.map(k => {
-                const catDisplayName = categoriesMap[k.category_slug] || k.category_slug;
-                return `
-                    <span class="keyword-chip">
-                        <strong style="color: var(--primary);">${catDisplayName}:</strong> ${k.keyword}
-                        <i class="fa-solid fa-xmark" onclick="deleteKeyword('${k.id}')" title="حذف"></i>
-                    </span>
-                `;
-            }).join('');
-        }
-
-        async function deleteKeyword(id) {
-            await supabaseClient.from('category_keywords').delete().eq('id', id);
-            loadKeywords();
-        }
-
-        async function logout() {
-            await supabaseClient.auth.signOut();
-            window.location.href = 'login.html';
-        }
-
-        checkAuth();
-    </script>
 </body>
 </html>
