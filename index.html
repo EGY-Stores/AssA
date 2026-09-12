@@ -21,9 +21,9 @@
 
 <style>
 /* =========================================================
-   EDITORIAL ATELIER — Design System v2.1
+   EDITORIAL ATELIER — Design System v2.2
    + Theme System
-   + Mobile Categories Dropdown
+   + Horizontal Categories (all devices)
    ========================================================= */
 
 :root{
@@ -109,7 +109,6 @@ body.theme-gym .cart-trigger:hover{background:#ff6417}
 body.theme-gym .add-btn{background:#0b1220}
 body.theme-gym .add-btn:hover{background:#ff6417}
 body.theme-gym .cat-pill.active{background:#ff6417;border-color:#ff6417}
-body.theme-gym .cat-dropdown-item.active{background:#ff6417}
 
 body.theme-crimson{
   --ink:#160b0c;--paper:#f7f4f3;--paper-2:#ece7e5;
@@ -128,7 +127,6 @@ body.theme-crimson .cart-trigger:hover{background:#6d1218}
 body.theme-crimson .add-btn{background:#8f1d24}
 body.theme-crimson .add-btn:hover{background:#6d1218}
 body.theme-crimson .cat-pill.active{background:#8f1d24;border-color:#8f1d24}
-body.theme-crimson .cat-dropdown-item.active{background:#8f1d24}
 
 /* ============ ANIMATIONS ============ */
 @keyframes floatUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
@@ -560,10 +558,11 @@ body.theme-crimson .cat-dropdown-item.active{background:#8f1d24}
   color:var(--muted);text-transform:uppercase;padding-bottom:12px;
 }
 
-/* ============ CATEGORIES — Desktop Horizontal ============ */
+/* ============ CATEGORIES — Horizontal Scroll (all devices) ============ */
 .categories{
   padding:0 var(--gutter) 40px;
-  display:flex;gap:8px;
+  display:flex;
+  gap:8px;
   overflow-x:auto;
   overflow-y:visible;
   scrollbar-width:none;
@@ -571,6 +570,8 @@ body.theme-crimson .cat-dropdown-item.active{background:#8f1d24}
   scroll-snap-type:x proximity;
   scroll-padding-inline:var(--gutter);
   flex-wrap:nowrap;
+  -webkit-mask-image:none;
+  mask-image:none;
 }
 .categories::-webkit-scrollbar{display:none}
 
@@ -605,100 +606,6 @@ body.theme-crimson .cat-dropdown-item.active{background:#8f1d24}
 }
 .cat-pill:hover::after{transform:scaleX(1)}
 .cat-pill.active::after{display:none}
-
-/* ============ CATEGORIES — Mobile Dropdown ============ */
-.categories-mobile{
-  display:none;
-  padding:0 var(--gutter) 26px;
-  position:relative;
-  z-index:50;
-}
-.cat-dropdown-trigger{
-  width:100%;
-  padding:14px 18px;
-  background:#fff;
-  border:1px solid var(--line);
-  color:var(--ink);
-  font-family:var(--ff-ar);
-  font-size:13px;
-  font-weight:700;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  transition:all .3s var(--ease);
-}
-.cat-dropdown-trigger:hover,
-.cat-dropdown-trigger.open{
-  border-color:var(--ink);
-}
-.cat-dropdown-trigger .cat-trigger-left{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  min-width:0;
-}
-.cat-dropdown-trigger .cat-trigger-left i{
-  color:var(--burgundy);
-  font-size:13px;
-}
-.cat-dropdown-trigger .cat-trigger-left span{
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.cat-dropdown-trigger .chev{
-  font-size:11px;
-  color:var(--muted);
-  transition:transform .3s var(--ease);
-  flex-shrink:0;
-}
-.cat-dropdown-trigger.open .chev{
-  transform:rotate(180deg);
-  color:var(--ink);
-}
-.cat-dropdown-menu{
-  position:absolute;
-  top:calc(100% - 26px);
-  left:var(--gutter);
-  right:var(--gutter);
-  background:#fff;
-  border:1px solid var(--line);
-  border-top:none;
-  max-height:0;
-  overflow:hidden;
-  transition:max-height .4s var(--ease-out);
-  z-index:100;
-  box-shadow:0 20px 40px rgba(10,10,10,.08);
-}
-.cat-dropdown-menu.open{
-  max-height:60vh;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-}
-.cat-dropdown-item{
-  display:block;
-  width:100%;
-  padding:14px 18px;
-  background:transparent;
-  border:none;
-  border-bottom:1px solid var(--line);
-  text-align:right;
-  font-family:var(--ff-ar);
-  font-size:13px;
-  font-weight:600;
-  color:var(--ink);
-  cursor:pointer;
-  transition:all .2s;
-}
-.cat-dropdown-item:last-child{border-bottom:none}
-.cat-dropdown-item:active,
-.cat-dropdown-item:hover{background:var(--paper)}
-.cat-dropdown-item.active{
-  background:var(--ink);
-  color:#fff;
-}
 
 /* ============ PRODUCTS ============ */
 .container{padding:0 var(--gutter);max-width:var(--max);margin:0 auto}
@@ -1204,7 +1111,7 @@ body.theme-crimson .cat-dropdown-item.active{background:#8f1d24}
   .footer-brand{grid-column:span 2}
 }
 
-/* ============ MOBILE — Switch to Dropdown ============ */
+/* ============ MOBILE ============ */
 @media(max-width:720px){
   .site-header{height:64px}
   .brand{font-size:19px}
@@ -1232,9 +1139,36 @@ body.theme-crimson .cat-dropdown-item.active{background:#8f1d24}
   .section-head{padding:44px 20px 22px;display:block}
   .section-head .count{margin-top:8px;display:block}
 
-  /* ═══════ Hide horizontal bar, show dropdown ═══════ */
-  .categories{display:none}
-  .categories-mobile{display:block}
+  /* ═══════ Mobile Categories — Horizontal Scroll with Fade edges ═══════ */
+  .categories{
+    display:flex;
+    padding:0 20px 26px;
+    gap:8px;
+    overflow-x:auto;
+    overflow-y:visible;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;
+    scroll-padding-inline:20px;
+    flex-wrap:nowrap;
+    -webkit-mask-image:linear-gradient(90deg,
+      transparent 0,
+      #000 16px,
+      #000 calc(100% - 16px),
+      transparent 100%);
+    mask-image:linear-gradient(90deg,
+      transparent 0,
+      #000 16px,
+      #000 calc(100% - 16px),
+      transparent 100%);
+  }
+  .categories::-webkit-scrollbar{display:none}
+  .cat-pill{
+    padding:10px 16px;
+    font-size:10px;
+    letter-spacing:1.5px;
+    flex-shrink:0;
+  }
 
   .container{padding:0 20px}
   .products-grid{grid-template-columns:repeat(2,1fr);gap:28px 12px}
@@ -1361,25 +1295,9 @@ body.theme-crimson .cat-dropdown-item.active{background:#8f1d24}
   <span class="count" id="productsCount">— items</span>
 </div>
 
-<!-- ═══════ CATEGORIES — DESKTOP (horizontal) ═══════ -->
+<!-- ═══════ CATEGORIES — Horizontal Scroll (all devices) ═══════ -->
 <div class="categories" id="categoriesContainerBar">
   <button class="cat-pill active" onclick="filterByCategory('all', this)">All Products</button>
-</div>
-
-<!-- ═══════ CATEGORIES — MOBILE (dropdown) ═══════ -->
-<div class="categories-mobile" id="categoriesMobileBar">
-  <button class="cat-dropdown-trigger" onclick="toggleCatDropdown(event)">
-    <span class="cat-trigger-left">
-      <i class="fa-solid fa-folder-open"></i>
-      <span id="catDropdownLabel">كل المنتجات</span>
-    </span>
-    <i class="fa-solid fa-chevron-down chev"></i>
-  </button>
-  <div class="cat-dropdown-menu" id="catDropdownMenu">
-    <button class="cat-dropdown-item active" data-cat="all" onclick="filterByCategory('all', this)">
-      كل المنتجات
-    </button>
-  </div>
 </div>
 
 <!-- PRODUCTS -->
@@ -1516,9 +1434,9 @@ body.theme-crimson .cat-dropdown-item.active{background:#8f1d24}
 
 <script>
 /* =========================================================
-   EDITORIAL ATELIER — Storefront Logic v2.1
+   EDITORIAL ATELIER — Storefront Logic v2.2
    + Theme System
-   + Mobile Categories Dropdown
+   + Horizontal Categories (all devices)
    ========================================================= */
 
 const SUPABASE_URL = 'https://gjfanrzylpnwiddevfgx.supabase.co';
@@ -1587,23 +1505,6 @@ function showToast(msg){
   clearTimeout(t._timer);
   t._timer = setTimeout(()=>t.classList.remove('show'), 2600);
 }
-
-/* ------------ CATEGORIES DROPDOWN ------------ */
-function toggleCatDropdown(e){
-  if (e) e.stopPropagation();
-  const trigger = document.querySelector('.cat-dropdown-trigger');
-  const menu = document.getElementById('catDropdownMenu');
-  if (!trigger || !menu) return;
-  trigger.classList.toggle('open');
-  menu.classList.toggle('open');
-}
-
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.categories-mobile')){
-    document.querySelector('.cat-dropdown-trigger')?.classList.remove('open');
-    document.getElementById('catDropdownMenu')?.classList.remove('open');
-  }
-});
 
 /* ------------ STORE STATUS ------------ */
 async function checkStoreStatus(userId){
@@ -1730,26 +1631,13 @@ async function loadStoreCategories(userId){
     .from('store_categories').select('*').eq('user_id', userId);
 
   const bar = document.getElementById('categoriesContainerBar');
-  const dropdown = document.getElementById('catDropdownMenu');
   if (!bar) return;
 
-  // Desktop horizontal bar
   bar.innerHTML = `<button class="cat-pill active" onclick="filterByCategory('all', this)">All Products</button>`;
-
-  // Mobile dropdown
-  if (dropdown){
-    dropdown.innerHTML = `<button class="cat-dropdown-item active" data-cat="all" onclick="filterByCategory('all', this)">كل المنتجات</button>`;
-  }
 
   if (data && data.length){
     data.forEach(cat => {
-      // Desktop
       bar.innerHTML += `<button class="cat-pill" onclick="filterByCategory('${cat.category_slug}', this)">${cat.category_name}</button>`;
-
-      // Mobile
-      if (dropdown){
-        dropdown.innerHTML += `<button class="cat-dropdown-item" data-cat="${cat.category_slug}" onclick="filterByCategory('${cat.category_slug}', this)">${cat.category_name}</button>`;
-      }
     });
   }
 }
@@ -1786,33 +1674,8 @@ function filterByCategory(category, btn){
   currentCategory = category;
   currentPage = 1;
 
-  // Update desktop pills
   document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
-
-  // Update mobile dropdown items
-  document.querySelectorAll('.cat-dropdown-item').forEach(b => {
-    b.classList.toggle('active', b.dataset.cat === category);
-  });
-
-  // Determine active button
-  let activeBtn = btn;
-  if (!activeBtn){
-    activeBtn = document.querySelector(`.cat-dropdown-item[data-cat="${category}"]`);
-  }
-  if (btn && btn.classList.contains('cat-pill')){
-    btn.classList.add('active');
-  }
-
-  // Update dropdown label
-  const label = document.getElementById('catDropdownLabel');
-  if (label){
-    const txt = activeBtn?.textContent?.trim() || 'كل المنتجات';
-    label.textContent = txt;
-  }
-
-  // Close dropdown
-  document.querySelector('.cat-dropdown-trigger')?.classList.remove('open');
-  document.getElementById('catDropdownMenu')?.classList.remove('open');
+  if (btn) btn.classList.add('active');
 
   applyFilters();
 }
